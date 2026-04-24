@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 function Login({ onSignIn }) {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
   })
@@ -18,11 +17,11 @@ function Login({ onSignIn }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
-      setErrorMessage('Please enter Name, Email, and Password.')
+    if (!formData.email.trim() || !formData.password.trim()) {
+      setErrorMessage('Please enter Email and Password.')
       return
     }
-    onSignIn?.({ name: formData.name.trim(), email: formData.email.trim() })
+    onSignIn?.({ email: formData.email.trim() })
   }
 
   return (
@@ -84,19 +83,6 @@ function Login({ onSignIn }) {
           </p>
 
           <form className="grid gap-2.5" onSubmit={handleSubmit} autoComplete="off">
-            <label htmlFor="name" className="text-[0.94rem] font-semibold tracking-[0.01em] text-slate-700">
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Name"
-              autoComplete="off"
-              className="w-full rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-3 text-[0.98rem] shadow-[0_8px_20px_-18px_#1e3a8a] outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-4 focus:ring-sky-100"
-            />
-
             <label htmlFor="email" className="text-[0.94rem] font-semibold tracking-[0.01em] text-slate-700">
               Email
             </label>

@@ -237,7 +237,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
   const selectedLead = leadActivities.find((lead) => lead.id === selectedLeadId) || null
   const validForSelectedDocument = validDocuments[selectedDocumentType] || []
-  const welcomeName = currentUser?.name?.trim() || 'Test Company'
+  const welcomeName = currentUser?.name?.trim() || currentUser?.email?.trim() || 'Test Company'
   const welcomeEmail = currentUser?.email?.trim() || ''
 
   useEffect(() => {
@@ -305,8 +305,9 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   }, [selectedLeadId, leadActivities])
 
   useEffect(() => {
-    if (!currentUser?.name) return
-    showToast(`Welcome ${currentUser.name.trim()}. You are signed in.`)
+    if (!currentUser?.email && !currentUser?.name) return
+    const displayName = currentUser.name?.trim() || currentUser.email?.trim() || 'User'
+    showToast(`Welcome ${displayName}. You are signed in.`)
   }, [currentUser])
 
   useEffect(() => {
