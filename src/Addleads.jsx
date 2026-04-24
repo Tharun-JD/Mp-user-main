@@ -128,252 +128,299 @@ function Addleads({ isOpen, onClose, onSave }) {
     e.target.value = ''
   }
 
+  const inputClasses = "w-full rounded-xl border border-slate-200 bg-slate-50/40 px-4 py-3 text-[15px] font-medium text-slate-700 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-brand-blue/50 focus:bg-white focus:ring-4 focus:ring-brand-blue/5"
+  const labelClasses = "block text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-2 ml-1"
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-[1px]">
-      <div className="relative absolute left-3 top-3 h-[calc(100%-1.5rem)] w-[min(92vw,560px)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_30px_70px_-30px_#0f172a] md:left-5 md:top-5 md:h-[calc(100%-2.5rem)]">
-        <div className="flex items-center justify-between bg-gradient-to-r from-[#3650c8] to-[#8b46cd] px-4 py-3">
-          <h2 className="font-sora inline-flex items-center gap-2 text-xl font-semibold text-white">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+    <div className="fixed inset-0 z-[1000] flex flex-col bg-slate-50 animate-nav-enter font-manrope">
+      {/* Top Header Bar - Full Screen Style */}
+      <header className="relative flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-4 md:px-10">
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-blue to-[#4d69ff] shadow-lg shadow-brand-blue/20">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span>Add Lead Form</span>
-          </h2>
+          </div>
+          <div>
+            <h1 className="font-sora text-xl font-extrabold tracking-tight text-slate-900 md:text-2xl">Create New Lead</h1>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Partner Property Acquisition Portal</p>
+          </div>
         </div>
+        
+        <button 
+          onClick={onClose}
+          className="group flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+        >
+          <span>Cancel</span>
+          <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
 
-        <form onSubmit={handleSubmit} autoComplete="off" className="h-[calc(100%-3.2rem)] overflow-y-auto p-4 md:p-5">
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">First Name</span>
-              <input
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-                autoComplete="off"
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              />
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">Last Name</span>
-              <input
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                autoComplete="off"
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              />
-            </label>
-
-            <label className="grid gap-1.5 md:col-span-2">
-              <span className="text-sm font-semibold text-slate-700">Email</span>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                autoComplete="off"
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              />
-            </label>
-
-            <label className="grid gap-1.5 md:col-span-2">
-              <span className="text-sm font-semibold text-slate-700">Phone Number</span>
-              <div className="grid grid-cols-[minmax(120px,220px)_1fr] gap-2">
-                <select
-                  name="countryCode"
-                  value={formData.countryCode}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-2 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-                >
-                  {countryCodes.map((country) => (
-                    <option key={`${country.name}-${country.dial}`} value={country.dial}>
-                      {country.name} ({country.dial})
-                    </option>
-                  ))}
-                </select>
-                <input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="Phone Number"
-                  autoComplete="off"
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-                />
-              </div>
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">Project</span>
-              <select
-                name="project"
-                value={formData.project}
-                onChange={handleChange}
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              >
-                {projects.map((project) => (
-                  <option key={project} value={project}>
-                    {project}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">Location</span>
-              <input
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="City / Area"
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              />
-            </label>
-
-            <label className="grid gap-1.5 md:col-span-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-700">Budget Range</span>
-                <span className="text-sm font-semibold text-brand-blue">{budgetLabel}</span>
-              </div>
-              <input
-                type="number"
-                name="budget"
-                min="5"
-                max="500"
-                step="1"
-                value={formData.budget}
-                onChange={handleChange}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-                aria-label="Budget in Lakh"
-              />
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">Configuration Type</span>
-              <select
-                name="configuration"
-                value={formData.configuration}
-                onChange={handleChange}
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              >
-                {configurations.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold text-slate-700">Property Type</span>
-              <select
-                name="propertyType"
-                value={formData.propertyType}
-                onChange={handleChange}
-                className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-300 focus:ring-3 focus:ring-sky-100"
-              >
-                {propertyTypes.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="animate-rise md:col-span-2">
-              <div className="overflow-hidden rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 via-white to-emerald-50 shadow-[0_20px_40px_-34px_#0f766e]">
-                <div className="bg-gradient-to-r from-cyan-600 to-emerald-500 px-4 py-2.5">
-                  <h3 className="font-sora text-base font-semibold text-white">Document</h3>
+      <form onSubmit={handleSubmit} autoComplete="off" className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8fafc]">
+        <div className="w-full px-6 py-8 md:px-12 md:py-12">
+          <div className="grid gap-10 lg:grid-cols-[1fr_400px]">
+            
+            {/* Left Column - Main Form Fields */}
+            <div className="space-y-10">
+              <section className="animate-rise rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10">
+                <div className="mb-8 flex items-center gap-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-blue"></div>
+                  <h3 className="font-sora text-sm font-bold uppercase tracking-widest text-slate-800">Primary Information</h3>
                 </div>
 
-                <div className="space-y-3 px-4 py-4">
-                  <div className="grid gap-2 md:grid-cols-[1fr_auto]">
-                    <select
-                      value={selectedDocumentType}
-                      onChange={(e) => setSelectedDocumentType(e.target.value)}
-                      className="rounded-lg border border-cyan-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-cyan-400 focus:ring-3 focus:ring-cyan-100"
-                    >
-                      {documentTypes.map((documentType) => (
-                        <option key={documentType} value={documentType}>
-                          {documentType}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-cyan-700"
-                    >
-                      Upload
-                    </button>
+                <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>First Name</label>
                     <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      onChange={handleDocumentUpload}
-                      className="hidden"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter first name"
+                      className={inputClasses}
                     />
                   </div>
 
-                  <p className="text-xs text-slate-600">
-                    Upload documents in formats: <span className="font-semibold">jpg, jpeg, png, pdf</span>
-                  </p>
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>Last Name</label>
+                    <input
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter last name"
+                      className={inputClasses}
+                    />
+                  </div>
 
-                  <div className="space-y-2.5">
-                    {Object.keys(uploadedDocuments).length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-cyan-300 bg-white/75 px-3 py-5 text-center text-sm text-slate-500">
-                        No documents uploaded yet.
-                      </div>
-                    ) : (
-                      Object.entries(uploadedDocuments).map(([docType, files]) => (
-                        <div
-                          key={docType}
-                          className="animate-fade-slide rounded-xl border border-cyan-100 bg-white px-3 py-3 shadow-[0_12px_24px_-28px_#0f766e]"
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className={labelClasses}>Contact Email</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="client.name@example.com"
+                        className={`${inputClasses} pl-12`}
+                      />
+                      <svg className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className={labelClasses}>Mobile Number</label>
+                    <div className="flex gap-3">
+                      <div className="w-[140px] shrink-0">
+                        <select
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className={inputClasses}
                         >
-                          <h4 className="text-sm font-semibold text-cyan-800">{docType}</h4>
-                          <ul className="mt-2 space-y-1.5">
-                            {files.map((file) => (
-                              <li
-                                key={`${docType}-${file.name}-${file.lastModified}`}
-                                className="rounded-md bg-cyan-50/70 px-2.5 py-1.5 text-xs text-slate-700"
-                              >
-                                {file.name}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))
-                    )}
+                          {countryCodes.map((country) => (
+                            <option key={`${country.name}-${country.dial}`} value={country.dial}>
+                              {country.dial} ({country.name})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <input
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        placeholder="00000 00000"
+                        className={inputClasses}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </section>
 
-          <div className="mt-6 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-semibold text-rose-700 shadow-[0_10px_20px_-18px_#f43f5e] transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:shadow-[0_16px_28px_-18px_#f43f5e]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white shadow-[0_14px_28px_-18px_#1e40af] transition hover:-translate-y-0.5 hover:bg-[#1f37a2]"
-            >
-              Save
-            </button>
+              <section className="animate-rise rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10" style={{ animationDelay: '100ms' }}>
+                <div className="mb-8 flex items-center gap-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-brand-orange"></div>
+                  <h3 className="font-sora text-sm font-bold uppercase tracking-widest text-slate-800">Property Interest</h3>
+                </div>
+
+                <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>Select Project</label>
+                    <select
+                      name="project"
+                      value={formData.project}
+                      onChange={handleChange}
+                      className={inputClasses}
+                    >
+                      {projects.map((project) => (
+                        <option key={project} value={project}>
+                          {project}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>Desired Location</label>
+                    <input
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="City or locality preference"
+                      className={inputClasses}
+                    />
+                  </div>
+
+                  {/* Budget Section with Only Manual Entry */}
+                  <div className="md:col-span-2 space-y-2">
+                    <label className={labelClasses}>Budget Range (in Lakhs)</label>
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          type="number"
+                          name="budget"
+                          value={formData.budget}
+                          onChange={handleChange}
+                          min="5"
+                          max="500"
+                          placeholder="e.g. 50"
+                          className={`${inputClasses} pr-16`}
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none border-l border-slate-200 pl-4">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lakh</span>
+                        </div>
+                      </div>
+                      <div className="flex h-12 items-center rounded-xl bg-slate-100 px-4">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">INR</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>Unit Configuration</label>
+                    <select
+                      name="configuration"
+                      value={formData.configuration}
+                      onChange={handleChange}
+                      className={inputClasses}
+                    >
+                      {configurations.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className={labelClasses}>Property Type</label>
+                    <select
+                      name="propertyType"
+                      value={formData.propertyType}
+                      onChange={handleChange}
+                      className={inputClasses}
+                    >
+                      {propertyTypes.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {/* Right Column - Documents & Sticky Actions */}
+            <div className="space-y-8">
+              <section className="animate-rise sticky top-8 rounded-[2rem] border border-white bg-white p-6 shadow-sm md:p-8" style={{ animationDelay: '200ms' }}>
+                <div className="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
+                  <h3 className="font-sora text-sm font-bold uppercase tracking-widest text-slate-800">KYC Verification</h3>
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-600 border border-amber-100">Mandatory</span>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className={labelClasses}>Document Type</label>
+                    <select
+                      value={selectedDocumentType}
+                      onChange={(e) => setSelectedDocumentType(e.target.value)}
+                      className={inputClasses}
+                    >
+                      {documentTypes.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="group flex w-full items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-8 transition-all hover:border-brand-blue/30 hover:bg-brand-blue/5"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:-translate-y-1">
+                      <svg className="h-5 w-5 text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <span className="block text-sm font-bold text-slate-700">Add Documents</span>
+                      <span className="text-[10px] font-medium text-slate-400">PDF, JPG or PNG (Max 5MB)</span>
+                    </div>
+                  </button>
+                  <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleDocumentUpload} />
+
+                  <div className="space-y-3">
+                    {Object.entries(uploadedDocuments).map(([type, files]) => (
+                      <div key={type} className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm animate-fade-slide">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-slate-800">{type}</span>
+                          <span className="text-[10px] font-bold text-emerald-500">{files.length} Files</span>
+                        </div>
+                        <div className="space-y-1">
+                          {files.map(f => (
+                            <div key={f.name} className="flex items-center justify-between py-1 border-t border-slate-50 first:border-0">
+                              <span className="text-[10px] text-slate-500 truncate max-w-[150px]">{f.name}</span>
+                              <svg className="h-3 w-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-10 space-y-3">
+                  <button
+                    type="submit"
+                    className="relative w-full overflow-hidden rounded-2xl bg-brand-blue py-4 text-sm font-bold text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-1 hover:bg-brand-blue/90 active:scale-95"
+                  >
+                    <span>Finalize & Create Lead</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-full rounded-2xl border border-slate-200 py-4 text-sm font-bold text-slate-500 transition-all hover:bg-slate-50 hover:text-slate-700"
+                  >
+                    Save as Draft
+                  </button>
+                </div>
+              </section>
+            </div>
+
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   )
 }
 
 export default Addleads
-

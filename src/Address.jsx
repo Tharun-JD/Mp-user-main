@@ -21,124 +21,116 @@ function Address({ onClose }) {
     window.setTimeout(() => setToastMessage(''), 2200)
   }
 
-  const handleSaveAddress = () => {
-    showToast('Customer address saved successfully.')
+  const handleSaveAddress = (e) => {
+    e.preventDefault()
+    showToast('Location records updated successfully.')
   }
 
-  return (
-    <div className="page-bg-shell font-manrope px-3 py-4 md:px-6 md:py-6">
-      <div className="page-bg-orbs">
-        <span className="page-bg-orb-left" />
-        <span className="page-bg-orb-right" />
-        <span className="page-bg-orb-bottom" />
-      </div>
+  const inputClasses = "w-full rounded-xl border border-slate-200 bg-slate-50/40 px-4 py-3 text-[15px] font-medium text-slate-700 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-brand-blue/50 focus:bg-white focus:ring-4 focus:ring-brand-blue/5"
+  const labelClasses = "block text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-2 ml-1"
 
-      <div className="animate-rise relative mx-auto w-full max-w-[980px] overflow-hidden rounded-2xl border border-[#c7d2fe] bg-white/95 shadow-[0_35px_70px_-40px_#253eaf] backdrop-blur">
-        <div className="animate-doc-glow flex items-center justify-between bg-gradient-to-r from-[#1f7ed8] to-[#00b8d4] px-4 py-4 md:px-5">
-          <h1 className="inline-flex items-center gap-2 text-2xl font-extrabold tracking-[0.01em] text-white">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 10l8-6 8 6v8H4z" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M9 21v-6h6v6" strokeLinecap="round" strokeLinejoin="round" />
+  return (
+    <div className="fixed inset-0 z-[1000] flex flex-col bg-slate-50 animate-nav-enter font-manrope">
+      {/* Portal Header */}
+      <header className="relative flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-4 md:px-10">
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-100">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span>Address</span>
-          </h1>
-          <button
-            type="button"
-            onClick={onClose}
-            className="grid size-8 place-items-center rounded-md text-2xl font-bold leading-none text-white/90 transition hover:bg-white/20 hover:text-white"
-            aria-label="Close address form"
-          >
-            {'\u00D7'}
-          </button>
+          </div>
+          <div>
+            <h1 className="font-sora text-xl font-extrabold tracking-tight text-slate-900 md:text-2xl">Address Details</h1>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Geographic Location & Delivery Records</p>
+          </div>
         </div>
 
-        <form className="space-y-4 p-4 md:p-5" onSubmit={(e) => e.preventDefault()}>
-          <section className="animate-fade-slide space-y-3">
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">House/Flat/Company</span>
-                <input
-                  name="house"
-                  value={addressForm.house}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+        <button
+          onClick={onClose}
+          className="group flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+        >
+          <span>Cancel</span>
+          <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
 
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">Street</span>
-                <input
-                  name="street"
-                  value={addressForm.street}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+      <form onSubmit={handleSaveAddress} autoComplete="off" className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8fafc]">
+        <div className="w-full px-6 py-8 md:px-12 md:py-16">
+          <section className="animate-rise rounded-[2.5rem] border border-white bg-white/60 p-6 shadow-xl shadow-slate-200/50 backdrop-blur-sm md:p-12">
+            <div className="mb-10 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600 shadow-inner">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-sora text-lg font-bold text-slate-800">Location Information</h3>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Please provide the complete registered address</p>
+              </div>
+            </div>
 
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">Country</span>
-                <input
-                  name="country"
-                  value={addressForm.country}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+            <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
+              <div className="space-y-1.5 md:col-span-2">
+                <label className={labelClasses}>House / Flat / Company Name</label>
+                <input name="house" value={addressForm.house} onChange={handleChange} placeholder="Unit or Building details" className={inputClasses} />
+              </div>
 
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">State / Region</span>
-                <input
-                  name="state"
-                  value={addressForm.state}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+              <div className="space-y-1.5 md:col-span-2">
+                <label className={labelClasses}>Street & Area</label>
+                <input name="street" value={addressForm.street} onChange={handleChange} placeholder="Locality or Landmark" className={inputClasses} />
+              </div>
 
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">City</span>
-                <input
-                  name="city"
-                  value={addressForm.city}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+              <div className="space-y-1.5">
+                <label className={labelClasses}>Country</label>
+                <input name="country" value={addressForm.country} onChange={handleChange} placeholder="e.g. India" className={inputClasses} />
+              </div>
 
-              <label className="grid gap-1.5">
-                <span className="text-sm font-semibold text-slate-700">Zip / Pin Code</span>
-                <input
-                  name="zip"
-                  value={addressForm.zip}
-                  onChange={handleChange}
-                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-cyan-300 focus:ring-3 focus:ring-cyan-100"
-                />
-              </label>
+              <div className="space-y-1.5">
+                <label className={labelClasses}>State / Region</label>
+                <input name="state" value={addressForm.state} onChange={handleChange} placeholder="e.g. Maharashtra" className={inputClasses} />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className={labelClasses}>City</label>
+                <input name="city" value={addressForm.city} onChange={handleChange} placeholder="Enter city name" className={inputClasses} />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className={labelClasses}>Zip / Pin Code</label>
+                <input name="zip" value={addressForm.zip} onChange={handleChange} placeholder="6-digit PIN" className={inputClasses} />
+              </div>
+            </div>
+
+            <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-100 pt-10 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full rounded-2xl border border-slate-200 py-4 px-8 text-sm font-bold text-slate-500 transition-all hover:bg-slate-50 hover:text-slate-700 sm:w-auto"
+              >
+                Go Back
+              </button>
+              <button
+                type="submit"
+                className="relative w-full overflow-hidden rounded-2xl bg-brand-blue py-4 px-10 text-sm font-bold text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-1 hover:bg-brand-blue/90 active:scale-95 sm:w-auto"
+              >
+                Save Location Details
+              </button>
             </div>
           </section>
-
-          <div className="flex justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={handleSaveAddress}
-              className="rounded-lg bg-[#1783c5] px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0f6fb0]"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Back
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
 
       {toastMessage && (
-        <div className="fixed right-4 top-5 z-[320] rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-          {toastMessage}
+        <div className="fixed bottom-10 left-1/2 z-[1100] -translate-x-1/2 animate-rise rounded-2xl bg-emerald-600 px-8 py-4 text-sm font-bold text-white shadow-2xl shadow-emerald-200">
+          <div className="flex items-center gap-3">
+            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            {toastMessage}
+          </div>
         </div>
       )}
     </div>

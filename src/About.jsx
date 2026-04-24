@@ -216,6 +216,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const [selectedDocumentType, setSelectedDocumentType] = useState(documentTypes[0])
   const [uploadedDocuments, setUploadedDocuments] = useState({})
   const documentInputRef = useRef(null)
+  const [selectedEmailId, setSelectedEmailId] = useState(null)
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
   const [profileForm, setProfileForm] = useState({
     name: '',
     email: '',
@@ -234,19 +236,119 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     scheduledOn: '',
     status: 'Pending',
   })
+  const [isAddingNote, setIsAddingNote] = useState(false)
+  const [newNoteText, setNewNoteText] = useState('')
 
   const selectedLead = leadActivities.find((lead) => lead.id === selectedLeadId) || null
   const validForSelectedDocument = validDocuments[selectedDocumentType] || []
   const welcomeName = currentUser?.name?.trim() || currentUser?.email?.trim() || 'Test Company'
   const welcomeEmail = currentUser?.email?.trim() || ''
 
+  const SEEDED_LEADS = [
+    {
+      id: 'seed-001', name: 'Arjun Mehta', firstName: 'Arjun', lastName: 'Mehta',
+      email: 'arjun.mehta@gmail.com', phone: '9876543210',
+      sellDoLeadId: 'SD-100001', project: 'MP Amber', leadStage: 'Fresh',
+      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '22/01/2026',
+      leadValidityPeriod: '30 Days', budget: '₹45-60 Lakh', location: 'Pune',
+      configuration: '2BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-002', name: 'Priya Sharma', firstName: 'Priya', lastName: 'Sharma',
+      email: 'priya.sharma@outlook.com', phone: '9823456789',
+      sellDoLeadId: 'SD-100002', project: 'MP Meridian', leadStage: 'Site Visit Done',
+      leadStatus: 'Already Exists', countStatus: 'Pending', registeredAt: '18/02/2026',
+      leadValidityPeriod: '45 Days', budget: '₹70-90 Lakh', location: 'Mumbai',
+      configuration: '3BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-003', name: 'Rohit Verma', firstName: 'Rohit', lastName: 'Verma',
+      email: 'rohit.v@yahoo.com', phone: '9712345678',
+      sellDoLeadId: 'SD-100003', project: 'MP Opulence', leadStage: 'Negotiation',
+      leadStatus: 'Active', countStatus: 'Followed Up', registeredAt: '10/03/2026',
+      leadValidityPeriod: '30 Days', budget: '₹1-1.5 Cr', location: 'Bangalore',
+      configuration: '4BHK', propertyType: 'Villa', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-004', name: 'Sneha Patil', firstName: 'Sneha', lastName: 'Patil',
+      email: 'sneha.patil@gmail.com', phone: '9634567890',
+      sellDoLeadId: 'SD-100004', project: 'MP Amber', leadStage: 'Fresh',
+      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '05/04/2026',
+      leadValidityPeriod: '30 Days', budget: '₹35-50 Lakh', location: 'Nashik',
+      configuration: '1BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-005', name: 'Kiran Desai', firstName: 'Kiran', lastName: 'Desai',
+      email: 'kiran.desai@company.com', phone: '9512345670',
+      sellDoLeadId: 'SD-100005', project: 'MP Meridian', leadStage: 'Booking Done',
+      leadStatus: 'Won', countStatus: 'Completed', registeredAt: '14/01/2026',
+      leadValidityPeriod: '60 Days', budget: '₹80 Lakh-1 Cr', location: 'Hyderabad',
+      configuration: '3BHK', propertyType: 'Flat', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-006', name: 'Amit Kumar', firstName: 'Amit', lastName: 'Kumar',
+      email: 'amit.kumar@gmail.com', phone: '9398765432',
+      sellDoLeadId: 'SD-100006', project: 'MP Opulence', leadStage: 'Fresh',
+      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '20/03/2026',
+      leadValidityPeriod: '30 Days', budget: '₹55-65 Lakh', location: 'Chennai',
+      configuration: '2BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-007', name: 'Meena Joshi', firstName: 'Meena', lastName: 'Joshi',
+      email: 'meena.joshi@rediffmail.com', phone: '9287654321',
+      sellDoLeadId: 'SD-100007', project: 'MP Amber', leadStage: 'Callback Requested',
+      leadStatus: 'Active', countStatus: 'Rescheduled', registeredAt: '28/02/2026',
+      leadValidityPeriod: '30 Days', budget: '₹40-55 Lakh', location: 'Pune',
+      configuration: '2BHK', propertyType: 'Flat', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-008', name: 'Suresh Nair', firstName: 'Suresh', lastName: 'Nair',
+      email: 'suresh.nair@gmail.com', phone: '9176543219',
+      sellDoLeadId: 'SD-100008', project: 'MP Meridian', leadStage: 'Lost',
+      leadStatus: 'Lost', countStatus: 'Pending', registeredAt: '11/12/2025',
+      leadValidityPeriod: '30 Days', budget: '₹60-75 Lakh', location: 'Kochi',
+      configuration: '3BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-009', name: 'Deepika Rao', firstName: 'Deepika', lastName: 'Rao',
+      email: 'deepika.rao@hotmail.com', phone: '9065432198',
+      sellDoLeadId: 'SD-100009', project: 'MP Opulence', leadStage: 'Site Visit Scheduled',
+      leadStatus: 'Active', countStatus: 'Followed Up', registeredAt: '01/04/2026',
+      leadValidityPeriod: '45 Days', budget: '₹90 Lakh-1.2 Cr', location: 'Delhi',
+      configuration: '4BHK', propertyType: 'Penthouse', followUpItems: [], notes: [],
+    },
+    {
+      id: 'seed-010', name: 'Rajesh Iyer', firstName: 'Rajesh', lastName: 'Iyer',
+      email: 'rajesh.iyer@business.in', phone: '8954321076',
+      sellDoLeadId: 'SD-100010', project: 'MP Amber', leadStage: 'Fresh',
+      leadStatus: 'Already Exists', countStatus: 'Pending', registeredAt: '16/04/2026',
+      leadValidityPeriod: '30 Days', budget: '₹30-45 Lakh', location: 'Ahmedabad',
+      configuration: '1BHK', propertyType: 'Studio', followUpItems: [], notes: [],
+    },
+  ]
+
   useEffect(() => {
     const savedLeads = window.localStorage.getItem(LEAD_ACTIVITY_KEY)
     if (savedLeads) {
-      setLeadActivities(JSON.parse(savedLeads))
+      const parsed = JSON.parse(savedLeads)
+      // Merge: keep any seeded leads that aren't already stored, preserving user-added ones
+      const savedIds = new Set(parsed.map((l) => l.id))
+      const missing = SEEDED_LEADS.filter((l) => !savedIds.has(l.id))
+      const merged = [...parsed, ...missing]
+      if (missing.length > 0) {
+        window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(merged))
+        setLeadActivities(merged)
+      } else {
+        setLeadActivities(parsed)
+      }
+    } else {
+      // First ever load — seed all 10 leads
+      window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(SEEDED_LEADS))
+      setLeadActivities(SEEDED_LEADS)
     }
     setLeadsLoaded(true)
   }, [])
+
 
   useEffect(() => {
     window.sessionStorage.setItem(LEAD_VIEW_KEY, activeView)
@@ -287,18 +389,18 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     const nextLeads = leadActivities.map((item) =>
       item.id === selectedLeadId
         ? {
-            ...item,
-            followUpItems: [
-              {
-                id: `${item.id}-init`,
-                subject: 'Initial Contact',
-                description: 'Lead created and awaiting first follow up.',
-                reminderBefore: '15 mins',
-                scheduledOn: new Date().toISOString().slice(0, 16),
-                status: item.countStatus || 'Pending',
-              },
-            ],
-          }
+          ...item,
+          followUpItems: [
+            {
+              id: `${item.id}-init`,
+              subject: 'Initial Contact',
+              description: 'Lead created and awaiting first follow up.',
+              reminderBefore: '15 mins',
+              scheduledOn: new Date().toISOString().slice(0, 16),
+              status: item.countStatus || 'Pending',
+            },
+          ],
+        }
         : item
     )
     persistLeads(nextLeads)
@@ -482,6 +584,29 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     showToast('Follow up added successfully.')
   }
 
+  const handleSaveNote = () => {
+    if (!newNoteText.trim()) return
+
+    const nextNote = {
+      id: `${Date.now()}-note`,
+      text: newNoteText.trim(),
+      createdAt: new Date().toISOString()
+    }
+
+    const nextLeads = leadActivities.map((lead) => {
+      if (lead.id !== selectedLeadId) return lead
+      return {
+        ...lead,
+        notes: [...(lead.notes || []), nextNote],
+      }
+    })
+
+    persistLeads(nextLeads)
+    setNewNoteText('')
+    setIsAddingNote(false)
+    showToast('Note added successfully.')
+  }
+
   const handleDocumentUpload = (e) => {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) {
@@ -519,6 +644,11 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     e.preventDefault()
     setIsProfileModalOpen(false)
     showToast('Your profile details are saved.')
+  }
+
+  const handleShowEmail = (id) => {
+    setSelectedEmailId(id)
+    setIsEmailModalOpen(true)
   }
 
   const handlePasswordFormChange = (e) => {
@@ -563,7 +693,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       </div>
 
       <header className="relative z-[180] border-b border-white/60 bg-white/80 shadow-[0_16px_40px_-34px_#1e293b] backdrop-blur-xl">
-        <div className="mx-auto flex h-18 w-[94vw] max-w-[1320px] items-center justify-between">
+        <div className="mx-auto flex h-18 w-full px-6 md:px-10 items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="font-sora text-3xl font-extrabold tracking-[-0.05em] text-brand-blue">MP</div>
             <div className="leading-none">
@@ -755,7 +885,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         </div>
       </header>
 
-      <main className="relative isolate z-10 mx-auto w-[94vw] max-w-[1320px] py-8">
+      <main className="relative isolate z-10 w-full px-6 md:px-10 py-8">
         {activeView === 'dashboard' && (
           <>
             <section className="hero-shimmer animate-rise overflow-hidden rounded-2xl bg-[linear-gradient(130deg,#3f52c4_0%,#5f62da_40%,#8f47cc_100%)] px-5 py-8 text-center text-white shadow-[0_30px_65px_-35px_#4450c6] md:px-8 md:py-10">
@@ -813,270 +943,424 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         )}
 
         {activeView === 'lead-activities' && (
-          <section className="animate-rise relative isolate overflow-visible rounded-2xl border border-[#c7d2fe] bg-[linear-gradient(150deg,rgba(255,255,255,0.9),rgba(237,242,255,0.88))] shadow-[0_24px_58px_-38px_#253eaf] backdrop-blur-lg">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-              <span className="absolute -top-10 left-10 size-36 rounded-full bg-sky-100/45 blur-3xl" />
-              <span className="absolute right-0 top-24 size-28 rounded-full bg-cyan-100/35 blur-3xl animate-float" style={{ animationDelay: '-2.5s' }} />
-            </div>
+          <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
+            {/* Header Area */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/5 text-brand-blue shadow-inner">
+                  <LabelIcon type="activity" className="size-6" />
+                </div>
+                <div>
+                  <h2 className="font-sora text-xl font-extrabold tracking-tight text-slate-900">Lead Activities</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Transaction Monitoring Portal</p>
+                </div>
+              </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dbe3ff] bg-[linear-gradient(130deg,rgba(37,62,175,0.1),rgba(240,128,40,0.08))] px-5 py-3">
-              <h2 className="font-sora flex items-center gap-2 text-[1.45rem] font-semibold text-slate-800">
-                <LabelIcon type="activity" />
-                <span>Lead Activities</span>
-              </h2>
-              <div className="relative flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter('all')}
-                  className="rounded-md border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-[#5e63b8] transition hover:bg-slate-50"
-                >
-                  Total : {visibleLeads.length}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowFilterMenu((prev) => !prev)}
-                  aria-label="Filter leads"
-                  className="grid size-10 place-items-center rounded-md border border-slate-300 bg-white text-[#5e63b8] transition hover:bg-slate-50"
-                >
-                  <FilterIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={closeActiveTab}
-                  className="grid size-10 place-items-center rounded-md border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:bg-slate-50"
-                  aria-label="Close lead activities tab"
-                >
-                  {'\u00D7'}
-                </button>
+              <div className="flex items-center gap-3">
+                <div className="hidden items-center gap-1.5 rounded-full bg-slate-100/80 px-4 py-2 md:flex">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">View:</span>
+                  <span className="text-sm font-extrabold text-brand-blue">{activeFilter === 'all' ? 'All Leads' : activeFilter}</span>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-1.5 border border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowFilterMenu((prev) => !prev)}
+                    className={`flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all ${showFilterMenu ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-600 hover:bg-white'}`}
+                  >
+                    <FilterIcon className="size-4" />
+                    <span>Filter</span>
+                    <DropdownChevron className={`transition-transform duration-300 ${showFilterMenu ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <div className="h-6 w-px bg-slate-200 mx-1"></div>
+
+                  <button
+                    type="button"
+                    onClick={closeActiveTab}
+                    className="group grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+                  >
+                    <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
                 {showFilterMenu && (
-                  <div className="absolute right-0 top-12 z-20 w-40 rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg animate-rise">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveFilter('all')
-                        setShowFilterMenu(false)
-                      }}
-                      className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                    >
-                      All Leads
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveFilter('fresh')
-                        setShowFilterMenu(false)
-                      }}
-                      className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Fresh
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveFilter('follow-up')
-                        setShowFilterMenu(false)
-                      }}
-                      className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Follow-up
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveFilter('pending')
-                        setShowFilterMenu(false)
-                      }}
-                      className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Pending
-                    </button>
+                  <div className="animate-rise absolute right-8 top-[5.5rem] z-50 w-56 overflow-hidden rounded-2xl border border-white bg-white/90 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
+                    <div className="mb-1 px-3 py-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Filter By Status</span>
+                    </div>
+                    {[
+                      { id: 'all', label: 'All Leads', icon: 'M4 6h16M4 12h16M4 18h16' },
+                      { id: 'fresh', label: 'Fresh Leads', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+                      { id: 'follow-up', label: 'Follow-up', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                      { id: 'pending', label: 'Pending', icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter(item.id)
+                          setShowFilterMenu(false)
+                        }}
+                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${activeFilter === item.id ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-slate-600 hover:bg-slate-50'}`}
+                      >
+                        <svg className="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                        </svg>
+                        {item.label}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="relative overflow-x-auto overflow-y-visible p-4">
-              <table className="w-full table-fixed text-[13px]">
-                <thead>
-                  <tr className="bg-gradient-to-r from-[#253eaf] to-[#f08028] text-left text-[0.72rem] uppercase tracking-[0.04em] text-white">
-                    <th className="w-[19%] px-2 py-2.5 align-middle">Name/Email/Phone</th>
-                    <th className="w-[10%] px-2 py-2.5 align-middle">Sell Do Lead ID</th>
-                    <th className="w-[8%] px-2 py-2.5 align-middle">Project</th>
-                    <th className="w-[8%] px-2 py-2.5 align-middle">Lead Stage</th>
-                    <th className="w-[11%] px-2 py-2.5 align-middle">Lead Status</th>
-                    <th className="w-[11%] px-2 py-2.5 align-middle">Count Status</th>
-                    <th className="w-[10%] px-2 py-2.5 align-middle">Registered At</th>
-                    <th className="w-[15%] px-2 py-2.5 align-middle">Lead validity period</th>
-                    <th className="w-[8%] px-2 py-2.5 text-center align-middle">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleLeads.length === 0 && (
-                    <tr>
-                      <td colSpan={9} className="border border-dashed border-slate-300 bg-slate-50 px-4 py-7 text-center text-slate-600">
-                        No lead activity found. Click Add Lead and save a lead.
-                      </td>
-                    </tr>
-                  )}
+            {/* Table Area */}
+            <div className="p-4 md:p-8">
+              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white/40 shadow-inner">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full min-w-[1000px] border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <th className="px-6 py-5 align-middle">Name & Contact</th>
+                        <th className="px-4 py-5 align-middle">Lead ID</th>
+                        <th className="px-4 py-5 align-middle">Project</th>
+                        <th className="px-4 py-5 align-middle">Stage</th>
+                        <th className="px-4 py-5 align-middle">Status</th>
+                        <th className="px-4 py-5 align-middle">Timeline</th>
+                        <th className="px-4 py-5 align-middle">Validity</th>
+                        <th className="px-6 py-5 text-center align-middle">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {visibleLeads.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="px-6 py-20 text-center">
+                            <div className="mx-auto flex max-w-xs flex-col items-center">
+                              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                                <LabelIcon type="activity" className="size-8" />
+                              </div>
+                              <h3 className="font-sora text-base font-bold text-slate-800">No activities found</h3>
+                              <p className="mt-1 text-sm text-slate-400">Get started by adding your first lead to the system.</p>
+                              <button
+                                onClick={() => setIsAddLeadOpen(true)}
+                                className="mt-6 rounded-xl bg-brand-blue px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-brand-blue/90 hover:scale-105 active:scale-95 shadow-lg shadow-brand-blue/20"
+                              >
+                                + Add Lead Now
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        visibleLeads.map((lead) => (
+                          <tr key={lead.id} className="group transition-all hover:bg-white/60">
+                            <td className="px-6 py-5 align-middle">
+                              <div className="flex items-center gap-4">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-blue/10 to-brand-blue/5 text-brand-blue font-sora font-bold">
+                                  {lead.name.charAt(0)}
+                                </div>
+                                <div className="space-y-1 overflow-hidden">
+                                  <p className="font-sora text-[15px] font-bold text-slate-900 truncate">{lead.name}</p>
+                                  <div className="flex items-center gap-3 text-[11px] font-bold text-slate-400 uppercase tracking-tight">
+                                    <span className="truncate">{lead.email}</span>
+                                    <span className="h-1 w-1 shrink-0 rounded-full bg-slate-200"></span>
+                                    <span className="whitespace-nowrap">{lead.phone}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-extrabold text-slate-600">
+                                #{lead.sellDoLeadId}
+                              </span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className="font-bold text-slate-700">{lead.project}</span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold text-indigo-600 ring-1 ring-inset ring-indigo-200/50">
+                                <span className="h-1 w-1 rounded-full bg-indigo-500"></span>
+                                {lead.leadStage}
+                              </span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className={`inline-flex rounded-lg px-2.5 py-1 text-[11px] font-bold ${lead.leadStatus.toLowerCase().includes('fresh')
+                                ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/50'
+                                : 'bg-amber-50 text-amber-600 ring-1 ring-amber-200/50'
+                                }`}>
+                                {lead.leadStatus}
+                              </span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <div className="space-y-0.5">
+                                <p className="text-[13px] font-bold text-slate-700">{lead.registeredAt}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Registered</p>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <div className="flex items-center gap-2">
+                                <div className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse"></div>
+                                <span className="text-[13px] font-bold text-slate-600">{lead.leadValidityPeriod}</span>
+                              </div>
+                            </td>
+                            <td data-dots-menu-root="true" className="relative px-6 py-5 text-center align-middle">
+                              <button
+                                type="button"
+                                onClick={() => setOpenActionMenuId(openActionMenuId === lead.id ? null : lead.id)}
+                                className={`inline-grid size-10 place-items-center rounded-xl transition-all ${openActionMenuId === lead.id ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
+                              >
+                                <DotsIcon className="size-5" />
+                              </button>
 
-                  {visibleLeads.map((lead) => (
-                    <tr key={lead.id} className="border-b border-slate-200 bg-white text-slate-700">
-                      <td className="px-2 py-2.5 align-top">
-                        <div className="space-y-2">
-                          <p className="flex items-center gap-2 font-semibold text-[#1f3ca6]">
-                            <span className="inline-block size-2 rounded-full bg-yellow-400" />
-                            <span>{lead.name}</span>
-                          </p>
-                          <p className="flex items-center gap-2 text-xs text-slate-600">
-                            <span>@</span>
-                            <span className="break-all">{lead.email}</span>
-                          </p>
-                          <p className="flex items-center gap-2 text-xs text-slate-600">
-                            <span>#</span>
-                            <span className="break-all">{lead.phone}</span>
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-2 py-2.5 align-top font-medium text-[#3247b8]">{lead.sellDoLeadId}</td>
-                      <td className="px-2 py-2.5 align-top">{lead.project}</td>
-                      <td className="px-2 py-2.5 align-top">
-                        <span className="rounded-full bg-[#e4e9ff] px-2.5 py-1 text-xs font-semibold text-[#3247b8]">{lead.leadStage}</span>
-                      </td>
-                      <td className="px-2 py-2.5 align-top">{lead.leadStatus}</td>
-                      <td className="px-2 py-2.5 align-top">{lead.countStatus}</td>
-                      <td className="px-2 py-2.5 align-top">{lead.registeredAt}</td>
-                      <td className="px-2 py-2.5 align-top">{lead.leadValidityPeriod}</td>
-                      <td data-dots-menu-root="true" className="relative overflow-visible px-2 py-2.5 text-center align-top">
-                        <button
-                          type="button"
-                          onClick={() => setOpenActionMenuId(openActionMenuId === lead.id ? null : lead.id)}
-                          className="inline-grid size-8 place-items-center rounded-md text-slate-600 transition hover:bg-slate-200"
-                          aria-label="Open actions"
-                        >
-                          <DotsIcon />
-                        </button>
+                              {openActionMenuId === lead.id && (
+                                <div className="animate-rise absolute right-16 top-1/2 z-50 min-w-[140px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white bg-white p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedLeadId(lead.id)
+                                      setActiveView('customer-detail')
+                                      setCustomerDetailTab('show')
+                                      setCustomerHeaderMenuOpen(false)
+                                      setOpenActionMenuId(null)
+                                    }}
+                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                  >
+                                    <svg className="size-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Show Details
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAddFollow(lead.id)}
+                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                  >
+                                    <svg className="size-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Follow
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                        {openActionMenuId === lead.id && (
-                          <div className="absolute right-2 top-11 z-20 min-w-[11rem] overflow-visible rounded-lg border border-slate-200 bg-white p-1.5 text-left shadow-lg animate-rise">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedLeadId(lead.id)
-                                setActiveView('customer-detail')
-                                setCustomerDetailTab('show')
-                                setCustomerHeaderMenuOpen(false)
-                                setOpenActionMenuId(null)
-                              }}
-                              className="block w-full rounded-md px-2 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100"
-                            >
-                              Show
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleAddFollow(lead.id)}
-                              className="block w-full rounded-md px-2 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100"
-                            >
-                              Add Follow
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {/* Footer Stat Bar */}
+              <div className="mt-8 flex items-center justify-between px-4">
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Viewing</span>
+                    <span className="text-sm font-extrabold text-slate-700">{visibleLeads.length} of {visibleLeads.length} Leads</span>
+                  </div>
+                  <div className="h-8 w-px bg-slate-200"></div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Last Sync</span>
+                    <span className="text-sm font-extrabold text-slate-700">Just now</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-all hover:bg-slate-50 disabled:opacity-30" disabled>
+                    <svg className="h-5 w-5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-brand-blue shadow-sm transition-all hover:bg-slate-50">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
         )}
 
         {activeView === 'emails' && (
-          <section className="animate-rise relative isolate overflow-hidden rounded-2xl border border-[#c7d2fe] bg-[linear-gradient(150deg,rgba(255,255,255,0.94),rgba(237,242,255,0.88))] shadow-[0_24px_58px_-38px_#253eaf] backdrop-blur-lg">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-              <span className="absolute -left-8 top-4 size-40 rounded-full bg-indigo-100/45 blur-3xl animate-float" />
-              <span className="absolute right-8 bottom-0 size-36 rounded-full bg-orange-100/35 blur-3xl animate-float" style={{ animationDelay: '-2.2s' }} />
-            </div>
+          <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
+            {/* Header Area */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/5 text-brand-blue shadow-inner">
+                  <LabelIcon type="email" className="size-6" />
+                </div>
+                <div>
+                  <h2 className="font-sora text-xl font-extrabold tracking-tight text-slate-900">Email Logs</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Communication History</p>
+                </div>
+              </div>
 
-            <div className="flex items-center justify-between border-b border-[#dbe3ff] bg-gradient-to-r from-[#253eaf] to-[#f08028] px-5 py-3 text-white">
-              <h2 className="font-sora inline-flex items-center gap-2 text-[1.45rem] font-semibold">
-                <LabelIcon type="email" />
-                <span>Emails</span>
-              </h2>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowFilterMenu((prev) => !prev)}
-                  aria-label="Filter emails"
-                  className="grid size-8 place-items-center rounded-md bg-white/20 text-white transition hover:bg-white/30"
-                >
-                  <FilterIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={closeActiveTab}
-                  className="grid size-8 place-items-center rounded-md bg-white/20 text-2xl font-bold leading-none text-white transition hover:bg-white/30"
-                  aria-label="Close emails tab"
-                >
-                  {'\u00D7'}
-                </button>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-1.5 border border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowFilterMenu((prev) => !prev)}
+                    className={`flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all ${showFilterMenu ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-600 hover:bg-white'}`}
+                  >
+                    <FilterIcon className="size-4" />
+                    <span>Filter</span>
+                  </button>
+
+                  <div className="h-6 w-px bg-slate-200 mx-1"></div>
+
+                  <button
+                    type="button"
+                    onClick={closeActiveTab}
+                    className="group grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+                  >
+                    <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="p-4 md:p-5">
-              <div className="overflow-x-auto rounded-xl border border-[#dbe3ff] bg-white/95 shadow-[0_16px_36px_-30px_#253eaf]">
-                <table className="w-full min-w-[760px] border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-[#253eaf] to-[#f08028] text-left text-white">
-                      <th className="px-3 py-2.5">To</th>
-                      <th className="px-3 py-2.5">Subject</th>
-                      <th className="px-3 py-2.5">Status</th>
-                      <th className="px-3 py-2.5">Sent On</th>
-                      <th className="px-3 py-2.5 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {emailRows.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="px-3 py-7 text-center text-slate-500">
-                          No emails available.
-                        </td>
+            {/* Table Area */}
+            <div className="p-4 md:p-8">
+              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white/40 shadow-inner">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <th className="px-6 py-5 align-middle">Recipient</th>
+                        <th className="px-4 py-5 align-middle">Subject Line</th>
+                        <th className="px-4 py-5 align-middle">Delivery Status</th>
+                        <th className="px-4 py-5 align-middle">Timestamp</th>
+                        <th className="px-6 py-5 text-center align-middle">Actions</th>
                       </tr>
-                    )}
-                    {emailRows.map((row, index) => (
-                      <tr
-                        key={row.id}
-                        className="animate-fade-slide border-b border-slate-100 text-slate-700"
-                        style={{ animationDelay: `${index * 80}ms` }}
-                      >
-                        <td className="max-w-[260px] truncate px-3 py-2.5 font-medium text-sky-700" />
-                        <td className="max-w-[260px] truncate px-3 py-2.5 font-semibold text-indigo-700" />
-                        <td className="px-3 py-2.5" />
-                        <td className="px-3 py-2.5" />
-                        <td className="px-3 py-2.5" />
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {emailRows.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-20 text-center">
+                            <div className="mx-auto flex max-w-xs flex-col items-center">
+                              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                                <LabelIcon type="email" className="size-8" />
+                              </div>
+                              <h3 className="font-sora text-base font-bold text-slate-800">No email history</h3>
+                              <p className="mt-1 text-sm text-slate-400">Outbound email communications will appear here once sent.</p>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        emailRows.map((row) => (
+                          <tr key={row.id} className="group transition-all hover:bg-white/60">
+                            <td className="px-6 py-5 align-middle">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                                  <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
+                                  </svg>
+                                </div>
+                                <span className="font-bold text-slate-700">{row.to || 'recipient@example.com'}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className="font-medium text-slate-600">{row.subject || 'System Notification'}</span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-600 ring-1 ring-inset ring-emerald-200/50">
+                                <span className="h-1 w-1 rounded-full bg-emerald-500"></span>
+                                Delivered
+                              </span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <div className="space-y-0.5">
+                                <p className="text-[13px] font-bold text-slate-700">24 Apr 2024</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">14:05 PM</p>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 text-center align-middle">
+                              <button
+                                onClick={() => handleShowEmail(row.id)}
+                                className="inline-grid size-9 place-items-center rounded-xl bg-slate-50 text-slate-400 hover:bg-brand-blue hover:text-white transition-all shadow-sm"
+                              >
+                                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </section>
         )}
 
         {activeView === 'sms' && (
-          <section className="animate-rise relative isolate overflow-hidden rounded-2xl border border-[#c7d2fe] bg-[linear-gradient(150deg,rgba(255,255,255,0.94),rgba(237,242,255,0.88))] p-5 shadow-[0_24px_58px_-38px_#253eaf] backdrop-blur-lg">
-            <div className="flex items-center justify-between">
-              <h2 className="font-sora inline-flex items-center gap-2 text-[1.4rem] font-semibold text-slate-800">
-                <LabelIcon type="sms" />
-                <span>Sms</span>
-              </h2>
-              <button
-                type="button"
-                onClick={closeActiveTab}
-                className="grid size-8 place-items-center rounded-md border border-slate-300 bg-white text-2xl font-bold leading-none text-slate-700 transition hover:bg-slate-50"
-                aria-label="Close sms tab"
-              >
-                {'\u00D7'}
-              </button>
+          <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
+            {/* Header Area */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600 shadow-inner">
+                  <LabelIcon type="sms" className="size-6" />
+                </div>
+                <div>
+                  <h2 className="font-sora text-xl font-extrabold tracking-tight text-slate-900">SMS Logs</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Mobile Messaging History</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-1.5 border border-slate-100">
+                  <button
+                    type="button"
+                    onClick={closeActiveTab}
+                    className="group grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+                  >
+                    <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Table Area */}
+            <div className="p-4 md:p-8">
+              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white/40 shadow-inner">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <th className="px-6 py-5 align-middle">Phone Number</th>
+                        <th className="px-4 py-5 align-middle">Message Content</th>
+                        <th className="px-4 py-5 align-middle">Status</th>
+                        <th className="px-4 py-5 align-middle">Timestamp</th>
+                        <th className="px-6 py-5 text-center align-middle">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      <tr>
+                        <td colSpan={5} className="px-6 py-20 text-center">
+                          <div className="mx-auto flex max-w-xs flex-col items-center">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                              <LabelIcon type="sms" className="size-8" />
+                            </div>
+                            <h3 className="font-sora text-base font-bold text-slate-800">No SMS history</h3>
+                            <p className="mt-1 text-sm text-slate-400">Direct mobile communications will appear here once dispatched.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </section>
         )}
@@ -1204,179 +1488,346 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         )}
 
         {activeView === 'customer-detail' && selectedLead && (
-          <section className="animate-rise relative isolate space-y-5">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-              <span className="absolute -left-8 top-12 size-36 rounded-full bg-emerald-100/45 blur-3xl animate-float" />
-              <span className="absolute right-10 top-8 size-28 rounded-full bg-amber-100/45 blur-3xl animate-float" style={{ animationDelay: '-3.1s' }} />
-            </div>
+          <div className="animate-nav-enter space-y-10 pb-20">
+            {/* Header / Nav Area */}
+            <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/50 bg-white/70 p-6 shadow-sm backdrop-blur-xl md:px-10">
+              <div className="flex items-center gap-5">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-blue to-indigo-600 text-white shadow-xl shadow-brand-blue/20">
+                  <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 7a4 4 0 110 8 4 4 0 010-8zm10 5h4m-2-2v4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-sora text-2xl font-extrabold tracking-tight text-slate-900">{selectedLead.name}</h2>
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    <span>Lead ID: #{selectedLead.sellDoLeadId}</span>
+                    <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+                    <span className="text-brand-blue">{selectedLead.project}</span>
+                  </div>
+                </div>
+              </div>
 
-            <div className="relative z-[120] overflow-visible rounded-2xl border border-[#c7d2fe] bg-[linear-gradient(150deg,rgba(255,255,255,0.9),rgba(237,242,255,0.88))] px-5 py-4 shadow-[0_24px_58px_-38px_#253eaf] backdrop-blur-lg">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-sora inline-flex items-center gap-2 text-[1.5rem] font-semibold text-slate-800">
-                  <LabelIcon type="welcome" />
-                  <span>Customer Detail</span>
-                </h2>
-                <div data-dots-menu-root="true" className="relative z-[80] flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveView('lead-activities')}
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                  >
-                    Back to Lead Activities
-                  </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('lead-activities')}
+                  className="group flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-brand-blue shadow-sm"
+                >
+                  <svg className="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span>Back to Activities</span>
+                </button>
+
+                <div className="relative">
                   <button
                     type="button"
                     onClick={() => setCustomerHeaderMenuOpen((prev) => !prev)}
-                    className="inline-grid size-8 place-items-center rounded-md border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50"
-                    aria-label="Customer detail menu"
+                    className={`inline-grid size-11 place-items-center rounded-2xl transition-all ${customerHeaderMenuOpen ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'bg-white border border-slate-200 text-slate-400 hover:bg-slate-50 shadow-sm'}`}
                   >
-                    <DotsIcon />
+                    <DotsIcon className="size-5" />
                   </button>
 
                   {customerHeaderMenuOpen && (
-                    <div className="animate-rise absolute right-0 top-full z-[200] mt-2 grid w-56 gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-[0_24px_45px_-28px_#0f172a]">
+                    <div className="animate-rise absolute right-0 top-full z-[100] mt-3 w-60 overflow-hidden rounded-[1.5rem] border border-white bg-white/90 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.12)] backdrop-blur-xl">
                       <button
                         type="button"
                         onClick={() => {
                           setCustomerDetailTab('show')
                           setCustomerHeaderMenuOpen(false)
                         }}
-                        className="block w-full rounded-md bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${customerDetailTab === 'show' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-slate-600 hover:bg-slate-50'}`}
                       >
-                        Show Details
+                        <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Show Records
                       </button>
                       <button
                         type="button"
                         onClick={handleOpenAddFollowUpTab}
-                        className="block w-full rounded-md bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold mt-1 transition-all ${customerDetailTab === 'add-follow-up' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-slate-600 hover:bg-slate-50'}`}
                       >
-                        Update Follow Up
+                        <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Follow Up
                       </button>
                     </div>
                   )}
-                  <button
-                    type="button"
-                    onClick={closeActiveTab}
-                    className="grid size-8 place-items-center rounded-md border border-slate-300 bg-white text-2xl font-bold leading-none text-slate-700 transition hover:bg-slate-50"
-                    aria-label="Close customer detail tab"
-                  >
-                    {'\u00D7'}
-                  </button>
                 </div>
               </div>
             </div>
 
             {customerDetailTab === 'show' && (
-              <>
-                <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm">
-              <h3 className="font-sora text-xl font-semibold text-slate-800">Customer Detail</h3>
-              <div className="mt-3 grid gap-3 text-slate-700 md:grid-cols-2">
-                <p><strong>First Name:</strong> {selectedLead.firstName}</p>
-                <p><strong>Last Name:</strong> {selectedLead.lastName}</p>
-                <p><strong>Name:</strong> {selectedLead.name}</p>
-                <p><strong>Email:</strong> {selectedLead.email}</p>
-                <p><strong>Phone:</strong> {selectedLead.phone}</p>
-                <p><strong>Sell Do Lead ID:</strong> {selectedLead.sellDoLeadId}</p>
-                <p><strong>Project:</strong> {selectedLead.project}</p>
-                <p><strong>Lead Stage:</strong> {selectedLead.leadStage}</p>
-                <p><strong>Lead Status:</strong> {selectedLead.leadStatus}</p>
-                <p><strong>Count Status:</strong> {selectedLead.countStatus}</p>
-                <p><strong>Registered At:</strong> {selectedLead.registeredAt}</p>
-                <p><strong>Lead Validity Period:</strong> {selectedLead.leadValidityPeriod}</p>
-                <p><strong>Budget:</strong> {selectedLead.budget}</p>
-                <p><strong>Location:</strong> {selectedLead.location}</p>
-                <p><strong>Configuration:</strong> {selectedLead.configuration}</p>
-                <p><strong>Property Type:</strong> {selectedLead.propertyType}</p>
-              </div>
+              <div className="grid gap-8 lg:grid-cols-3">
+                {/* Primary Data Card */}
+                <div className="lg:col-span-2 space-y-8">
+                  <section className="rounded-[2.5rem] border border-white bg-white/60 p-8 shadow-sm backdrop-blur-sm md:p-10">
+                    <div className="mb-10 flex items-center justify-between border-b border-slate-100 pb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue shadow-inner">
+                          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-sora text-xl font-bold text-slate-800">Identity Records</h3>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Comprehensive Customer Intelligence</p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <span className="inline-flex rounded-lg bg-emerald-50 px-3 py-1.5 text-[11px] font-extrabold text-emerald-600 ring-1 ring-emerald-200/50 uppercase tracking-wider">
+                          Active Lead
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-y-10 gap-x-12 sm:grid-cols-2">
+                      {[
+                        { label: 'Full Name', value: selectedLead.name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                        { label: 'Email Address', value: selectedLead.email, icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+                        { label: 'Primary Phone', value: selectedLead.phone, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
+                        { label: 'Lead Stage', value: selectedLead.leadStage, icon: 'M13 10V3L4 14h7v7l9-11h-7z', badge: true, color: 'indigo' },
+                        { label: 'Lead Status', value: selectedLead.leadStatus, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', badge: true, color: 'emerald' },
+                        { label: 'Validity Period', value: selectedLead.leadValidityPeriod, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { label: 'Project Name', value: selectedLead.project, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                        { label: 'Budget Range', value: selectedLead.budget, icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
+                      ].map((item, idx) => (
+                        <div key={idx} className="group relative">
+                          <div className="mb-2 flex items-center gap-2">
+                            <svg className="size-3.5 text-slate-300 transition-colors group-hover:text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                            </svg>
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600">{item.label}</span>
+                          </div>
+                          <div className="flex items-center">
+                            {item.badge ? (
+                              <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[13px] font-bold ring-1 ring-inset ${item.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 ring-emerald-200/50' : 'bg-indigo-50 text-indigo-600 ring-indigo-200/50'
+                                }`}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${item.color === 'emerald' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></span>
+                                {item.value}
+                              </span>
+                            ) : (
+                              <p className="font-sora text-[15px] font-extrabold text-slate-800 transition-transform group-hover:translate-x-1">{item.value || '-'}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Follow Up History */}
+                  <section className="rounded-[2.5rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10">
+                    <div className="mb-8 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-sora text-lg font-bold text-slate-800">Engagement History</h3>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Past & Upcoming Interactions</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleOpenAddFollowUpTab}
+                        className="rounded-xl bg-brand-blue/5 px-4 py-2 text-xs font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
+                      >
+                        + New Interaction
+                      </button>
+                    </div>
+
+                    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40 shadow-inner">
+                      <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full border-collapse text-left text-sm">
+                          <thead>
+                            <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                              <th className="px-6 py-4">Subject</th>
+                              <th className="px-4 py-4">Status</th>
+                              <th className="px-4 py-4">Scheduled</th>
+                              <th className="px-6 py-4 text-center">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-50">
+                            {(selectedLead.followUpItems || []).length === 0 ? (
+                              <tr>
+                                <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic font-medium">No previous engagement recorded.</td>
+                              </tr>
+                            ) : (
+                              (selectedLead.followUpItems || []).map((item) => (
+                                <tr key={item.id} className="group transition-all hover:bg-white/60">
+                                  <td className="px-6 py-4 font-bold text-slate-700">{item.subject}</td>
+                                  <td className="px-4 py-4">
+                                    <span className={`inline-flex rounded-lg px-2 py-1 text-[11px] font-bold ${item.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/50' : 'bg-amber-50 text-amber-600 ring-1 ring-amber-200/50'
+                                      }`}>
+                                      {item.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-4 font-medium text-slate-600">
+                                    {item.scheduledOn ? new Date(item.scheduledOn).toLocaleDateString() : '-'}
+                                  </td>
+                                  <td data-dots-menu-root="true" className="relative px-6 py-4 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => setFollowUpActionMenuId(followUpActionMenuId === item.id ? null : item.id)}
+                                      className={`inline-grid size-8 place-items-center rounded-lg transition-all ${followUpActionMenuId === item.id ? 'bg-brand-blue text-white shadow-lg' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                                    >
+                                      <DotsIcon className="size-4" />
+                                    </button>
+
+                                    {followUpActionMenuId === item.id && (
+                                      <div className="animate-rise absolute right-16 top-1/2 z-50 min-w-[14rem] -translate-y-1/2 overflow-hidden rounded-xl border border-white bg-white p-1 shadow-xl shadow-slate-200/50">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleFollowUpClick(item.id)}
+                                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
+                                        >
+                                          Mark as Followed Up
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenUpdateFollowUp(item)}
+                                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
+                                        >
+                                          Update Interaction Status
+                                        </button>
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </section>
                 </div>
 
-                <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm [animation-delay:90ms]">
-              <h3 className="font-sora text-xl font-semibold text-slate-800">Sell Do Lead Site Visit</h3>
-              <div className="mt-3 grid gap-3 text-slate-700 md:grid-cols-2">
-                <p><strong>Lead ID:</strong> {selectedLead.sellDoLeadId}</p>
-                <p><strong>Project:</strong> {selectedLead.project}</p>
-                <p><strong>Visit Date:</strong> Not scheduled</p>
-                <p><strong>Visit Status:</strong> Pending</p>
-                <p><strong>Assigned Executive:</strong> Not assigned</p>
-                <p><strong>Remarks:</strong> No site visit remark yet.</p>
-              </div>
-                </div>
+                {/* Sidebar Cards */}
+                <div className="space-y-8">
+                  {/* Site Visit Section */}
+                  <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
+                    <div className="mb-6 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+                        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="font-sora text-sm font-bold text-slate-800">Site Engagement</h3>
+                    </div>
 
-                <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm [animation-delay:140ms]">
-              <h3 className="font-sora text-xl font-semibold text-slate-800">Remark from Selldo</h3>
-              <div className="mt-3 space-y-2 text-slate-700">
-                <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">Initial lead captured from panel.</p>
-                <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">Current status: {selectedLead.leadStatus}</p>
-              </div>
-                </div>
-
-                <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm [animation-delay:190ms]">
-              <div className="flex items-center justify-between">
-                <h3 className="font-sora text-xl font-semibold text-slate-800">Notes</h3>
-                <div className="rounded-md border border-slate-200 bg-slate-50 p-2 text-slate-600">
-                  <NoteIcon />
-                </div>
-              </div>
-              <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 text-slate-700">
-                No additional notes available for this customer.
-              </div>
-                </div>
-
-                <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm [animation-delay:240ms]">
-              <h3 className="font-sora text-xl font-semibold text-slate-800">Follow Up</h3>
-              <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[640px] border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-[#5868ea] to-[#9155e6] text-left text-white">
-                      <th className="px-3 py-2">Subject</th>
-                      <th className="px-3 py-2">Status</th>
-                      <th className="px-3 py-2">Schedule On</th>
-                      <th className="px-3 py-2">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(selectedLead.followUpItems || []).map((item) => (
-                      <tr key={item.id} className="border-b border-slate-200">
-                        <td className="px-3 py-2">{item.subject}</td>
-                        <td className="px-3 py-2">{item.status}</td>
-                        <td className="px-3 py-2">
-                          {item.scheduledOn ? new Date(item.scheduledOn).toLocaleString() : '-'}
-                        </td>
-                        <td data-dots-menu-root="true" className="relative px-3 py-2">
-                          <button
-                            type="button"
-                            onClick={() => setFollowUpActionMenuId(followUpActionMenuId === item.id ? null : item.id)}
-                            className="inline-grid size-8 place-items-center rounded-md text-slate-600 transition hover:bg-slate-100"
-                          >
-                            <DotsIcon />
-                          </button>
-
-                          {followUpActionMenuId === item.id && (
-                            <div className="absolute right-0 top-10 z-20 min-w-[14rem] overflow-visible rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg animate-rise">
-                              <button
-                                type="button"
-                                onClick={() => handleFollowUpClick(item.id)}
-                                className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                              >
-                                Follow Up
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenUpdateFollowUp(item)}
-                                className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-                              >
-                                Update Follow Up Status
-                              </button>
-                            </div>
+                    <div className="space-y-4">
+                      {[
+                        { label: 'Visit Date', value: 'Not scheduled' },
+                        { label: 'Status', value: 'Pending', badge: true },
+                        { label: 'Executive', value: 'Not assigned' }
+                      ].map((info, i) => (
+                        <div key={i} className="flex flex-col border-b border-slate-50 pb-3 last:border-0 last:pb-0">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{info.label}</span>
+                          {info.badge ? (
+                            <span className="mt-1 self-start inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-[11px] font-extrabold text-amber-600 ring-1 ring-amber-200/50">
+                              {info.value}
+                            </span>
+                          ) : (
+                            <span className="mt-1 font-bold text-slate-700">{info.value}</span>
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* System Remarks */}
+                  <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
+                    <div className="mb-6 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                        <LabelIcon type="activity" className="size-5" />
+                      </div>
+                      <h3 className="font-sora text-sm font-bold text-slate-800">System Logs</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="rounded-2xl bg-slate-50 p-4 text-[13px] font-medium leading-relaxed text-slate-600">
+                        "Initial lead captured from panel."
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 p-4 text-[13px] font-medium text-slate-500 italic">
+                        Current status identified as: {selectedLead.leadStatus}
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Customer Notes */}
+                  <section className="rounded-[2.5rem] border border-white bg-slate-900 p-8 text-white shadow-xl shadow-slate-900/10">
+                    <div className="mb-6 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white/60">
+                          <NoteIcon className="size-5" />
+                        </div>
+                        <h3 className="font-sora text-sm font-bold">Collaborative Notes</h3>
+                      </div>
+                      <button 
+                        onClick={() => setIsAddingNote(!isAddingNote)}
+                        className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white/40 transition hover:bg-white/20 hover:text-white"
+                      >
+                        <svg className={`size-4 transition-transform ${isAddingNote ? 'rotate-45' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {isAddingNote && (
+                      <div className="mb-6 animate-fade-slide space-y-3">
+                        <textarea
+                          value={newNoteText}
+                          onChange={(e) => setNewNoteText(e.target.value)}
+                          placeholder="Type your note here..."
+                          rows={3}
+                          className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white placeholder-white/30 outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue custom-scrollbar"
+                        />
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setIsAddingNote(false)
+                              setNewNoteText('')
+                            }}
+                            className="rounded-lg px-4 py-2 text-xs font-bold text-white/50 transition hover:text-white"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSaveNote}
+                            className="rounded-lg bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-md shadow-brand-blue/20 transition hover:-translate-y-0.5 active:scale-95"
+                          >
+                            Save Note
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      {!(selectedLead.notes?.length) ? (
+                        <p className="text-[13px] font-medium leading-relaxed text-white/50">
+                          No internal collaboration notes have been recorded for this lead yet. Use notes to share insights with your team.
+                        </p>
+                      ) : (
+                        selectedLead.notes.map((note) => (
+                          <div key={note.id} className="rounded-xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                            <p className="text-[13px] leading-relaxed text-white/90">{note.text}</p>
+                            <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-white/40">
+                              {new Date(note.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </section>
                 </div>
-              </>
+              </div>
             )}
 
             {customerDetailTab === 'add-follow-up' && (
@@ -1460,7 +1911,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 </form>
               </div>
             )}
-          </section>
+          </div>
         )}
       </main>
 
@@ -1702,6 +2153,67 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         onClose={() => setIsAddLeadOpen(false)}
         onSave={handleSaveLead}
       />
+      {isEmailModalOpen && selectedEmailId && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="animate-rise w-full max-w-2xl overflow-hidden rounded-[2.5rem] border border-white bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-50 bg-slate-50/50 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
+                  <LabelIcon type="email" className="size-6" />
+                </div>
+                <div>
+                  <h3 className="font-sora text-lg font-bold text-slate-800">Email Content</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Communication Record #{selectedEmailId}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsEmailModalOpen(false)}
+                className="group grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+              >
+                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-8">
+              <div className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Recipient</span>
+                    <p className="font-bold text-slate-700">{emailRows.find(e => e.id === selectedEmailId)?.to}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Subject</span>
+                    <p className="font-bold text-slate-700">{emailRows.find(e => e.id === selectedEmailId)?.subject}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Message Body</span>
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 text-[15px] leading-relaxed text-slate-600">
+                    <p>Dear Valued Partner,</p>
+                    <p className="mt-4">
+                      This is a formal communication regarding your recent activity on the MP Developers platform.
+                      Your status for <strong>{emailRows.find(e => e.id === selectedEmailId)?.subject}</strong> has been logged.
+                    </p>
+                    <p className="mt-4 text-slate-400 italic">This is an automated system notification.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <button
+                  onClick={() => setIsEmailModalOpen(false)}
+                  className="rounded-2xl bg-brand-blue px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-1 active:scale-95"
+                >
+                  Close View
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

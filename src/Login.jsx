@@ -168,7 +168,7 @@ function Login({ onSignIn }) {
       </header>
 
       <main
-        className={`relative z-10 mx-auto grid w-[94vw] max-w-[1320px] gap-12 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
+        className={`relative z-10 mx-auto grid w-full px-5 md:px-14 gap-12 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
           }`}
       >
         <section className="hidden flex-col items-center justify-center text-center lg:flex">
@@ -486,224 +486,225 @@ function Login({ onSignIn }) {
                 </p>
               </div>
 
-              <form className="grid gap-10" onSubmit={handleSubmit} autoComplete="off">
-                <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
-                  <div className="mb-8 flex items-center gap-4">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">
-                      1
+              <form className="flex flex-col h-[65vh]" onSubmit={handleSubmit} autoComplete="off">
+                <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 custom-scrollbar">
+                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                    <div className="mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">
+                        1
+                      </div>
+                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic details</h2>
+                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
-                    <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic details</h2>
-                    <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                  </div>
 
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Title</label>
-                      <select name="title" value={registerData.title} onChange={handleChange} className={inputClass}>
-                        <option value="Mr">Mr</option>
-                        <option value="Ms">Ms</option>
-                        <option value="Mrs">Mrs</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-2 md:col-span-1 lg:col-span-2">
-                      <label className={labelClass}>Name *</label>
-                      <input
-                        name="name"
-                        value={registerData.name}
-                        onChange={handleChange}
-                        placeholder="Full Name"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Phone *</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Title</label>
+                        <select name="title" value={registerData.title} onChange={handleChange} className={inputClass}>
+                          <option value="Mr">Mr</option>
+                          <option value="Ms">Ms</option>
+                          <option value="Mrs">Mrs</option>
+                        </select>
+                      </div>
+                      <div className="grid gap-2 md:col-span-1 lg:col-span-2">
+                        <label className={labelClass}>Name *</label>
                         <input
-                          name="phone"
-                          value={registerData.phone}
+                          name="name"
+                          value={registerData.name}
                           onChange={handleChange}
-                          placeholder="Phone Number"
-                          className={`${inputClass} pl-14`}
+                          placeholder="Full Name"
+                          className={inputClass}
                           required
                         />
                       </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Email *</label>
-                      <input
-                        name="email"
-                        type="email"
-                        value={registerData.email}
-                        onChange={handleChange}
-                        placeholder="email@example.com"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Alternate Number</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Phone *</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
+                          <input
+                            name="phone"
+                            value={registerData.phone}
+                            onChange={handleChange}
+                            placeholder="Phone Number"
+                            className={`${inputClass} pl-14`}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Email *</label>
                         <input
-                          name="alternateNumber"
-                          value={registerData.alternateNumber}
+                          name="email"
+                          type="email"
+                          value={registerData.email}
                           onChange={handleChange}
-                          placeholder="81234 56789"
-                          className={`${inputClass} pl-14`}
+                          placeholder="email@example.com"
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Alternate Number</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
+                          <input
+                            name="alternateNumber"
+                            value={registerData.alternateNumber}
+                            onChange={handleChange}
+                            placeholder="81234 56789"
+                            className={`${inputClass} pl-14`}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Aadhaar *</label>
+                        <input
+                          name="aadhaar"
+                          value={registerData.aadhaar}
+                          onChange={handleChange}
+                          placeholder="Aadhaar Number"
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>PAN Number *</label>
+                        <input
+                          name="pan"
+                          value={registerData.pan}
+                          onChange={handleChange}
+                          placeholder="PAN Card Number"
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Occupation</label>
+                        <input
+                          name="occupation"
+                          value={registerData.occupation}
+                          onChange={handleChange}
+                          placeholder="Your Occupation"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>RERA Registration Number</label>
+                        <input
+                          name="rera"
+                          value={registerData.rera}
+                          onChange={handleChange}
+                          placeholder="RERA Number"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>CP Company Name/ CP Name</label>
+                        <input
+                          name="company"
+                          value={registerData.company}
+                          onChange={handleChange}
+                          placeholder="Company or CP Name"
+                          className={inputClass}
                         />
                       </div>
                     </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Aadhaar *</label>
-                      <input
-                        name="aadhaar"
-                        value={registerData.aadhaar}
-                        onChange={handleChange}
-                        placeholder="Aadhaar Number"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>PAN Number *</label>
-                      <input
-                        name="pan"
-                        value={registerData.pan}
-                        onChange={handleChange}
-                        placeholder="PAN Card Number"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Occupation</label>
-                      <input
-                        name="occupation"
-                        value={registerData.occupation}
-                        onChange={handleChange}
-                        placeholder="Your Occupation"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>RERA Registration Number</label>
-                      <input
-                        name="rera"
-                        value={registerData.rera}
-                        onChange={handleChange}
-                        placeholder="RERA Number"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>CP Company Name/ CP Name</label>
-                      <input
-                        name="company"
-                        value={registerData.company}
-                        onChange={handleChange}
-                        placeholder="Company or CP Name"
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-                </section>
+                  </section>
 
-                {/* Address Section */}
-                <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
-                  <div className="mb-8 flex items-center gap-4">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-brand-orange font-sora text-lg font-bold text-white shadow-lg">
-                      2
+                  {/* Address Section */}
+                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                    <div className="mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-orange font-sora text-lg font-bold text-white shadow-lg">
+                        2
+                      </div>
+                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
+                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
-                    <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
-                    <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                  </div>
 
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="grid gap-2">
-                      <label className={labelClass}>House/Flat/Company</label>
-                      <input
-                        name="house"
-                        value={registerData.house}
-                        onChange={handleChange}
-                        placeholder="Address Line 1"
-                        className={inputClass}
-                      />
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div className="grid gap-2">
+                        <label className={labelClass}>House/Flat/Company</label>
+                        <input
+                          name="house"
+                          value={registerData.house}
+                          onChange={handleChange}
+                          placeholder="Address Line 1"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Street</label>
+                        <input
+                          name="street"
+                          value={registerData.street}
+                          onChange={handleChange}
+                          placeholder="Address Line 2"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Country</label>
+                        <select name="country" value={registerData.country} onChange={handleChange} className={inputClass}>
+                          <option value="">Select country</option>
+                          {countries.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>State / Region</label>
+                        <select
+                           name="state"
+                           value={registerData.state}
+                           onChange={handleChange}
+                           className={inputClass}
+                           disabled={!statesByCountry[registerData.country]}
+                         >
+                           <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
+                           {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
+                             <option key={s} value={s}>{s}</option>
+                           ))}
+                         </select>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>City</label>
+                        <input
+                          name="city"
+                          value={registerData.city}
+                          onChange={handleChange}
+                          placeholder="City"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Zip / Pin Code</label>
+                        <input
+                          name="zip"
+                          value={registerData.zip}
+                          onChange={handleChange}
+                          placeholder="Pin Code"
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Street</label>
-                      <input
-                        name="street"
-                        value={registerData.street}
-                        onChange={handleChange}
-                        placeholder="Address Line 2"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Country</label>
-                      <select name="country" value={registerData.country} onChange={handleChange} className={inputClass}>
-                        <option value="">Select country</option>
-                        {countries.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>State / Region</label>
-                      <select
-                         name="state"
-                         value={registerData.state}
-                         onChange={handleChange}
-                         className={inputClass}
-                         disabled={!statesByCountry[registerData.country]}
-                       >
-                         <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
-                         {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
-                           <option key={s} value={s}>{s}</option>
-                         ))}
-                       </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>City</label>
-                      <input
-                        name="city"
-                        value={registerData.city}
-                        onChange={handleChange}
-                        placeholder="City"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label className={labelClass}>Zip / Pin Code</label>
-                      <input
-                        name="zip"
-                        value={registerData.zip}
-                        onChange={handleChange}
-                        placeholder="Pin Code"
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-                </section>
+                  </section>
+                </div>
 
-                <div className="flex flex-col items-center gap-6 pb-60">
+                <div className="flex flex-col items-center gap-4 pt-6 border-t border-slate-100 bg-white/50 backdrop-blur-sm -mx-8 px-8">
                   <button
                     type="submit"
-                    className="group relative h-16 w-full max-w-md overflow-hidden rounded-2xl bg-brand-blue text-lg font-bold text-white shadow-[0_20px_40px_-15px_rgba(29,78,216,0.5)] transition-all hover:scale-[1.02] hover:shadow-[0_25px_50px_-12px_rgba(29,78,216,0.6)] active:scale-[0.98]"
+                    className="group relative h-14 w-full max-w-md overflow-hidden rounded-2xl bg-brand-blue text-lg font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.98]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000 group-hover:translate-x-full"></div>
                     Register as Partner
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setView('login')}
-                    className="group flex items-center gap-2 text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
+                    className="group flex items-center gap-2 text-sm font-bold text-brand-blue transition-colors hover:text-brand-orange"
                   >
                     <span>Already have an account?</span>
-                    <span className="font-bold underline decoration-2 underline-offset-4 group-hover:decoration-brand-orange">Login here</span>
+                    <span className="font-bold underline decoration-2 underline-offset-4">Login here</span>
                   </button>
                 </div>
               </form>
