@@ -168,7 +168,7 @@ function Login({ onSignIn }) {
       </header>
 
       <main
-        className={`relative z-10 mx-auto grid w-full px-5 md:px-14 gap-12 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
+        className={`relative z-10 mx-auto grid w-full max-w-[1536px] px-5 md:px-14 gap-8 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
           }`}
       >
         <section className="hidden flex-col items-center justify-center text-center lg:flex">
@@ -654,17 +654,17 @@ function Login({ onSignIn }) {
                       <div className="grid gap-2">
                         <label className={labelClass}>State / Region</label>
                         <select
-                           name="state"
-                           value={registerData.state}
-                           onChange={handleChange}
-                           className={inputClass}
-                           disabled={!statesByCountry[registerData.country]}
-                         >
-                           <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
-                           {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
-                             <option key={s} value={s}>{s}</option>
-                           ))}
-                         </select>
+                          name="state"
+                          value={registerData.state}
+                          onChange={handleChange}
+                          className={inputClass}
+                          disabled={!statesByCountry[registerData.country]}
+                        >
+                          <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
+                          {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>City</label>
