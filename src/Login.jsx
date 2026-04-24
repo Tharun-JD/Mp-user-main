@@ -26,12 +26,63 @@ function Login({ onSignIn }) {
   })
   const [errorMessage, setErrorMessage] = useState('')
 
+  const countries = [
+    "India", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+    "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+    "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+    "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+    "Fiji", "Finland", "France",
+    "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+    "Haiti", "Holy See", "Honduras", "Hungary",
+    "Iceland", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+    "Jamaica", "Japan", "Jordan",
+    "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
+    "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+    "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+    "Oman",
+    "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+    "Qatar",
+    "Romania", "Russia", "Rwanda",
+    "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+    "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+    "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan",
+    "Vanuatu", "Venezuela", "Vietnam",
+    "Yemen",
+    "Zambia", "Zimbabwe"
+  ]
+
+  const statesByCountry = {
+    "India": [
+      "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+    ],
+    "United States of America": [
+      "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+    ],
+    "Canada": [
+      "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Northwest Territories", "Nunavut", "Yukon"
+    ],
+    "Australia": [
+      "New South Wales", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia", "Australian Capital Territory", "Northern Territory"
+    ],
+    "United Kingdom": [
+      "England", "Scotland", "Wales", "Northern Ireland"
+    ]
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     if (view === 'login') {
       setFormData((prev) => ({ ...prev, [name]: value }))
     } else {
-      setRegisterData((prev) => ({ ...prev, [name]: value }))
+      setRegisterData((prev) => {
+        const newData = { ...prev, [name]: value }
+        if (name === 'country' && !statesByCountry[value]) {
+          newData.state = ''
+        }
+        return newData
+      })
     }
     if (errorMessage) {
       setErrorMessage('')
@@ -586,15 +637,25 @@ function Login({ onSignIn }) {
                       <label className={labelClass}>Country</label>
                       <select name="country" value={registerData.country} onChange={handleChange} className={inputClass}>
                         <option value="">Select country</option>
-                        <option value="India">India</option>
+                        {countries.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="grid gap-2">
                       <label className={labelClass}>State / Region</label>
-                      <select name="state" value={registerData.state} onChange={handleChange} className={inputClass}>
-                        <option value="">-</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                      </select>
+                      <select
+                         name="state"
+                         value={registerData.state}
+                         onChange={handleChange}
+                         className={inputClass}
+                         disabled={!statesByCountry[registerData.country]}
+                       >
+                         <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
+                         {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
+                           <option key={s} value={s}>{s}</option>
+                         ))}
+                       </select>
                     </div>
                     <div className="grid gap-2">
                       <label className={labelClass}>City</label>
@@ -619,7 +680,7 @@ function Login({ onSignIn }) {
                   </div>
                 </section>
 
-                <div className="flex flex-col items-center gap-6 pb-8">
+                <div className="flex flex-col items-center gap-6 pb-60">
                   <button
                     type="submit"
                     className="group relative h-16 w-full max-w-md overflow-hidden rounded-2xl bg-brand-blue text-lg font-bold text-white shadow-[0_20px_40px_-15px_rgba(29,78,216,0.5)] transition-all hover:scale-[1.02] hover:shadow-[0_25px_50px_-12px_rgba(29,78,216,0.6)] active:scale-[0.98]"
