@@ -46,6 +46,20 @@ function Login({ onSignIn }) {
         return
       }
       onSignIn?.({ email: formData.email.trim() })
+    } else if (view === 'otp') {
+      console.log('Getting OTP for:', registerData.phone)
+    } else if (view === 'forgot') {
+      console.log('Sending reset instructions for:', registerData.email)
+      setView('login')
+    } else if (view === 'resend_confirmation') {
+      console.log('Resending confirmation for:', registerData.email)
+      setView('login')
+    } else if (view === 'resend_unlock') {
+      console.log('Resending unlock instructions for:', registerData.email)
+      setView('login')
+    } else if (view === 'signup') {
+      console.log('Customer Signup:', registerData)
+      setView('login')
     } else {
       // Handle registration logic here
       console.log('Registering:', registerData)
@@ -74,22 +88,26 @@ function Login({ onSignIn }) {
           </div>
         </div>
 
-        <div className="hidden items-center gap-3 sm:flex">
+        <div className="hidden items-center gap-6 sm:flex">
+          <button
+            type="button"
+            className="text-sm font-bold text-[#007ad9] transition-all hover:scale-105 hover:text-[#005fa8]"
+          >
+            Home
+          </button>
           <button
             type="button"
             onClick={() => setView('register')}
-            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${
-              view === 'register' ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white text-slate-700'
-            }`}
+            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'register' ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white text-slate-700'
+              }`}
           >
             Register as Channel Partner
           </button>
           <button
             type="button"
             onClick={() => setView('login')}
-            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${
-              view === 'login' ? 'border-brand-blue bg-brand-blue text-white' : 'border-transparent text-slate-700'
-            }`}
+            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'border-brand-blue bg-brand-blue text-white' : 'border-transparent text-slate-700'
+              }`}
           >
             Log in
           </button>
@@ -97,14 +115,12 @@ function Login({ onSignIn }) {
       </header>
 
       <main
-        className={`relative z-10 mx-auto grid w-[94vw] max-w-[1320px] gap-9 py-8 ${
-          view === 'login' ? 'lg:grid-cols-[minmax(350px,540px)_1fr] lg:items-center' : 'grid-cols-1'
-        }`}
+        className={`relative z-10 mx-auto grid w-[94vw] max-w-[1320px] gap-9 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-[minmax(350px,540px)_1fr] lg:items-center' : 'grid-cols-1'
+          }`}
       >
         <section
-          className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${
-            view === 'login' ? 'lg:order-2 lg:ml-auto lg:w-full' : 'mx-auto max-w-4xl w-full'
-          }`}
+          className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:order-2 lg:ml-auto lg:w-full' : 'mx-auto max-w-4xl w-full'
+            }`}
         >
           <span
             aria-hidden="true"
@@ -116,94 +132,276 @@ function Login({ onSignIn }) {
             style={{ animationDelay: '-2s' }}
           />
 
-          {view === 'login' ? (
+          {view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? (
             <>
-              <p className="inline-flex items-center gap-1.5 text-[0.98rem] font-bold tracking-[0.03em] text-sky-600">
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M4 20a8 8 0 0 1 16 0" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Welcome to MP Developers</span>
-              </p>
-              <h1 className="font-sora mt-2 bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-[clamp(1.5rem,2.3vw,2rem)] leading-tight font-bold text-transparent">
-                Build bold partnerships with confidence.
-              </h1>
-              <p className="mb-6 mt-2 max-w-[48ch] text-[1.02rem] leading-relaxed text-slate-600">
-                We value your partnership and are excited to provide the resources you need for successful collaboration.
-              </p>
+              {view === 'signup' ? (
+                <div className="mb-6">
+                  <h1 className="font-sora text-2xl font-bold leading-tight text-sky-600">
+                    Biggest real estate opportunity in Pune Introducing exclusive Bed residences starting from ₹ lakhs
+                  </h1>
+                  <p className="mt-2 text-lg text-slate-600">Home buying can&apos;t get better than this</p>
+                  <p className="mt-6 text-xl font-bold text-slate-800">
+                    Register Now <span className="font-medium text-slate-600 text-base">to Book Online</span>
+                  </p>
+                </div>
+              ) : view === 'resend_unlock' ? (
+                <div className="mb-6">
+                  <h1 className="font-sora text-2xl font-bold text-slate-800">Resend unlock instructions</h1>
+                </div>
+              ) : view === 'forgot' || view === 'resend_confirmation' ? (
+                <div className="mb-6">
+                  <h1 className="font-sora text-2xl font-bold text-slate-800">Reset Password</h1>
+                </div>
+              ) : (
+                <>
+                  <p className="inline-flex items-center gap-1.5 text-[0.98rem] font-bold tracking-[0.03em] text-sky-600">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M4 20a8 8 0 0 1 16 0" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span>Welcome to MP Developers</span>
+                  </p>
+                  <h1 className="font-sora mt-2 bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-[clamp(1.5rem,2.3vw,2rem)] leading-tight font-bold text-transparent">
+                    Build bold partnerships with confidence.
+                  </h1>
+                  <p className="mb-6 mt-2 max-w-[48ch] text-[1.02rem] leading-relaxed text-slate-600">
+                    We value your partnership and are excited to provide the resources you need for successful collaboration.
+                  </p>
+                </>
+              )}
 
               <form className="grid gap-4" onSubmit={handleSubmit} autoComplete="off">
-                <div className="grid gap-1.5">
-                  <label htmlFor="email" className={labelClass}>
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Email"
-                    className={inputClass}
-                  />
-                </div>
+                {view === 'login' ? (
+                  <>
+                    <div className="grid gap-1.5">
+                      <label htmlFor="email" className={labelClass}>
+                        Email
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Email"
+                        className={inputClass}
+                      />
+                    </div>
 
-                <div className="grid gap-1.5">
-                  <label htmlFor="password" className={labelClass}>
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Password"
-                    autoComplete="new-password"
-                    className={inputClass}
-                  />
-                </div>
+                    <div className="grid gap-1.5">
+                      <label htmlFor="password" className={labelClass}>
+                        Password
+                      </label>
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Password"
+                        autoComplete="new-password"
+                        className={inputClass}
+                      />
+                    </div>
+                  </>
+                ) : view === 'otp' ? (
+                  <div className="grid gap-1.5">
+                    <label className={labelClass}>Phone *</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500">
+                        <img src="https://flagcdn.com/w20/in.png" alt="India" className="w-5" />
+                        <span>+91</span>
+                      </span>
+                      <input
+                        name="phone"
+                        value={registerData.phone}
+                        onChange={handleChange}
+                        placeholder="Phone"
+                        className={`${inputClass} pl-20`}
+                        required
+                      />
+                    </div>
+                  </div>
+                ) : view === 'signup' ? (
+                  <>
+                    <div className="grid gap-1.5">
+                      <label className={labelClass}>First name *</label>
+                      <input
+                        name="firstName"
+                        value={registerData.firstName}
+                        onChange={handleChange}
+                        placeholder="First name"
+                        className={inputClass}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <label className={labelClass}>Last name *</label>
+                      <input
+                        name="lastName"
+                        value={registerData.lastName}
+                        onChange={handleChange}
+                        placeholder="Last name"
+                        className={inputClass}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <label className={labelClass}>Email</label>
+                      <input
+                        name="email"
+                        type="email"
+                        value={registerData.email}
+                        onChange={handleChange}
+                        placeholder="Email"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <label className={labelClass}>Phone</label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500">
+                          <img src="https://flagcdn.com/w20/in.png" alt="India" className="w-5" />
+                          <span>+91</span>
+                        </span>
+                        <input
+                          name="phone"
+                          value={registerData.phone}
+                          onChange={handleChange}
+                          placeholder="81234 56789"
+                          className={`${inputClass} pl-20`}
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : view === 'forgot' || view === 'resend_confirmation' || view === 'resend_unlock' ? (
+                  <div className="grid gap-2">
+                    <label className="text-[0.94rem] font-bold text-slate-700">{view === 'resend_unlock' ? 'Email' : 'Email / Phone'}</label>
+                    <input
+                      name="email"
+                      value={view === 'resend_unlock' ? registerData.email : formData.email}
+                      onChange={handleChange}
+                      placeholder={view === 'resend_unlock' ? 'eg. abc@iris.com' : 'Email / Phone'}
+                      className="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-3 text-[0.98rem] outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    <label className="text-[0.94rem] font-bold text-slate-700">Email</label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Email"
+                      className="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-3 text-[0.98rem] outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                      required
+                    />
+                  </div>
+                )}
 
-                <label className="mt-1 inline-flex items-center gap-2 text-[0.95rem] text-slate-700" htmlFor="stay-logged">
-                  <input id="stay-logged" type="checkbox" className="size-4 accent-sky-600" />
-                  <span>Keep me logged in</span>
-                </label>
+                {view === 'login' && (
+                  <label className="mt-1 inline-flex items-center gap-2 text-[0.95rem] text-slate-700" htmlFor="stay-logged">
+                    <input id="stay-logged" type="checkbox" className="size-4 accent-sky-600" />
+                    <span>Keep me logged in</span>
+                  </label>
+                )}
 
                 <button
-                  className="group relative mt-2 overflow-hidden rounded-xl bg-[#1e40af] px-3 py-3.5 text-base font-bold text-white shadow-[0_18px_35px_-20px_#1d4ed8] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-[0_24px_45px_-20px_#1d4ed8]"
+                  className="mt-4 rounded-lg bg-[#007ad9] px-3 py-3.5 text-base font-bold text-white shadow-md transition hover:bg-[#0069ba]"
                   type="submit"
                 >
-                  <span className="pointer-events-none absolute -left-10 top-0 h-full w-8 -skew-x-12 bg-white/35 opacity-0 transition group-hover:left-[110%] group-hover:opacity-100 group-hover:duration-700" />
-                  Sign In
+                  {view === 'login'
+                    ? 'Sign In'
+                    : view === 'otp'
+                    ? 'Get OTP'
+                    : view === 'forgot'
+                    ? 'Send reset password instructions'
+                    : view === 'resend_confirmation'
+                    ? 'Resend confirmation instructions'
+                    : view === 'resend_unlock'
+                    ? 'Resend unlock instructions'
+                    : 'Sign up'}
                 </button>
 
                 {errorMessage && <p className="text-sm font-semibold text-rose-600">{errorMessage}</p>}
 
-                <div className="mt-2 grid gap-1.5">
-                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                    Login with OTP instead
-                  </a>
-                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                    Forgot your password?
-                  </a>
-                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                    Didn&apos;t receive confirmation instructions?
-                  </a>
-                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                    Didn&apos;t receive unlock instructions?
-                  </a>
+                <div className="mt-4 flex flex-col items-start gap-1">
+                  {(view === 'login' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                    <button
+                      type="button"
+                      onClick={() => setView(view === 'login' ? 'otp' : 'login')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      {view === 'login' ? (
+                        'Login with OTP instead'
+                      ) : (
+                        <p>
+                          Already have an account? <span className="font-bold text-slate-600 underline">Login here</span>
+                        </p>
+                      )}
+                    </button>
+                  )}
+                  {view === 'otp' && (
+                    <button
+                      type="button"
+                      onClick={() => setView('login')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      Login with Password instead
+                    </button>
+                  )}
+                  {view !== 'forgot' && view !== 'signup' && (
+                    <button
+                      type="button"
+                      onClick={() => setView('forgot')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      Forgot your password?
+                    </button>
+                  )}
+                  {(view === 'forgot' || view === 'login' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                    <button
+                      type="button"
+                      onClick={() => setView('signup')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      Sign up
+                    </button>
+                  )}
+                  {view !== 'signup' && view !== 'resend_confirmation' && (
+                    <button
+                      type="button"
+                      onClick={() => setView('resend_confirmation')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      Didn&apos;t receive confirmation instructions?
+                    </button>
+                  )}
+                  {view !== 'signup' && view !== 'resend_unlock' && (
+                    <button
+                      type="button"
+                      onClick={() => setView('resend_unlock')}
+                      className="text-[0.9rem] text-slate-400 hover:underline"
+                    >
+                      Didn&apos;t receive unlock instructions?
+                    </button>
+                  )}
                 </div>
 
-                <p className="mt-4 text-[0.95rem] font-bold text-brand-blue/80">
-                  Don&apos;t have account ?{' '}
-                  <button
-                    type="button"
-                    onClick={() => setView('register')}
-                    className="font-bold text-brand-orange transition hover:text-brand-blue"
-                  >
-                    Sign Up
-                  </button>
-                </p>
+                {view === 'login' && (
+                  <p className="mt-4 text-[0.95rem] font-bold text-brand-blue/80">
+                    Don&apos;t have account ?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setView('signup')}
+                      className="font-bold text-brand-orange transition hover:text-brand-blue"
+                    >
+                      Sign Up
+                    </button>
+                  </p>
+                )}
               </form>
             </>
           ) : (
