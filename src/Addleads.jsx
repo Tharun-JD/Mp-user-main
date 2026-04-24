@@ -146,8 +146,8 @@ function Addleads({ isOpen, onClose, onSave }) {
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Partner Property Acquisition Portal</p>
           </div>
         </div>
-        
-        <button 
+
+        <button
           onClick={onClose}
           className="group flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-rose-50 hover:text-rose-600"
         >
@@ -159,9 +159,9 @@ function Addleads({ isOpen, onClose, onSave }) {
       </header>
 
       <form onSubmit={handleSubmit} autoComplete="off" className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8fafc]">
-        <div className="w-full px-6 py-8 md:px-12 md:py-12">
+        <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-12 md:py-12">
           <div className="grid gap-10 lg:grid-cols-[1fr_400px]">
-            
+
             {/* Left Column - Main Form Fields */}
             <div className="space-y-10">
               <section className="animate-rise rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10">

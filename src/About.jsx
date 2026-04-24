@@ -155,36 +155,7 @@ function LabelIcon({ type, className = 'size-4' }) {
   return null
 }
 
-const emailRows = [
-  {
-    id: 1,
-    to: 'mk.bhs97@gmail.com',
-    subject: 'FollowUp Reminder',
-    status: 'Draft',
-    sentOn: '-',
-  },
-  {
-    id: 2,
-    to: 'mk.bhs97@gmail.com',
-    subject: 'New lead has been created i...',
-    status: 'Draft',
-    sentOn: '-',
-  },
-  {
-    id: 3,
-    to: 'cphead@mpdevelopers.com mk.bhs97@gmail.com',
-    subject: 'Account has been approved',
-    status: 'Draft',
-    sentOn: 'Feb 18 2026, 2:42 PM',
-  },
-  {
-    id: 4,
-    to: 'mk.bhs97@gmail.com',
-    subject: 'Confirmation instructions',
-    status: 'Draft',
-    sentOn: 'Feb 18 2026, 11:25 AM',
-  },
-]
+
 
 const documentTypes = ['PAN Card', 'Aadhaar Card', 'Passport', 'Driving License']
 
@@ -238,6 +209,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   })
   const [isAddingNote, setIsAddingNote] = useState(false)
   const [newNoteText, setNewNoteText] = useState('')
+  const [emailLogs, setEmailLogs] = useState([])
 
   const selectedLead = leadActivities.find((lead) => lead.id === selectedLeadId) || null
   const validForSelectedDocument = validDocuments[selectedDocumentType] || []
@@ -407,6 +379,13 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   }, [selectedLeadId, leadActivities])
 
   useEffect(() => {
+    const savedLogs = window.localStorage.getItem('mp-email-logs')
+    if (savedLogs) {
+      setEmailLogs(JSON.parse(savedLogs))
+    }
+  }, [])
+
+  useEffect(() => {
     if (!currentUser?.email && !currentUser?.name) return
     const displayName = currentUser.name?.trim() || currentUser.email?.trim() || 'User'
     showToast(`Welcome ${displayName}. You are signed in.`)
@@ -502,16 +481,36 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   }
 
   const handleFollowUpClick = (followUpId) => {
+    let leadEmail = ''
+    let followUpSubject = ''
+
     const nextLeads = leadActivities.map((lead) => {
       if (lead.id !== selectedLeadId) return lead
-      const nextItems = (lead.followUpItems || []).map((item) =>
-        item.id === followUpId ? { ...item, status: 'Followed Up' } : item
-      )
+      leadEmail = lead.email
+      const nextItems = (lead.followUpItems || []).map((item) => {
+        if (item.id === followUpId) {
+          followUpSubject = item.subject
+          return { ...item, status: 'Followed Up' }
+        }
+        return item
+      })
       return { ...lead, followUpItems: nextItems, countStatus: 'Followed Up' }
     })
     persistLeads(nextLeads)
     setFollowUpActionMenuId(null)
     showToast('Follow up updated.')
+
+    // Add to email logs
+    const newEmail = {
+      id: Date.now(),
+      to: leadEmail || 'customer@example.com',
+      subject: `Follow-up: ${followUpSubject || 'Status Update'}`,
+      status: 'Delivered',
+      sentOn: new Date().toISOString()
+    }
+    const updatedEmails = [newEmail, ...emailLogs]
+    setEmailLogs(updatedEmails)
+    window.localStorage.setItem('mp-email-logs', JSON.stringify(updatedEmails))
   }
 
   const handleOpenUpdateFollowUp = (item) => {
@@ -885,7 +884,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         </div>
       </header>
 
-      <main className="relative isolate z-10 w-full px-6 md:px-10 py-8">
+      <main className="relative isolate z-10 mx-auto w-full px-6 md:px-10 py-8">
         {activeView === 'dashboard' && (
           <>
             <section className="hero-shimmer animate-rise overflow-hidden rounded-2xl bg-[linear-gradient(130deg,#3f52c4_0%,#5f62da_40%,#8f47cc_100%)] px-5 py-8 text-center text-white shadow-[0_30px_65px_-35px_#4450c6] md:px-8 md:py-10">
@@ -1240,7 +1239,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {emailRows.length === 0 ? (
+                      {emailLogs.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="px-6 py-20 text-center">
                             <div className="mx-auto flex max-w-xs flex-col items-center">
@@ -1253,7 +1252,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                           </td>
                         </tr>
                       ) : (
-                        emailRows.map((row) => (
+                        emailLogs.map((row) => (
                           <tr key={row.id} className="group transition-all hover:bg-white/60">
                             <td className="px-6 py-5 align-middle">
                               <div className="flex items-center gap-3">
@@ -1262,22 +1261,26 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
                                   </svg>
                                 </div>
-                                <span className="font-bold text-slate-700">{row.to || 'recipient@example.com'}</span>
+                                <span className="font-bold text-slate-700">{row.to}</span>
                               </div>
                             </td>
                             <td className="px-4 py-5 align-middle">
-                              <span className="font-medium text-slate-600">{row.subject || 'System Notification'}</span>
+                              <span className="font-medium text-slate-600">{row.subject}</span>
                             </td>
                             <td className="px-4 py-5 align-middle">
                               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-600 ring-1 ring-inset ring-emerald-200/50">
                                 <span className="h-1 w-1 rounded-full bg-emerald-500"></span>
-                                Delivered
+                                {row.status}
                               </span>
                             </td>
                             <td className="px-4 py-5 align-middle">
                               <div className="space-y-0.5">
-                                <p className="text-[13px] font-bold text-slate-700">24 Apr 2024</p>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">14:05 PM</p>
+                                <p className="text-[13px] font-bold text-slate-700">
+                                  {new Date(row.sentOn).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                  {new Date(row.sentOn).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                </p>
                               </div>
                             </td>
                             <td className="px-6 py-5 text-center align-middle">
@@ -1770,7 +1773,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                         </div>
                         <h3 className="font-sora text-sm font-bold">Collaborative Notes</h3>
                       </div>
-                      <button 
+                      <button
                         onClick={() => setIsAddingNote(!isAddingNote)}
                         className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white/40 transition hover:bg-white/20 hover:text-white"
                       >
@@ -2181,11 +2184,11 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Recipient</span>
-                    <p className="font-bold text-slate-700">{emailRows.find(e => e.id === selectedEmailId)?.to}</p>
+                    <p className="font-bold text-slate-700">{emailLogs.find(e => e.id === selectedEmailId)?.to}</p>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Subject</span>
-                    <p className="font-bold text-slate-700">{emailRows.find(e => e.id === selectedEmailId)?.subject}</p>
+                    <p className="font-bold text-slate-700">{emailLogs.find(e => e.id === selectedEmailId)?.subject}</p>
                   </div>
                 </div>
 
@@ -2195,7 +2198,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                     <p>Dear Valued Partner,</p>
                     <p className="mt-4">
                       This is a formal communication regarding your recent activity on the MP Developers platform.
-                      Your status for <strong>{emailRows.find(e => e.id === selectedEmailId)?.subject}</strong> has been logged.
+                      Your status for <strong>{emailLogs.find(e => e.id === selectedEmailId)?.subject}</strong> has been logged.
                     </p>
                     <p className="mt-4 text-slate-400 italic">This is an automated system notification.</p>
                   </div>

@@ -70,7 +70,7 @@ function Custdetails({ onClose }) {
       </header>
 
       <form onSubmit={handleSave} autoComplete="off" className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8fafc]">
-        <div className="w-full px-6 py-8 md:px-12 md:py-12">
+        <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-12 md:py-12">
           <div className="grid gap-10 lg:grid-cols-[1fr_420px]">
 
             {/* Main Form Sections */}
