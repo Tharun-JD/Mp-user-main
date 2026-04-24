@@ -183,17 +183,15 @@ function Login({ onSignIn }) {
                   <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
                     Login with OTP instead
                   </a>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1">
-                    <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                      Forgot your password?
-                    </a>
-                    <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                      Didn&apos;t receive confirmation instructions?
-                    </a>
-                    <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
-                      Didn&apos;t receive unlock instructions?
-                    </a>
-                  </div>
+                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
+                    Forgot your password?
+                  </a>
+                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
+                    Didn&apos;t receive confirmation instructions?
+                  </a>
+                  <a href="#" className="text-[0.95rem] font-bold text-brand-blue/80 transition hover:text-brand-blue">
+                    Didn&apos;t receive unlock instructions?
+                  </a>
                 </div>
 
                 <p className="mt-4 text-[0.95rem] font-bold text-brand-blue/80">
