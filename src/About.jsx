@@ -889,7 +889,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
           <>
             <section className="hero-shimmer animate-rise overflow-hidden rounded-2xl bg-[linear-gradient(130deg,#3f52c4_0%,#5f62da_40%,#8f47cc_100%)] px-5 py-8 text-center text-white shadow-[0_30px_65px_-35px_#4450c6] md:px-8 md:py-10">
               <h1 className="font-sora text-[clamp(1.8rem,2.6vw,3rem)] font-semibold tracking-[-0.02em]">
-                Welcome ({welcomeName})
+                Welcome("{welcomeName}")
               </h1>
               <p className="mt-3 text-[1.45rem] text-white/90">
                 {welcomeEmail ? `Email: ${welcomeEmail}` : 'Vendor Code: Test0077'}

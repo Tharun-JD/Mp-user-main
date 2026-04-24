@@ -11,6 +11,7 @@ function Login({ onSignIn }) {
   }, [view])
 
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
   })
@@ -104,7 +105,7 @@ function Login({ onSignIn }) {
         setErrorMessage('Please enter Email and Password.')
         return
       }
-      onSignIn?.({ email: formData.email.trim() })
+      onSignIn?.({ name: formData.name.trim(), email: formData.email.trim() })
     } else if (view === 'otp') {
       console.log('Getting OTP for:', registerData.phone)
     } else if (view === 'forgot') {
@@ -241,6 +242,21 @@ function Login({ onSignIn }) {
               <form className="grid gap-4" onSubmit={handleSubmit} autoComplete="off">
                 {view === 'login' ? (
                   <>
+                    <div className="grid gap-1.5">
+                      <label htmlFor="name" className={labelClass}>
+                        Full Name
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Full Name"
+                        className={inputClass}
+                      />
+                    </div>
+
                     <div className="grid gap-1.5">
                       <label htmlFor="email" className={labelClass}>
                         Email
