@@ -1,7 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function Login({ onSignIn }) {
-  const [view, setView] = useState('login')
+  const [view, setView] = useState(() => {
+    return localStorage.getItem('authView') || 'login'
+  })
+
+  // Persist view state to localStorage
+  useEffect(() => {
+    localStorage.setItem('authView', view)
+  }, [view])
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
