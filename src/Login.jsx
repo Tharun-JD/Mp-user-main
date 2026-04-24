@@ -88,13 +88,7 @@ function Login({ onSignIn }) {
           </div>
         </div>
 
-        <div className="hidden items-center gap-6 sm:flex">
-          <button
-            type="button"
-            className="text-sm font-bold text-[#007ad9] transition-all hover:scale-105 hover:text-[#005fa8]"
-          >
-            Home
-          </button>
+        <div className="hidden items-center gap-3 sm:flex">
           <button
             type="button"
             onClick={() => setView('register')}
@@ -115,11 +109,26 @@ function Login({ onSignIn }) {
       </header>
 
       <main
-        className={`relative z-10 mx-auto grid w-[94vw] max-w-[1320px] gap-9 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-[minmax(350px,540px)_1fr] lg:items-center' : 'grid-cols-1'
+        className={`relative z-10 mx-auto grid w-[94vw] max-w-[1320px] gap-12 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
           }`}
       >
+        <section className="hidden flex-col items-center justify-center text-center lg:flex">
+          <div className="animate-float flex items-center gap-2 font-sora text-[12rem] font-extrabold leading-none tracking-tighter">
+            <span className="text-brand-blue">m</span>
+            <span className="text-brand-orange">P</span>
+          </div>
+          <div className="mt-2 text-5xl font-bold tracking-tight text-brand-blue/90">Developers</div>
+          <div className="mt-6 flex gap-4 text-xl font-bold tracking-[0.4em]">
+            <span className="text-brand-blue">TRUST</span>
+            <span className="text-brand-orange">FOREVER</span>
+          </div>
+          <p className="mt-12 max-w-[30ch] text-2xl font-medium leading-relaxed text-slate-500">
+            Designing your dreams, building your future.
+          </p>
+        </section>
+
         <section
-          className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:order-2 lg:ml-auto lg:w-full' : 'mx-auto max-w-4xl w-full'
+          className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:w-full' : 'mx-auto max-w-4xl w-full'
             }`}
         >
           <span
@@ -315,75 +324,78 @@ function Login({ onSignIn }) {
                   {view === 'login'
                     ? 'Sign In'
                     : view === 'otp'
-                    ? 'Get OTP'
-                    : view === 'forgot'
-                    ? 'Send reset password instructions'
-                    : view === 'resend_confirmation'
-                    ? 'Resend confirmation instructions'
-                    : view === 'resend_unlock'
-                    ? 'Resend unlock instructions'
-                    : 'Sign up'}
+                      ? 'Get OTP'
+                      : view === 'forgot'
+                        ? 'Send reset password instructions'
+                        : view === 'resend_confirmation'
+                          ? 'Resend confirmation instructions'
+                          : 'Resend unlock instructions'}
                 </button>
 
                 {errorMessage && <p className="text-sm font-semibold text-rose-600">{errorMessage}</p>}
 
                 <div className="mt-4 flex flex-col items-start gap-1">
-                  {(view === 'login' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                  {view === 'login' && (
                     <button
                       type="button"
-                      onClick={() => setView(view === 'login' ? 'otp' : 'login')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      onClick={() => setView('otp')}
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
-                      {view === 'login' ? (
-                        'Login with OTP instead'
-                      ) : (
-                        <p>
-                          Already have an account? <span className="font-bold text-slate-600 underline">Login here</span>
-                        </p>
-                      )}
+                      Login with OTP instead
+                    </button>
+                  )}
+                  {(view === 'forgot' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                    <button
+                      type="button"
+                      onClick={() => setView('login')}
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
+                    >
+                      <p>
+                        Already have an account? <span className="font-bold">Login here</span>
+                      </p>
                     </button>
                   )}
                   {view === 'otp' && (
                     <button
                       type="button"
                       onClick={() => setView('login')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Login with Password instead
                     </button>
                   )}
-                  {view !== 'forgot' && view !== 'signup' && (
+                  {view !== 'forgot' && (
                     <button
                       type="button"
                       onClick={() => setView('forgot')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Forgot your password?
                     </button>
                   )}
-                  {(view === 'forgot' || view === 'login' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                  {view === 'forgot' && (
                     <button
                       type="button"
                       onClick={() => setView('signup')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Sign up
                     </button>
                   )}
-                  {view !== 'signup' && view !== 'resend_confirmation' && (
+                  {view !== 'resend_confirmation' && (
                     <button
                       type="button"
                       onClick={() => setView('resend_confirmation')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Didn&apos;t receive confirmation instructions?
                     </button>
                   )}
-                  {view !== 'signup' && view !== 'resend_unlock' && (
+                  {view !== 'resend_unlock' && (
                     <button
                       type="button"
                       onClick={() => setView('resend_unlock')}
-                      className="text-[0.9rem] text-slate-400 hover:underline"
+                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Didn&apos;t receive unlock instructions?
                     </button>
@@ -391,12 +403,12 @@ function Login({ onSignIn }) {
                 </div>
 
                 {view === 'login' && (
-                  <p className="mt-4 text-[0.95rem] font-bold text-brand-blue/80">
+                  <p className="mt-6 text-[0.95rem] font-bold text-brand-blue">
                     Don&apos;t have account ?{' '}
                     <button
                       type="button"
-                      onClick={() => setView('signup')}
-                      className="font-bold text-brand-orange transition hover:text-brand-blue"
+                      onClick={() => setView('register')}
+                      className="font-bold transition-colors hover:text-brand-orange"
                     >
                       Sign Up
                     </button>
@@ -405,22 +417,28 @@ function Login({ onSignIn }) {
               </form>
             </>
           ) : (
-            <>
-              <div className="mb-8">
-                <h1 className="font-sora text-2xl font-bold text-sky-600">Welcome to the Channel Partner Login for MP Developers!</h1>
-                <p className="mt-2 text-slate-600">
-                  We value your partnership and are excited to provide you with the resources you need for successful collaboration.
+            <div className="animate-fade-in mx-auto w-full max-w-5xl">
+              <div className="mb-10 text-center">
+                <h1 className="font-sora bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-3xl font-extrabold text-transparent md:text-4xl">
+                  Channel Partner Registration
+                </h1>
+                <p className="mt-3 text-lg font-medium text-slate-500">
+                  Join MP Developers and build the future with us.
                 </p>
               </div>
 
-              <form className="grid gap-8" onSubmit={handleSubmit} autoComplete="off">
-                {/* Basic Details Section */}
-                <div>
-                  <div className="mb-5 rounded-lg bg-gradient-to-r from-sky-600 to-sky-400 px-5 py-3 text-lg font-bold text-white shadow-md">
-                    Basic details
+              <form className="grid gap-10" onSubmit={handleSubmit} autoComplete="off">
+                <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                  <div className="mb-8 flex items-center gap-4">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">
+                      1
+                    </div>
+                    <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic details</h2>
+                    <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                   </div>
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <div className="grid gap-1.5">
+
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Title</label>
                       <select name="title" value={registerData.title} onChange={handleChange} className={inputClass}>
                         <option value="Mr">Mr</option>
@@ -428,197 +446,202 @@ function Login({ onSignIn }) {
                         <option value="Mrs">Mrs</option>
                       </select>
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2 md:col-span-1 lg:col-span-2">
                       <label className={labelClass}>Name *</label>
                       <input
                         name="name"
                         value={registerData.name}
                         onChange={handleChange}
-                        placeholder="Name"
+                        placeholder="Full Name"
                         className={inputClass}
                         required
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Phone *</label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">+91</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
                         <input
                           name="phone"
                           value={registerData.phone}
                           onChange={handleChange}
-                          placeholder="81234 56789"
-                          className={`${inputClass} pl-12`}
+                          placeholder="Phone Number"
+                          className={`${inputClass} pl-14`}
                           required
                         />
                       </div>
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Email *</label>
                       <input
                         name="email"
                         type="email"
                         value={registerData.email}
                         onChange={handleChange}
-                        placeholder="eg. abc@iris.com"
+                        placeholder="email@example.com"
                         className={inputClass}
                         required
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Alternate Number</label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">+91</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
                         <input
                           name="alternateNumber"
                           value={registerData.alternateNumber}
                           onChange={handleChange}
                           placeholder="81234 56789"
-                          className={`${inputClass} pl-12`}
+                          className={`${inputClass} pl-14`}
                         />
                       </div>
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Aadhaar *</label>
                       <input
                         name="aadhaar"
                         value={registerData.aadhaar}
                         onChange={handleChange}
-                        placeholder="Aadhaar"
+                        placeholder="Aadhaar Number"
                         className={inputClass}
                         required
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>PAN Number *</label>
                       <input
                         name="pan"
                         value={registerData.pan}
                         onChange={handleChange}
-                        placeholder="eg. AAAPR1111A"
+                        placeholder="PAN Card Number"
                         className={inputClass}
                         required
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Occupation</label>
                       <input
                         name="occupation"
                         value={registerData.occupation}
                         onChange={handleChange}
-                        placeholder="Occupation"
+                        placeholder="Your Occupation"
                         className={inputClass}
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>RERA Registration Number</label>
                       <input
                         name="rera"
                         value={registerData.rera}
                         onChange={handleChange}
-                        placeholder="RERA"
+                        placeholder="RERA Number"
                         className={inputClass}
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>CP Company Name/ CP Name</label>
                       <input
                         name="company"
                         value={registerData.company}
                         onChange={handleChange}
-                        placeholder="Company Name"
+                        placeholder="Company or CP Name"
                         className={inputClass}
                       />
                     </div>
                   </div>
-                </div>
+                </section>
 
                 {/* Address Section */}
-                <div>
-                  <div className="mb-5 rounded-lg bg-gradient-to-r from-sky-600 to-sky-400 px-5 py-3 text-lg font-bold text-white shadow-md">
-                    Address
+                <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                  <div className="mb-8 flex items-center gap-4">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-brand-orange font-sora text-lg font-bold text-white shadow-lg">
+                      2
+                    </div>
+                    <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
+                    <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                   </div>
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <div className="grid gap-1.5">
+
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid gap-2">
                       <label className={labelClass}>House/Flat/Company</label>
                       <input
                         name="house"
                         value={registerData.house}
                         onChange={handleChange}
-                        placeholder="House/Flat/Company"
+                        placeholder="Address Line 1"
                         className={inputClass}
                       />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Street</label>
-                      <input name="street" value={registerData.street} onChange={handleChange} placeholder="Street" className={inputClass} />
+                      <input
+                        name="street"
+                        value={registerData.street}
+                        onChange={handleChange}
+                        placeholder="Address Line 2"
+                        className={inputClass}
+                      />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Country</label>
                       <select name="country" value={registerData.country} onChange={handleChange} className={inputClass}>
                         <option value="">Select country</option>
                         <option value="India">India</option>
                       </select>
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>State / Region</label>
                       <select name="state" value={registerData.state} onChange={handleChange} className={inputClass}>
                         <option value="">-</option>
-                        <option value="Tamil Nadu">Tamil Nadu</option>
                         <option value="Maharashtra">Maharashtra</option>
                       </select>
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>City</label>
-                      <input name="city" value={registerData.city} onChange={handleChange} placeholder="eg. Pune" className={inputClass} />
+                      <input
+                        name="city"
+                        value={registerData.city}
+                        onChange={handleChange}
+                        placeholder="City"
+                        className={inputClass}
+                      />
                     </div>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <label className={labelClass}>Zip / Pin Code</label>
-                      <input name="zip" value={registerData.zip} onChange={handleChange} placeholder="eg. 4110045" className={inputClass} />
+                      <input
+                        name="zip"
+                        value={registerData.zip}
+                        onChange={handleChange}
+                        placeholder="Pin Code"
+                        className={inputClass}
+                      />
                     </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="grid gap-4">
+                <div className="flex flex-col items-center gap-6 pb-8">
                   <button
-                    className="rounded-xl bg-sky-600 py-3.5 text-lg font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-700"
                     type="submit"
+                    className="group relative h-16 w-full max-w-md overflow-hidden rounded-2xl bg-brand-blue text-lg font-bold text-white shadow-[0_20px_40px_-15px_rgba(29,78,216,0.5)] transition-all hover:scale-[1.02] hover:shadow-[0_25px_50px_-12px_rgba(29,78,216,0.6)] active:scale-[0.98]"
                   >
-                    Register
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000 group-hover:translate-x-full"></div>
+                    Register as Partner
                   </button>
-                  <p className="text-center text-[0.95rem] font-medium text-slate-600">
-                    Already have an account?{' '}
-                    <button type="button" onClick={() => setView('login')} className="font-bold text-sky-600 hover:underline">
-                      Login here
-                    </button>
-                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setView('login')}
+                    className="group flex items-center gap-2 text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
+                  >
+                    <span>Already have an account?</span>
+                    <span className="font-bold underline decoration-2 underline-offset-4 group-hover:decoration-brand-orange">Login here</span>
+                  </button>
                 </div>
               </form>
-            </>
+            </div>
           )}
         </section>
 
-        {view === 'login' && (
-          <section aria-hidden="true" className="animate-fade-slide grid min-h-[320px] place-items-center lg:order-1 lg:min-h-[520px]">
-            <div className="select-none text-center">
-              <div className="flex items-end justify-center gap-2 leading-none md:gap-3">
-                <span className="animate-rise font-sora text-[clamp(6.8rem,22vw,15rem)] font-bold tracking-[-0.06em] text-brand-blue [animation-delay:120ms]">
-                  m
-                </span>
-                <span className="animate-rise font-sora translate-y-1 text-[clamp(6.2rem,20vw,13rem)] font-bold tracking-[-0.06em] text-brand-orange [animation-delay:220ms]">
-                  P
-                </span>
-              </div>
-              <div className="animate-rise font-sora mt-1 text-[clamp(2.1rem,6vw,5.4rem)] leading-[0.95] font-extrabold tracking-[-0.01em] text-[#3441a0] [animation-delay:320ms]">
-                Developers
-              </div>
-              <div className="animate-rise font-sora mt-3 flex justify-center gap-4 text-[clamp(0.95rem,1.6vw,1.7rem)] font-bold tracking-[0.16em] md:gap-6 md:tracking-[0.22em] [animation-delay:420ms]">
-                <span className="text-[#3342a8]">TRUST</span>
-                <span className="text-brand-orange">FOREVER</span>
-              </div>
-            </div>
-          </section>
-        )}
       </main>
     </div>
   )
