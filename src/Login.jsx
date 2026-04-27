@@ -41,8 +41,33 @@ function Login({ onSignIn }) {
   
   const [selectedDocType, setSelectedDocType] = useState('PAN Card')
   const documentTypes = ['PAN Card', 'Aadhaar Card', 'RERA Certificate', 'GST Certificate', 'Passbook/Cancelled Cheque']
+  const [isPhonePrefixOpen, setIsPhonePrefixOpen] = useState(false)
+  const [isCountryOpen, setIsCountryOpen] = useState(false)
+  const [countrySearch, setCountrySearch] = useState('')
+  const [isStateOpen, setIsStateOpen] = useState(false)
+  const [stateSearch, setStateSearch] = useState('')
+  const dropdownRef = useRef(null)
+  const countryRef = useRef(null)
+  const stateRef = useRef(null)
 
   useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsPhonePrefixOpen(false)
+      }
+      if (countryRef.current && !countryRef.current.contains(event.target)) {
+        setIsCountryOpen(false)
+      }
+      if (stateRef.current && !stateRef.current.contains(event.target)) {
+        setIsStateOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    console.log('Country List Loaded:', countryList?.length)
     localStorage.setItem('authView', view)
   }, [view])
 
@@ -296,7 +321,7 @@ function Login({ onSignIn }) {
               <form className="flex flex-col h-[70vh]" onSubmit={handleSubmit} autoComplete="off">
                 <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 no-scrollbar">
                   {/* Basic Profile */}
-                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center gap-4">
                       <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">1</div>
                       <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic Profile</h2>
@@ -313,8 +338,40 @@ function Login({ onSignIn }) {
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>Phone *</label>
-                        <div className="flex gap-2">
-                          <input type="text" value={registerData.phonePrefix} onChange={(e) => handleRegisterFieldChange('phonePrefix', e.target.value)} className="w-20 text-center rounded-xl border border-slate-200 bg-white/90 px-2 py-3 font-bold text-slate-700" />
+                        <div className="flex gap-2 relative">
+                          <div className="relative" ref={dropdownRef}>
+                            <button
+                              type="button"
+                              onClick={() => setIsPhonePrefixOpen(!isPhonePrefixOpen)}
+                              className="w-24 flex items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white/90 px-2 py-3 font-bold text-slate-700 hover:border-sky-300 transition-all"
+                            >
+                              <span>{countryPhoneOptions.find(c => c.code === registerData.phonePrefix)?.flag || '🌐'}</span>
+                              <span>{registerData.phonePrefix}</span>
+                              <svg className={`size-4 transition-transform ${isPhonePrefixOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
+                            </button>
+
+                            {isPhonePrefixOpen && (
+                              <div className="absolute top-full left-0 mt-1 z-[100] w-64 max-h-60 overflow-y-auto rounded-2xl border border-slate-100 bg-white p-2 shadow-2xl animate-elastic-pop no-scrollbar">
+                                {countryPhoneOptions.map((opt) => (
+                                  <button
+                                    key={`${opt.country}-${opt.code}`}
+                                    type="button"
+                                    onClick={() => {
+                                      handleRegisterFieldChange('phonePrefix', opt.code)
+                                      setIsPhonePrefixOpen(false)
+                                    }}
+                                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xl">{opt.flag}</span>
+                                      <span>{opt.country}</span>
+                                    </div>
+                                    <span className="text-slate-400">{opt.code}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <input type="text" value={registerData.phone} onChange={(e) => handleRegisterFieldChange('phone', e.target.value)} className={inputClass} placeholder="Number" required />
                         </div>
                       </div>
@@ -337,8 +394,8 @@ function Login({ onSignIn }) {
                     </div>
                   </section>
 
-                  {/* GST & Bank */}
-                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
+                  {/* GST Configuration */}
+                  <section className="relative rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
                     <div className="grid gap-8 md:grid-cols-2">
                       <div className="space-y-4">
                         <label className={labelClass}>Is GST Applicable? *</label>
@@ -356,7 +413,7 @@ function Login({ onSignIn }) {
                   </section>
 
                   {/* Bank Details */}
-                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center gap-4">
                       <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500 font-sora text-lg font-bold text-white shadow-lg">2</div>
                       <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Bank Details</h2>
@@ -379,7 +436,7 @@ function Login({ onSignIn }) {
                   </section>
 
                   {/* KYC Verification */}
-                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
+                  <section className="relative rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center justify-between">
                       <h2 className="font-sora text-xl font-bold text-slate-800">KYC VERIFICATION</h2>
                       <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 border border-orange-100">MANDATORY</span>
@@ -408,7 +465,7 @@ function Login({ onSignIn }) {
                   </section>
 
                   {/* Address */}
-                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center gap-4">
                       <div className="flex size-10 items-center justify-center rounded-xl bg-orange-500 font-sora text-lg font-bold text-white shadow-lg">3</div>
                       <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
@@ -433,14 +490,109 @@ function Login({ onSignIn }) {
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>Country</label>
-                        <select value={registerData.country} onChange={(e) => handleRegisterFieldChange('country', e.target.value)} className={inputClass}>
-                          <option value="India">India</option>
-                          {countryList.filter(c => c.name !== 'India').map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
-                        </select>
+                        <div className="relative" ref={countryRef}>
+                          <button
+                            type="button"
+                            onClick={() => { setIsCountryOpen(!isCountryOpen); setCountrySearch(''); }}
+                            className={`${inputClass} flex items-center justify-between`}
+                          >
+                            <span>{registerData.country || 'Select Country'}</span>
+                            <svg className={`size-4 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
+                          </button>
+
+                          {isCountryOpen && (
+                            <div className="absolute top-full left-0 mt-1 z-[100] w-full min-w-[280px] rounded-2xl border border-slate-100 bg-white p-3 shadow-2xl animate-elastic-pop">
+                              <div className="mb-3 relative">
+                                <input
+                                  type="text"
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  placeholder="Search country..."
+                                  className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-blue/30 focus:ring-4 focus:ring-brand-blue/5"
+                                  autoFocus
+                                />
+                                <svg className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                              </div>
+                              <div className="max-h-60 overflow-y-auto no-scrollbar space-y-1">
+                                {countryList
+                                  .filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()))
+                                  .map((c) => (
+                                    <button
+                                      key={c.code}
+                                      type="button"
+                                      onClick={() => {
+                                        handleRegisterFieldChange('country', c.name);
+                                        handleRegisterFieldChange('state', '');
+                                        setIsCountryOpen(false);
+                                      }}
+                                      className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                    >
+                                      <svg className="size-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014.5 9 15.3 15.3 0 01-4.5 9 15.3 15.3 0 01-4.5-9A15.3 15.3 0 0112 3z" /></svg>
+                                      <span>{c.name}</span>
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>State</label>
-                        <input type="text" value={registerData.state} onChange={(e) => handleRegisterFieldChange('state', e.target.value)} className={inputClass} placeholder="State" required />
+                        <div className="relative" ref={stateRef}>
+                          <button
+                            type="button"
+                            onClick={() => { setIsStateOpen(!isStateOpen); setStateSearch(''); }}
+                            className={`${inputClass} flex items-center justify-between ${!registerData.country ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={!registerData.country}
+                          >
+                            <span>{registerData.state || 'Select State'}</span>
+                            <svg className={`size-4 transition-transform ${isStateOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
+                          </button>
+
+                          {isStateOpen && registerData.country && (
+                            <div className="absolute top-full left-0 mt-1 z-[100] w-full min-w-[280px] rounded-2xl border border-slate-100 bg-white p-3 shadow-2xl animate-elastic-pop">
+                              <div className="mb-3 relative">
+                                <input
+                                  type="text"
+                                  value={stateSearch}
+                                  onChange={(e) => setStateSearch(e.target.value)}
+                                  placeholder="Search state..."
+                                  className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-blue/30 focus:ring-4 focus:ring-brand-blue/5"
+                                  autoFocus
+                                />
+                              </div>
+                              <div className="max-h-60 overflow-y-auto no-scrollbar space-y-1">
+                                {(statesByCountry[countryList.find(c => c.name === registerData.country)?.code] || [])
+                                  .filter(s => s.toLowerCase().includes(stateSearch.toLowerCase()))
+                                  .map((s) => (
+                                    <button
+                                      key={s}
+                                      type="button"
+                                      onClick={() => {
+                                        handleRegisterFieldChange('state', s);
+                                        setIsStateOpen(false);
+                                      }}
+                                      className="flex w-full items-center px-4 py-2.5 text-left text-sm font-bold text-slate-600 rounded-xl transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                    >
+                                      {s}
+                                    </button>
+                                  ))}
+                                {!(statesByCountry[countryList.find(c => c.name === registerData.country)?.code] || []).length && (
+                                  <div className="px-4 py-8 text-center">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No states listed</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => setIsStateOpen(false)}
+                                      className="mt-2 text-xs font-bold text-brand-blue underline"
+                                    >
+                                      Type state manually?
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </section>

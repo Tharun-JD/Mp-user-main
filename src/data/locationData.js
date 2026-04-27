@@ -223,6 +223,12 @@ export const statesByCountry = {
   ],
   GB: [
     "England", "Scotland", "Wales", "Northern Ireland"
+  ],
+  AE: [
+    "Abu Dhabi", "Dubai", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"
+  ],
+  QA: [
+    "Doha", "Al Rayyan", "Al Wakrah", "Al Khor", "Al Shamal", "Al Daayen", "Umm Salal", "Al Shahaniya"
   ]
 };
 
