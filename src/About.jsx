@@ -216,107 +216,21 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const welcomeName = currentUser?.name?.trim() || currentUser?.email?.trim() || 'Test Company'
   const welcomeEmail = currentUser?.email?.trim() || ''
 
-  const SEEDED_LEADS = [
-    {
-      id: 'seed-001', name: 'Arjun Mehta', firstName: 'Arjun', lastName: 'Mehta',
-      email: 'arjun.mehta@gmail.com', phone: '9876543210',
-      sellDoLeadId: 'SD-100001', project: 'MP Amber', leadStage: 'Fresh',
-      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '22/01/2026',
-      leadValidityPeriod: '30 Days', budget: '₹45-60 Lakh', location: 'Pune',
-      configuration: '2BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-002', name: 'Priya Sharma', firstName: 'Priya', lastName: 'Sharma',
-      email: 'priya.sharma@outlook.com', phone: '9823456789',
-      sellDoLeadId: 'SD-100002', project: 'MP Meridian', leadStage: 'Site Visit Done',
-      leadStatus: 'Already Exists', countStatus: 'Pending', registeredAt: '18/02/2026',
-      leadValidityPeriod: '45 Days', budget: '₹70-90 Lakh', location: 'Mumbai',
-      configuration: '3BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-003', name: 'Rohit Verma', firstName: 'Rohit', lastName: 'Verma',
-      email: 'rohit.v@yahoo.com', phone: '9712345678',
-      sellDoLeadId: 'SD-100003', project: 'MP Opulence', leadStage: 'Negotiation',
-      leadStatus: 'Active', countStatus: 'Followed Up', registeredAt: '10/03/2026',
-      leadValidityPeriod: '30 Days', budget: '₹1-1.5 Cr', location: 'Bangalore',
-      configuration: '4BHK', propertyType: 'Villa', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-004', name: 'Sneha Patil', firstName: 'Sneha', lastName: 'Patil',
-      email: 'sneha.patil@gmail.com', phone: '9634567890',
-      sellDoLeadId: 'SD-100004', project: 'MP Amber', leadStage: 'Fresh',
-      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '05/04/2026',
-      leadValidityPeriod: '30 Days', budget: '₹35-50 Lakh', location: 'Nashik',
-      configuration: '1BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-005', name: 'Kiran Desai', firstName: 'Kiran', lastName: 'Desai',
-      email: 'kiran.desai@company.com', phone: '9512345670',
-      sellDoLeadId: 'SD-100005', project: 'MP Meridian', leadStage: 'Booking Done',
-      leadStatus: 'Won', countStatus: 'Completed', registeredAt: '14/01/2026',
-      leadValidityPeriod: '60 Days', budget: '₹80 Lakh-1 Cr', location: 'Hyderabad',
-      configuration: '3BHK', propertyType: 'Flat', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-006', name: 'Amit Kumar', firstName: 'Amit', lastName: 'Kumar',
-      email: 'amit.kumar@gmail.com', phone: '9398765432',
-      sellDoLeadId: 'SD-100006', project: 'MP Opulence', leadStage: 'Fresh',
-      leadStatus: 'Active', countStatus: 'Pending', registeredAt: '20/03/2026',
-      leadValidityPeriod: '30 Days', budget: '₹55-65 Lakh', location: 'Chennai',
-      configuration: '2BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-007', name: 'Meena Joshi', firstName: 'Meena', lastName: 'Joshi',
-      email: 'meena.joshi@rediffmail.com', phone: '9287654321',
-      sellDoLeadId: 'SD-100007', project: 'MP Amber', leadStage: 'Callback Requested',
-      leadStatus: 'Active', countStatus: 'Rescheduled', registeredAt: '28/02/2026',
-      leadValidityPeriod: '30 Days', budget: '₹40-55 Lakh', location: 'Pune',
-      configuration: '2BHK', propertyType: 'Flat', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-008', name: 'Suresh Nair', firstName: 'Suresh', lastName: 'Nair',
-      email: 'suresh.nair@gmail.com', phone: '9176543219',
-      sellDoLeadId: 'SD-100008', project: 'MP Meridian', leadStage: 'Lost',
-      leadStatus: 'Lost', countStatus: 'Pending', registeredAt: '11/12/2025',
-      leadValidityPeriod: '30 Days', budget: '₹60-75 Lakh', location: 'Kochi',
-      configuration: '3BHK', propertyType: 'Apartment', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-009', name: 'Deepika Rao', firstName: 'Deepika', lastName: 'Rao',
-      email: 'deepika.rao@hotmail.com', phone: '9065432198',
-      sellDoLeadId: 'SD-100009', project: 'MP Opulence', leadStage: 'Site Visit Scheduled',
-      leadStatus: 'Active', countStatus: 'Followed Up', registeredAt: '01/04/2026',
-      leadValidityPeriod: '45 Days', budget: '₹90 Lakh-1.2 Cr', location: 'Delhi',
-      configuration: '4BHK', propertyType: 'Penthouse', followUpItems: [], notes: [],
-    },
-    {
-      id: 'seed-010', name: 'Rajesh Iyer', firstName: 'Rajesh', lastName: 'Iyer',
-      email: 'rajesh.iyer@business.in', phone: '8954321076',
-      sellDoLeadId: 'SD-100010', project: 'MP Amber', leadStage: 'Fresh',
-      leadStatus: 'Already Exists', countStatus: 'Pending', registeredAt: '16/04/2026',
-      leadValidityPeriod: '30 Days', budget: '₹30-45 Lakh', location: 'Ahmedabad',
-      configuration: '1BHK', propertyType: 'Studio', followUpItems: [], notes: [],
-    },
-  ]
+  const SEEDED_LEADS = []
 
   useEffect(() => {
     const savedLeads = window.localStorage.getItem(LEAD_ACTIVITY_KEY)
     if (savedLeads) {
       const parsed = JSON.parse(savedLeads)
-      // Merge: keep any seeded leads that aren't already stored, preserving user-added ones
-      const savedIds = new Set(parsed.map((l) => l.id))
-      const missing = SEEDED_LEADS.filter((l) => !savedIds.has(l.id))
-      const merged = [...parsed, ...missing]
-      if (missing.length > 0) {
-        window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(merged))
-        setLeadActivities(merged)
-      } else {
-        setLeadActivities(parsed)
+      // Filter out any old seeded leads and keep only real user data
+      const filtered = parsed.filter((l) => typeof l.id === 'string' && !l.id.startsWith('seed-'))
+      
+      setLeadActivities(filtered)
+      if (filtered.length !== parsed.length) {
+        window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(filtered))
       }
     } else {
-      // First ever load — seed all 10 leads
-      window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(SEEDED_LEADS))
-      setLeadActivities(SEEDED_LEADS)
+      setLeadActivities([])
     }
     setLeadsLoaded(true)
   }, [])
