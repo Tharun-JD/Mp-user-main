@@ -846,9 +846,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <a href="#" className="nav-link-soft text-[1.02rem] text-white/90 hover:text-white">View All</a>
               </div>
               <div className="p-4">
-                <div className="overflow-hidden rounded-lg border border-slate-200">
-                  <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-[1.45rem] text-slate-700 transition hover:bg-slate-100">MP Amber</div>
-                  <div className="px-4 py-3 text-[1.45rem] text-slate-700 transition hover:bg-slate-50">MP BODHI</div>
+                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                  <p className="text-sm font-medium">No collaterals uploaded yet.</p>
                 </div>
               </div>
             </section>

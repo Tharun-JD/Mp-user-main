@@ -232,20 +232,7 @@ function Login({ onSignIn }) {
               <form className="grid gap-4" onSubmit={handleSubmit} autoComplete="off">
                 {view === 'login' ? (
                   <>
-                    <div className="grid gap-1.5">
-                      <label htmlFor="name" className={labelClass}>
-                        Full Name
-                      </label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Full Name"
-                        className={inputClass}
-                      />
-                    </div>
+
 
                     <div className="grid gap-1.5">
                       <label htmlFor="email" className={labelClass}>
