@@ -141,11 +141,7 @@ function Login({ onSignIn }) {
 
       <header className="relative z-20 flex items-center justify-between border-b border-slate-200 px-5 py-4 backdrop-blur md:px-14 md:py-5">
         <div className="flex items-center gap-3">
-          <div className="font-sora text-3xl leading-none font-extrabold tracking-[-0.04em] text-brand-blue">MP</div>
-          <div className="grid leading-none">
-            <strong className="text-sm text-brand-blue">Developers</strong>
-            <span className="text-[11px] tracking-[0.2em] text-brand-orange">TRUST FOREVER</span>
-          </div>
+          <img src="/logo.png" alt="MP Developers" className="h-10 w-auto md:h-12 object-contain" />
         </div>
 
         <div className="hidden items-center gap-3 sm:flex">
@@ -173,14 +169,8 @@ function Login({ onSignIn }) {
           }`}
       >
         <section className="hidden flex-col items-center justify-center text-center lg:flex">
-          <div className="animate-float flex items-center gap-2 font-sora text-[12rem] font-extrabold leading-none tracking-tighter">
-            <span className="text-brand-blue">m</span>
-            <span className="text-brand-orange">P</span>
-          </div>
-          <div className="mt-2 text-5xl font-bold tracking-tight text-brand-blue/90">Developers</div>
-          <div className="mt-6 flex gap-4 text-xl font-bold tracking-[0.4em]">
-            <span className="text-brand-blue">TRUST</span>
-            <span className="text-brand-orange">FOREVER</span>
+          <div className="animate-float flex items-center justify-center">
+            <img src="/logo.png" alt="MP Developers" className="w-full max-w-[480px] drop-shadow-2xl" />
           </div>
           <p className="mt-12 max-w-[30ch] text-2xl font-medium leading-relaxed text-slate-500">
             Designing your dreams, building your future.
