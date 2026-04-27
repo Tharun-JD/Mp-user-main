@@ -142,13 +142,6 @@ function Login({ onSignIn }) {
         <div className="hidden items-center gap-3 sm:flex">
           <button
             type="button"
-            onClick={() => setView('register')}
-            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'register' ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white text-slate-700'}`}
-          >
-            Register as Channel Partner
-          </button>
-          <button
-            type="button"
             onClick={() => setView('login')}
             className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${isLoginRelatedView ? 'border-brand-blue bg-brand-blue text-white' : 'border-transparent text-slate-700'}`}
           >
@@ -254,10 +247,10 @@ function Login({ onSignIn }) {
                   {view === 'login' && (
                     <button
                       type="button"
-                      onClick={() => setView('otp')}
+                      onClick={() => setView('forgot')}
                       className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
-                      Login with OTP instead
+                      Forgot your password?
                     </button>
                   )}
                   {view !== 'login' && (
@@ -269,44 +262,14 @@ function Login({ onSignIn }) {
                       Back to Login
                     </button>
                   )}
-                  {view !== 'forgot' && (
-                    <button
-                      type="button"
-                      onClick={() => setView('forgot')}
-                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                    >
-                      Forgot your password?
-                    </button>
-                  )}
-                  {view !== 'resend_confirmation' && (
-                    <button
-                      type="button"
-                      onClick={() => setView('resend_confirmation')}
-                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                    >
-                      Didn&apos;t receive confirmation instructions?
-                    </button>
-                  )}
-                  {view !== 'resend_unlock' && (
-                    <button
-                      type="button"
-                      onClick={() => setView('resend_unlock')}
-                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                    >
-                      Didn&apos;t receive unlock instructions?
-                    </button>
-                  )}
                   {view === 'login' && (
-                    <p className="mt-6 text-[0.95rem] font-bold text-brand-blue">
-                      Don&apos;t have account ?{' '}
-                      <button
-                        type="button"
-                        onClick={() => setView('register')}
-                        className="font-bold transition-colors hover:text-brand-orange"
-                      >
-                        Sign Up
-                      </button>
-                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setView('register')}
+                      className="mt-8 flex w-full items-center justify-center rounded-xl bg-slate-900 py-4 font-sora text-[0.95rem] font-bold text-white shadow-xl transition-all hover:bg-slate-800 hover:shadow-2xl active:scale-[0.98]"
+                    >
+                      Register as Channel Partner
+                    </button>
                   )}
                 </div>
               </form>
