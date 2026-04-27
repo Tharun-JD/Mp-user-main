@@ -363,9 +363,18 @@ function Login({ onSignIn }) {
                       <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      <input type="text" value={registerData.bankName} onChange={(e) => handleRegisterFieldChange('bankName', e.target.value)} className={inputClass} placeholder="Bank Name" />
-                      <input type="text" value={registerData.accountNumber} onChange={(e) => handleRegisterFieldChange('accountNumber', e.target.value)} className={inputClass} placeholder="Account Number" />
-                      <input type="text" value={registerData.ifsc} onChange={(e) => handleRegisterFieldChange('ifsc', e.target.value)} className={inputClass} placeholder="IFSC Code" />
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Bank Name</label>
+                        <input type="text" value={registerData.bankName} onChange={(e) => handleRegisterFieldChange('bankName', e.target.value)} className={inputClass} placeholder="Bank Name" />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Account Number</label>
+                        <input type="text" value={registerData.accountNumber} onChange={(e) => handleRegisterFieldChange('accountNumber', e.target.value)} className={inputClass} placeholder="Account Number" />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>IFSC Code</label>
+                        <input type="text" value={registerData.ifsc} onChange={(e) => handleRegisterFieldChange('ifsc', e.target.value)} className={inputClass} placeholder="IFSC Code" />
+                      </div>
                     </div>
                   </section>
 
@@ -406,15 +415,33 @@ function Login({ onSignIn }) {
                       <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
                     <div className="grid gap-6 md:grid-cols-2">
-                      <input type="text" value={registerData.house} onChange={(e) => handleRegisterFieldChange('house', e.target.value)} className={inputClass} placeholder="House / Flat / Company" required />
-                      <input type="text" value={registerData.street} onChange={(e) => handleRegisterFieldChange('street', e.target.value)} className={inputClass} placeholder="Street / Area" required />
-                      <input type="text" value={registerData.city} onChange={(e) => handleRegisterFieldChange('city', e.target.value)} className={inputClass} placeholder="City" required />
-                      <input type="text" value={registerData.zip} onChange={(e) => handleRegisterFieldChange('zip', e.target.value)} className={inputClass} placeholder="Pin Code" required />
-                      <select value={registerData.country} onChange={(e) => handleRegisterFieldChange('country', e.target.value)} className={inputClass}>
-                        <option value="India">India</option>
-                        {countryList.filter(c => c.name !== 'India').map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
-                      </select>
-                      <input type="text" value={registerData.state} onChange={(e) => handleRegisterFieldChange('state', e.target.value)} className={inputClass} placeholder="State" required />
+                      <div className="grid gap-2">
+                        <label className={labelClass}>House / Flat / Company</label>
+                        <input type="text" value={registerData.house} onChange={(e) => handleRegisterFieldChange('house', e.target.value)} className={inputClass} placeholder="House / Flat / Company" required />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Street / Area</label>
+                        <input type="text" value={registerData.street} onChange={(e) => handleRegisterFieldChange('street', e.target.value)} className={inputClass} placeholder="Street / Area" required />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>City</label>
+                        <input type="text" value={registerData.city} onChange={(e) => handleRegisterFieldChange('city', e.target.value)} className={inputClass} placeholder="City" required />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Pin Code</label>
+                        <input type="text" value={registerData.zip} onChange={(e) => handleRegisterFieldChange('zip', e.target.value)} className={inputClass} placeholder="Pin Code" required />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Country</label>
+                        <select value={registerData.country} onChange={(e) => handleRegisterFieldChange('country', e.target.value)} className={inputClass}>
+                          <option value="India">India</option>
+                          {countryList.filter(c => c.name !== 'India').map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
+                        </select>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>State</label>
+                        <input type="text" value={registerData.state} onChange={(e) => handleRegisterFieldChange('state', e.target.value)} className={inputClass} placeholder="State" required />
+                      </div>
                     </div>
                   </section>
                 </div>
