@@ -232,6 +232,21 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     } else {
       setLeadActivities([])
     }
+
+    // Also clear email logs if they exist as seeded data
+    const savedEmails = window.localStorage.getItem('mp-email-logs')
+    if (savedEmails) {
+      try {
+        const parsedEmails = JSON.parse(savedEmails)
+        const filteredEmails = parsedEmails.filter((e) => typeof e.id === 'string' && !e.id.startsWith('seed-'))
+        if (filteredEmails.length !== parsedEmails.length) {
+          setEmailLogs(filteredEmails)
+          window.localStorage.setItem('mp-email-logs', JSON.stringify(filteredEmails))
+        }
+      } catch (e) {
+        console.error('Error filtering email logs', e)
+      }
+    }
     setLeadsLoaded(true)
   }, [])
 
