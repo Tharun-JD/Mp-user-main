@@ -398,10 +398,10 @@ function Login({ onSignIn }) {
                     </div>
                   </section>
 
-                  {/* KYC Verification */}
+                  {/* Documents Upload Section */}
                   <section className="relative rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center justify-between">
-                      <h2 className="font-sora text-xl font-bold text-slate-800">KYC VERIFICATION</h2>
+                      <h2 className="font-sora text-xl font-bold text-slate-800 uppercase tracking-tight">DOCUMENTS UPLOAD</h2>
                       <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 border border-orange-100">MANDATORY</span>
                     </div>
                     <div className="space-y-6">
