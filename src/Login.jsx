@@ -609,10 +609,6 @@ function Login({ onSignIn }) {
           )}
         </section>
       </main>
-
-      <footer className="relative z-20 border-t border-slate-200 bg-white/80 px-14 py-6 backdrop-blur-md">
-        <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest">© {new Date().getFullYear()} MP Developers. All rights reserved.</p>
-      </footer>
     </div>
   )
 }
