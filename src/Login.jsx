@@ -1,101 +1,83 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { countries as countryList, statesByCountry, countryPhoneOptions } from './data/locationData'
+
+const initialFormValues = {
+  name: '',
+  phonePrefix: '+91',
+  phone: '',
+  email: '',
+  alternatePhonePrefix: '+91',
+  alternateNumber: '',
+  aadhaar: '',
+  pan: '',
+  occupation: '',
+  rera: '',
+  companyName: '',
+  bankName: '',
+  branch: '',
+  accountType: 'Please select',
+  ifsc: '',
+  accountNumber: '',
+  uploadDocuments: [],
+  bankZip: '',
+  gstApplicable: 'No',
+  gstNumber: '',
+  house: '',
+  street: '',
+  country: 'India',
+  state: 'Maharashtra',
+  city: '',
+  zip: '',
+}
+
+const inputClass = "w-full rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-3 text-[0.98rem] shadow-[0_8px_20px_-18px_#1e3a8a] outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-4 focus:ring-sky-100"
+const labelClass = "text-[0.94rem] font-semibold tracking-[0.01em] text-slate-700"
 
 function Login({ onSignIn }) {
-  const [view, setView] = useState(() => {
-    return localStorage.getItem('authView') || 'login'
-  })
+  const [view, setView] = useState(() => localStorage.getItem('authView') || 'login')
+  const [formData, setFormData] = useState({ email: '', password: '', name: '' })
+  const [registerData, setRegisterData] = useState(initialFormValues)
+  const [errorMessage, setErrorMessage] = useState('')
+  
+  const [selectedDocType, setSelectedDocType] = useState('PAN Card')
+  const documentTypes = ['PAN Card', 'Aadhaar Card', 'RERA Certificate', 'GST Certificate', 'Passbook/Cancelled Cheque']
 
-  // Persist view state to localStorage
   useEffect(() => {
     localStorage.setItem('authView', view)
   }, [view])
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-  })
-  const [registerData, setRegisterData] = useState({
-    title: 'Mr',
-    name: '',
-    phone: '',
-    email: '',
-    alternateNumber: '',
-    aadhaar: '',
-    pan: '',
-    occupation: '',
-    rera: '',
-    company: '',
-    house: '',
-    street: '',
-    country: '',
-    state: '',
-    city: '',
-    zip: '',
-  })
-  const [errorMessage, setErrorMessage] = useState('')
-
-  const countries = [
-    "India", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-    "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
-    "Denmark", "Djibouti", "Dominica", "Dominican Republic",
-    "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-    "Fiji", "Finland", "France",
-    "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-    "Haiti", "Holy See", "Honduras", "Hungary",
-    "Iceland", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
-    "Jamaica", "Japan", "Jordan",
-    "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
-    "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
-    "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
-    "Oman",
-    "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
-    "Qatar",
-    "Romania", "Russia", "Rwanda",
-    "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-    "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-    "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan",
-    "Vanuatu", "Venezuela", "Vietnam",
-    "Yemen",
-    "Zambia", "Zimbabwe"
-  ]
-
-  const statesByCountry = {
-    "India": [
-      "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
-    ],
-    "United States of America": [
-      "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-    ],
-    "Canada": [
-      "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Northwest Territories", "Nunavut", "Yukon"
-    ],
-    "Australia": [
-      "New South Wales", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia", "Australian Capital Territory", "Northern Territory"
-    ],
-    "United Kingdom": [
-      "England", "Scotland", "Wales", "Northern Ireland"
-    ]
-  }
-
-  const handleChange = (e) => {
+  const handleLoginChange = (e) => {
     const { name, value } = e.target
     if (view === 'login') {
-      setFormData((prev) => ({ ...prev, [name]: value }))
+      setFormData(prev => ({ ...prev, [name]: value }))
     } else {
-      setRegisterData((prev) => {
-        const newData = { ...prev, [name]: value }
-        if (name === 'country' && !statesByCountry[value]) {
-          newData.state = ''
-        }
-        return newData
-      })
+      setRegisterData(prev => ({ ...prev, [name]: value }))
     }
-    if (errorMessage) {
-      setErrorMessage('')
-    }
+    if (errorMessage) setErrorMessage('')
+  }
+
+  const handleRegisterFieldChange = (field, value) => {
+    setRegisterData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleUploadDocs = (event) => {
+    const files = Array.from(event.target.files || [])
+    const nextDocs = files.map(file => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      type: selectedDocType
+    }))
+    setRegisterData(prev => ({
+      ...prev,
+      uploadDocuments: [...(prev.uploadDocuments || []), ...nextDocs]
+    }))
+  }
+
+  const handleRemoveDoc = (index) => {
+    setRegisterData(prev => ({
+      ...prev,
+      uploadDocuments: prev.uploadDocuments.filter((_, i) => i !== index)
+    }))
   }
 
   const handleSubmit = (e) => {
@@ -105,31 +87,19 @@ function Login({ onSignIn }) {
         setErrorMessage('Please enter Email and Password.')
         return
       }
-      onSignIn?.({ name: formData.name.trim(), email: formData.email.trim() })
-    } else if (view === 'otp') {
-      console.log('Getting OTP for:', registerData.phone)
-    } else if (view === 'forgot') {
-      console.log('Sending reset instructions for:', registerData.email)
-      setView('login')
-    } else if (view === 'resend_confirmation') {
-      console.log('Resending confirmation for:', registerData.email)
-      setView('login')
-    } else if (view === 'resend_unlock') {
-      console.log('Resending unlock instructions for:', registerData.email)
-      setView('login')
-    } else if (view === 'signup') {
-      console.log('Customer Signup:', registerData)
+      onSignIn?.({ name: formData.email.split('@')[0], email: formData.email.trim() })
+    } else if (view === 'register') {
+      console.log('Registering Partner:', registerData)
+      alert('Registration submitted successfully!')
       setView('login')
     } else {
-      // Handle registration logic here
-      console.log('Registering:', registerData)
+      // Handle other views (OTP, Forgot, etc.)
+      console.log('Action for view:', view)
       setView('login')
     }
   }
 
-  const inputClass =
-    'w-full rounded-xl border border-slate-200/90 bg-white/90 px-3.5 py-3 text-[0.98rem] shadow-[0_8px_20px_-18px_#1e3a8a] outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-4 focus:ring-sky-100'
-  const labelClass = 'text-[0.94rem] font-semibold tracking-[0.01em] text-slate-700'
+  const isLoginRelatedView = ['login', 'otp', 'forgot', 'signup', 'resend_confirmation', 'resend_unlock'].includes(view)
 
   return (
     <div className="page-bg-shell font-manrope min-h-screen grid grid-rows-[auto_1fr_auto]">
@@ -148,26 +118,21 @@ function Login({ onSignIn }) {
           <button
             type="button"
             onClick={() => setView('register')}
-            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'register' ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white text-slate-700'
-              }`}
+            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'register' ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white text-slate-700'}`}
           >
             Register as Channel Partner
           </button>
           <button
             type="button"
             onClick={() => setView('login')}
-            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'border-brand-blue bg-brand-blue text-white' : 'border-transparent text-slate-700'
-              }`}
+            className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md ${isLoginRelatedView ? 'border-brand-blue bg-brand-blue text-white' : 'border-transparent text-slate-700'}`}
           >
             Log in
           </button>
         </div>
       </header>
 
-      <main
-        className={`relative z-10 mx-auto grid w-full max-w-[1536px] px-5 md:px-14 gap-8 py-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'
-          }`}
-      >
+      <main className={`relative z-10 mx-auto grid w-full max-w-[1536px] px-5 md:px-14 gap-8 py-8 ${isLoginRelatedView ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'}`}>
         <section className="hidden flex-col items-center justify-center text-center lg:flex">
           <div className="animate-float flex items-center justify-center">
             <img src="/logo.png" alt="MP Developers" className="w-full max-w-[480px] drop-shadow-2xl" />
@@ -177,31 +142,16 @@ function Login({ onSignIn }) {
           </p>
         </section>
 
-        <section
-          className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? 'lg:w-full' : 'mx-auto max-w-4xl w-full'
-            }`}
-        >
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-14 -top-20 size-44 rounded-full bg-[#8fb7ff]/30 blur-2xl [animation:float_11s_ease-in-out_infinite]"
-          />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-16 -right-10 size-44 rounded-full bg-[#ffc997]/35 blur-2xl [animation:float_13s_ease-in-out_infinite]"
-            style={{ animationDelay: '-2s' }}
-          />
+        <section className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${isLoginRelatedView ? 'lg:w-full' : 'mx-auto max-w-5xl w-full'}`}>
+          <span aria-hidden="true" className="pointer-events-none absolute -left-14 -top-20 size-44 rounded-full bg-[#8fb7ff]/30 blur-2xl [animation:float_11s_ease-in-out_infinite]" />
+          <span aria-hidden="true" className="pointer-events-none absolute -bottom-16 -right-10 size-44 rounded-full bg-[#ffc997]/35 blur-2xl [animation:float_13s_ease-in-out_infinite]" style={{ animationDelay: '-2s' }} />
 
-          {view === 'login' || view === 'otp' || view === 'forgot' || view === 'signup' || view === 'resend_confirmation' || view === 'resend_unlock' ? (
-            <>
+          {isLoginRelatedView ? (
+            <div className="relative z-10">
               {view === 'signup' ? (
                 <div className="mb-6">
-                  <h1 className="font-sora text-2xl font-bold leading-tight text-sky-600">
-                    Biggest real estate opportunity in Pune Introducing exclusive Bed residences starting from ₹ lakhs
-                  </h1>
+                  <h1 className="font-sora text-2xl font-bold leading-tight text-sky-600">Biggest real estate opportunity in Pune</h1>
                   <p className="mt-2 text-lg text-slate-600">Home buying can&apos;t get better than this</p>
-                  <p className="mt-6 text-xl font-bold text-slate-800">
-                    Register Now <span className="font-medium text-slate-600 text-base">to Book Online</span>
-                  </p>
                 </div>
               ) : view === 'resend_unlock' ? (
                 <div className="mb-6">
@@ -223,46 +173,19 @@ function Login({ onSignIn }) {
                   <h1 className="font-sora mt-2 bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-[clamp(1.5rem,2.3vw,2rem)] leading-tight font-bold text-transparent">
                     Build bold partnerships with confidence.
                   </h1>
-                  <p className="mb-6 mt-2 max-w-[48ch] text-[1.02rem] leading-relaxed text-slate-600">
-                    We value your partnership and are excited to provide the resources you need for successful collaboration.
-                  </p>
                 </>
               )}
 
-              <form className="grid gap-4" onSubmit={handleSubmit} autoComplete="off">
+              <form className="grid gap-4 mt-8" onSubmit={handleSubmit} autoComplete="off">
                 {view === 'login' ? (
                   <>
-
-
                     <div className="grid gap-1.5">
-                      <label htmlFor="email" className={labelClass}>
-                        Email
-                      </label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="Email"
-                        className={inputClass}
-                      />
+                      <label className={labelClass}>Email Address</label>
+                      <input name="email" type="email" value={formData.email} onChange={handleLoginChange} placeholder="email@example.com" className={inputClass} required />
                     </div>
-
                     <div className="grid gap-1.5">
-                      <label htmlFor="password" className={labelClass}>
-                        Password
-                      </label>
-                      <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Password"
-                        autoComplete="new-password"
-                        className={inputClass}
-                      />
+                      <label className={labelClass}>Password</label>
+                      <input name="password" type="password" value={formData.password} onChange={handleLoginChange} placeholder="••••••••" className={inputClass} required />
                     </div>
                   </>
                 ) : view === 'otp' ? (
@@ -270,118 +193,34 @@ function Login({ onSignIn }) {
                     <label className={labelClass}>Phone *</label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500">
-                        <img src="https://flagcdn.com/w20/in.png" alt="India" className="w-5" />
                         <span>+91</span>
                       </span>
-                      <input
-                        name="phone"
-                        value={registerData.phone}
-                        onChange={handleChange}
-                        placeholder="Phone"
-                        className={`${inputClass} pl-20`}
-                        required
-                      />
+                      <input name="phone" value={registerData.phone} onChange={handleLoginChange} placeholder="Phone" className={`${inputClass} pl-14`} required />
                     </div>
                   </div>
                 ) : view === 'signup' ? (
                   <>
-                    <div className="grid gap-1.5">
-                      <label className={labelClass}>First name *</label>
-                      <input
-                        name="firstName"
-                        value={registerData.firstName}
-                        onChange={handleChange}
-                        placeholder="First name"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label className={labelClass}>Last name *</label>
-                      <input
-                        name="lastName"
-                        value={registerData.lastName}
-                        onChange={handleChange}
-                        placeholder="Last name"
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label className={labelClass}>Email</label>
-                      <input
-                        name="email"
-                        type="email"
-                        value={registerData.email}
-                        onChange={handleChange}
-                        placeholder="Email"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label className={labelClass}>Phone</label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500">
-                          <img src="https://flagcdn.com/w20/in.png" alt="India" className="w-5" />
-                          <span>+91</span>
-                        </span>
-                        <input
-                          name="phone"
-                          value={registerData.phone}
-                          onChange={handleChange}
-                          placeholder="81234 56789"
-                          className={`${inputClass} pl-20`}
-                        />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="grid gap-1.5">
+                        <label className={labelClass}>First name *</label>
+                        <input name="firstName" value={registerData.firstName} onChange={handleLoginChange} placeholder="First name" className={inputClass} required />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <label className={labelClass}>Last name *</label>
+                        <input name="lastName" value={registerData.lastName} onChange={handleLoginChange} placeholder="Last name" className={inputClass} required />
                       </div>
                     </div>
+                    <input name="email" type="email" value={registerData.email} onChange={handleLoginChange} placeholder="Email" className={inputClass} />
                   </>
-                ) : view === 'forgot' || view === 'resend_confirmation' || view === 'resend_unlock' ? (
-                  <div className="grid gap-2">
-                    <label className="text-[0.94rem] font-bold text-slate-700">{view === 'resend_unlock' ? 'Email' : 'Email / Phone'}</label>
-                    <input
-                      name="email"
-                      value={view === 'resend_unlock' ? registerData.email : formData.email}
-                      onChange={handleChange}
-                      placeholder={view === 'resend_unlock' ? 'eg. abc@iris.com' : 'Email / Phone'}
-                      className="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-3 text-[0.98rem] outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                      required
-                    />
-                  </div>
                 ) : (
-                  <div className="grid gap-2">
-                    <label className="text-[0.94rem] font-bold text-slate-700">Email</label>
-                    <input
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Email"
-                      className="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-3 text-[0.98rem] outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                      required
-                    />
+                  <div className="grid gap-1.5">
+                    <label className={labelClass}>{view === 'resend_unlock' ? 'Email' : 'Email / Phone'}</label>
+                    <input name="email" value={formData.email} onChange={handleLoginChange} placeholder="Email / Phone" className={inputClass} required />
                   </div>
                 )}
 
-                {view === 'login' && (
-                  <label className="mt-1 inline-flex items-center gap-2 text-[0.95rem] text-slate-700" htmlFor="stay-logged">
-                    <input id="stay-logged" type="checkbox" className="size-4 accent-sky-600" />
-                    <span>Keep me logged in</span>
-                  </label>
-                )}
-
-                <button
-                  className="mt-4 rounded-lg bg-[#007ad9] px-3 py-3.5 text-base font-bold text-white shadow-md transition hover:bg-[#0069ba]"
-                  type="submit"
-                >
-                  {view === 'login'
-                    ? 'Sign In'
-                    : view === 'otp'
-                      ? 'Get OTP'
-                      : view === 'forgot'
-                        ? 'Send reset password instructions'
-                        : view === 'resend_confirmation'
-                          ? 'Resend confirmation instructions'
-                          : 'Resend unlock instructions'}
+                <button type="submit" className="mt-4 rounded-lg bg-[#007ad9] px-3 py-3.5 text-base font-bold text-white shadow-md transition hover:bg-[#0069ba]">
+                  {view === 'login' ? 'Sign In' : view === 'otp' ? 'Get OTP' : view === 'signup' ? 'Register' : 'Submit'}
                 </button>
 
                 {errorMessage && <p className="text-sm font-semibold text-rose-600">{errorMessage}</p>}
@@ -396,24 +235,13 @@ function Login({ onSignIn }) {
                       Login with OTP instead
                     </button>
                   )}
-                  {(view === 'forgot' || view === 'resend_confirmation' || view === 'resend_unlock') && (
+                  {view !== 'login' && (
                     <button
                       type="button"
                       onClick={() => setView('login')}
                       className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
-                      <p>
-                        Already have an account? <span className="font-bold">Login here</span>
-                      </p>
-                    </button>
-                  )}
-                  {view === 'otp' && (
-                    <button
-                      type="button"
-                      onClick={() => setView('login')}
-                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                    >
-                      Login with Password instead
+                      Back to Login
                     </button>
                   )}
                   {view !== 'forgot' && (
@@ -423,15 +251,6 @@ function Login({ onSignIn }) {
                       className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
                     >
                       Forgot your password?
-                    </button>
-                  )}
-                  {view === 'forgot' && (
-                    <button
-                      type="button"
-                      onClick={() => setView('signup')}
-                      className="text-[0.95rem] font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                    >
-                      Sign up
                     </button>
                   )}
                   {view !== 'resend_confirmation' && (
@@ -452,260 +271,169 @@ function Login({ onSignIn }) {
                       Didn&apos;t receive unlock instructions?
                     </button>
                   )}
+                  {view === 'login' && (
+                    <p className="mt-6 text-[0.95rem] font-bold text-brand-blue">
+                      Don&apos;t have account ?{' '}
+                      <button
+                        type="button"
+                        onClick={() => setView('register')}
+                        className="font-bold transition-colors hover:text-brand-orange"
+                      >
+                        Sign Up
+                      </button>
+                    </p>
+                  )}
                 </div>
-
-                {view === 'login' && (
-                  <p className="mt-6 text-[0.95rem] font-bold text-brand-blue">
-                    Don&apos;t have account ?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setView('register')}
-                      className="font-bold transition-colors hover:text-brand-orange"
-                    >
-                      Sign Up
-                    </button>
-                  </p>
-                )}
               </form>
-            </>
+            </div>
           ) : (
-            <div className="animate-fade-in mx-auto w-full max-w-5xl">
+            <div className="relative z-10 animate-fade-in mx-auto w-full">
               <div className="mb-10 text-center">
-                <h1 className="font-sora bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-3xl font-extrabold text-transparent md:text-4xl">
-                  Channel Partner Registration
-                </h1>
-                <p className="mt-3 text-lg font-medium text-slate-500">
-                  Join MP Developers and build the future with us.
-                </p>
+                <h1 className="font-sora bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-3xl font-extrabold text-transparent md:text-4xl">Channel Partner Registration</h1>
+                <p className="mt-3 text-lg font-medium text-slate-500">Join MP Developers and build the future with us.</p>
               </div>
 
-              <form className="flex flex-col h-[65vh]" onSubmit={handleSubmit} autoComplete="off">
-                <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 custom-scrollbar">
+              <form className="flex flex-col h-[70vh]" onSubmit={handleSubmit} autoComplete="off">
+                <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 no-scrollbar">
+                  {/* Basic Profile */}
                   <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">
-                        1
-                      </div>
-                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic details</h2>
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">1</div>
+                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic Profile</h2>
                       <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
-
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Title</label>
-                        <select name="title" value={registerData.title} onChange={handleChange} className={inputClass}>
-                          <option value="Mr">Mr</option>
-                          <option value="Ms">Ms</option>
-                          <option value="Mrs">Mrs</option>
-                        </select>
+                      <div className="md:col-span-1 lg:col-span-3 grid gap-2">
+                        <label className={labelClass}>Company / CP Name *</label>
+                        <input type="text" value={registerData.companyName} onChange={(e) => handleRegisterFieldChange('companyName', e.target.value)} className={inputClass} placeholder="Legal Business Name" required />
                       </div>
-                      <div className="grid gap-2 md:col-span-1 lg:col-span-2">
-                        <label className={labelClass}>Name *</label>
-                        <input
-                          name="name"
-                          value={registerData.name}
-                          onChange={handleChange}
-                          placeholder="Full Name"
-                          className={inputClass}
-                          required
-                        />
+                      <div className="grid gap-2">
+                        <label className={labelClass}>Owner Name *</label>
+                        <input type="text" value={registerData.name} onChange={(e) => handleRegisterFieldChange('name', e.target.value)} className={inputClass} placeholder="Full Name" required />
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>Phone *</label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
-                          <input
-                            name="phone"
-                            value={registerData.phone}
-                            onChange={handleChange}
-                            placeholder="Phone Number"
-                            className={`${inputClass} pl-14`}
-                            required
-                          />
+                        <div className="flex gap-2">
+                          <input type="text" value={registerData.phonePrefix} onChange={(e) => handleRegisterFieldChange('phonePrefix', e.target.value)} className="w-20 text-center rounded-xl border border-slate-200 bg-white/90 px-2 py-3 font-bold text-slate-700" />
+                          <input type="text" value={registerData.phone} onChange={(e) => handleRegisterFieldChange('phone', e.target.value)} className={inputClass} placeholder="Number" required />
                         </div>
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>Email *</label>
-                        <input
-                          name="email"
-                          type="email"
-                          value={registerData.email}
-                          onChange={handleChange}
-                          placeholder="email@example.com"
-                          className={inputClass}
-                          required
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Alternate Number</label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">+91</span>
-                          <input
-                            name="alternateNumber"
-                            value={registerData.alternateNumber}
-                            onChange={handleChange}
-                            placeholder="81234 56789"
-                            className={`${inputClass} pl-14`}
-                          />
-                        </div>
+                        <input type="email" value={registerData.email} onChange={(e) => handleRegisterFieldChange('email', e.target.value)} className={inputClass} placeholder="email@example.com" required />
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>Aadhaar *</label>
-                        <input
-                          name="aadhaar"
-                          value={registerData.aadhaar}
-                          onChange={handleChange}
-                          placeholder="Aadhaar Number"
-                          className={inputClass}
-                          required
-                        />
+                        <input type="text" value={registerData.aadhaar} onChange={(e) => handleRegisterFieldChange('aadhaar', e.target.value)} className={inputClass} placeholder="12-digit Aadhaar" required />
                       </div>
                       <div className="grid gap-2">
                         <label className={labelClass}>PAN Number *</label>
-                        <input
-                          name="pan"
-                          value={registerData.pan}
-                          onChange={handleChange}
-                          placeholder="PAN Card Number"
-                          className={inputClass}
-                          required
-                        />
+                        <input type="text" value={registerData.pan} onChange={(e) => handleRegisterFieldChange('pan', e.target.value)} className={inputClass} placeholder="ABCDE1234F" required />
                       </div>
                       <div className="grid gap-2">
-                        <label className={labelClass}>Occupation</label>
-                        <input
-                          name="occupation"
-                          value={registerData.occupation}
-                          onChange={handleChange}
-                          placeholder="Your Occupation"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>RERA Registration Number</label>
-                        <input
-                          name="rera"
-                          value={registerData.rera}
-                          onChange={handleChange}
-                          placeholder="RERA Number"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>CP Company Name/ CP Name</label>
-                        <input
-                          name="company"
-                          value={registerData.company}
-                          onChange={handleChange}
-                          placeholder="Company or CP Name"
-                          className={inputClass}
-                        />
+                        <label className={labelClass}>RERA Number</label>
+                        <input type="text" value={registerData.rera} onChange={(e) => handleRegisterFieldChange('rera', e.target.value)} className={inputClass} placeholder="RERA Registration" />
                       </div>
                     </div>
                   </section>
 
-                  {/* Address Section */}
+                  {/* GST & Bank */}
+                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
+                    <div className="grid gap-8 md:grid-cols-2">
+                      <div className="space-y-4">
+                        <label className={labelClass}>Is GST Applicable? *</label>
+                        <div className="flex gap-4">
+                          {['Yes', 'No'].map(val => (
+                            <button key={val} type="button" onClick={() => handleRegisterFieldChange('gstApplicable', val)} className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${registerData.gstApplicable === val ? 'bg-brand-blue text-white' : 'bg-white border border-slate-200 text-slate-400'}`}>{val}</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <label className={labelClass}>GST Number</label>
+                        <input type="text" disabled={registerData.gstApplicable === 'No'} value={registerData.gstNumber} onChange={(e) => handleRegisterFieldChange('gstNumber', e.target.value)} className={inputClass} placeholder="15-digit GSTIN" />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Bank Details */}
                   <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
                     <div className="mb-8 flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-orange font-sora text-lg font-bold text-white shadow-lg">
-                        2
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500 font-sora text-lg font-bold text-white shadow-lg">2</div>
+                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Bank Details</h2>
+                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+                    </div>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      <input type="text" value={registerData.bankName} onChange={(e) => handleRegisterFieldChange('bankName', e.target.value)} className={inputClass} placeholder="Bank Name" />
+                      <input type="text" value={registerData.accountNumber} onChange={(e) => handleRegisterFieldChange('accountNumber', e.target.value)} className={inputClass} placeholder="Account Number" />
+                      <input type="text" value={registerData.ifsc} onChange={(e) => handleRegisterFieldChange('ifsc', e.target.value)} className={inputClass} placeholder="IFSC Code" />
+                    </div>
+                  </section>
+
+                  {/* KYC Verification */}
+                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
+                    <div className="mb-8 flex items-center justify-between">
+                      <h2 className="font-sora text-xl font-bold text-slate-800">KYC VERIFICATION</h2>
+                      <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 border border-orange-100">MANDATORY</span>
+                    </div>
+                    <div className="space-y-6">
+                      <select value={selectedDocType} onChange={(e) => setSelectedDocType(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold">
+                        {documentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <div onClick={() => document.getElementById('final-doc-upload').click()} className="cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-white/50 p-10 text-center hover:border-brand-blue hover:bg-brand-blue/5 transition-all">
+                        <input id="final-doc-upload" type="file" multiple className="hidden" onChange={handleUploadDocs} />
+                        <div className="flex flex-col items-center">
+                          <svg className="h-10 w-10 text-brand-blue mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m8-8H4" /></svg>
+                          <p className="text-sm font-bold text-slate-600">Click to Upload Documents</p>
+                        </div>
                       </div>
+                      <div className="flex flex-wrap gap-3">
+                        {registerData.uploadDocuments?.map((doc, idx) => (
+                          <div key={idx} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-slate-100 shadow-sm">
+                            <span className="text-[10px] font-black text-brand-blue">{doc.type}</span>
+                            <span className="text-xs font-bold text-slate-700 truncate max-w-[100px]">{doc.name}</span>
+                            <button type="button" onClick={() => handleRemoveDoc(idx)} className="text-rose-500 font-bold">&times;</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Address */}
+                  <section className="relative overflow-hidden rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
+                    <div className="mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-orange-500 font-sora text-lg font-bold text-white shadow-lg">3</div>
                       <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
                       <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
-
                     <div className="grid gap-6 md:grid-cols-2">
-                      <div className="grid gap-2">
-                        <label className={labelClass}>House/Flat/Company</label>
-                        <input
-                          name="house"
-                          value={registerData.house}
-                          onChange={handleChange}
-                          placeholder="Address Line 1"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Street</label>
-                        <input
-                          name="street"
-                          value={registerData.street}
-                          onChange={handleChange}
-                          placeholder="Address Line 2"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Country</label>
-                        <select name="country" value={registerData.country} onChange={handleChange} className={inputClass}>
-                          <option value="">Select country</option>
-                          {countries.map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>State / Region</label>
-                        <select
-                          name="state"
-                          value={registerData.state}
-                          onChange={handleChange}
-                          className={inputClass}
-                          disabled={!statesByCountry[registerData.country]}
-                        >
-                          <option value="">{registerData.country ? (statesByCountry[registerData.country] ? 'Select state' : 'N/A') : 'Select country first'}</option>
-                          {statesByCountry[registerData.country] && statesByCountry[registerData.country].map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>City</label>
-                        <input
-                          name="city"
-                          value={registerData.city}
-                          onChange={handleChange}
-                          placeholder="City"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Zip / Pin Code</label>
-                        <input
-                          name="zip"
-                          value={registerData.zip}
-                          onChange={handleChange}
-                          placeholder="Pin Code"
-                          className={inputClass}
-                        />
-                      </div>
+                      <input type="text" value={registerData.house} onChange={(e) => handleRegisterFieldChange('house', e.target.value)} className={inputClass} placeholder="House / Flat / Company" required />
+                      <input type="text" value={registerData.street} onChange={(e) => handleRegisterFieldChange('street', e.target.value)} className={inputClass} placeholder="Street / Area" required />
+                      <input type="text" value={registerData.city} onChange={(e) => handleRegisterFieldChange('city', e.target.value)} className={inputClass} placeholder="City" required />
+                      <input type="text" value={registerData.zip} onChange={(e) => handleRegisterFieldChange('zip', e.target.value)} className={inputClass} placeholder="Pin Code" required />
+                      <select value={registerData.country} onChange={(e) => handleRegisterFieldChange('country', e.target.value)} className={inputClass}>
+                        <option value="India">India</option>
+                        {countryList.filter(c => c.name !== 'India').map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
+                      </select>
+                      <input type="text" value={registerData.state} onChange={(e) => handleRegisterFieldChange('state', e.target.value)} className={inputClass} placeholder="State" required />
                     </div>
                   </section>
                 </div>
 
                 <div className="flex flex-col items-center gap-4 pt-6 border-t border-slate-100 bg-white/50 backdrop-blur-sm -mx-8 px-8">
-                  <button
-                    type="submit"
-                    className="group relative h-14 w-full max-w-md overflow-hidden rounded-2xl bg-brand-blue text-lg font-bold text-white shadow-lg transition-all hover:scale-[1.01] active:scale-[0.98]"
-                  >
-                    Register as Partner
+                  <button type="submit" className="w-full max-w-md rounded-2xl bg-brand-blue py-4 text-lg font-bold text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all">
+                    Finalize & Register Partner
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setView('login')}
-                    className="group flex items-center gap-2 text-sm font-bold text-brand-blue transition-colors hover:text-brand-orange"
-                  >
-                    <span>Already have an account?</span>
-                    <span className="font-bold underline decoration-2 underline-offset-4">Login here</span>
-                  </button>
+                  <button type="button" onClick={() => setView('login')} className="text-sm font-bold text-slate-400 hover:text-brand-blue">Already have an account? Login here</button>
                 </div>
               </form>
             </div>
           )}
         </section>
-
       </main>
+
+      <footer className="relative z-20 border-t border-slate-200 bg-white/80 px-14 py-6 backdrop-blur-md">
+        <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest">© {new Date().getFullYear()} MP Developers. All rights reserved.</p>
+      </footer>
     </div>
   )
 }

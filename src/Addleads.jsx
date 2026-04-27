@@ -335,117 +335,22 @@ function Addleads({ isOpen, onClose, onSave }) {
                   </div>
                 </div>
               </section>
-
-              {/* KYC Verification & Actions Section */}
-              <section className="animate-rise rounded-[3rem] border border-white bg-white p-8 shadow-xl shadow-slate-200/50 md:p-12" style={{ animationDelay: '200ms' }}>
-                <div className="mb-10 flex items-center justify-between">
-                  <h3 className="font-sora text-lg font-extrabold tracking-tight text-slate-900">KYC Verification</h3>
-                  <span className="rounded-full bg-orange-50 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-orange-600 border border-orange-100">
-                    Mandatory
-                  </span>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Document Type Dropdown */}
-                  <div className="space-y-2.5">
-                    <label className="ml-1 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Document Type</label>
-                    <div className="relative">
-                      <select
-                        value={selectedDocumentType}
-                        onChange={(e) => setSelectedDocumentType(e.target.value)}
-                        className="w-full appearance-none rounded-2xl border border-slate-100 bg-slate-50/30 px-6 py-4 text-[15px] font-bold text-slate-700 outline-none transition-all focus:border-brand-blue/30 focus:bg-white focus:ring-4 focus:ring-brand-blue/5"
-                      >
-                        {documentTypes.map((type) => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-slate-400">
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Upload Area */}
-                  <div 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="group relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-dashed border-slate-100 bg-slate-50/20 p-10 transition-all hover:border-brand-blue/30 hover:bg-brand-blue/[0.01]"
-                  >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleDocumentUpload}
-                      className="hidden"
-                      multiple
-                    />
-                    <div className="flex flex-col items-center text-center">
-                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg shadow-slate-200/50 transition-transform group-hover:scale-110">
-                        <svg className="h-7 w-7 text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-base font-extrabold text-slate-800">Add Documents</h4>
-                      <p className="mt-1.5 text-xs font-semibold text-slate-400 uppercase tracking-widest">PDF, JPG or PNG (Max 5MB)</p>
-                    </div>
-                  </div>
-
-                  {/* Uploaded Files List */}
-                  {Object.keys(uploadedDocuments).length > 0 && (
-                    <div className="space-y-3 pt-2">
-                      {Object.entries(uploadedDocuments).map(([type, files]) => (
-                        files.map((file, idx) => (
-                          <div key={`${type}-${idx}`} className="flex items-center justify-between rounded-2xl bg-white p-4 border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                            <div className="flex items-center gap-4">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-[#6366f1] text-[10px] font-black">
-                                {file.name.split('.').pop()?.toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="text-sm font-bold text-slate-800 truncate max-w-[200px]">{file.name}</p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{type}</p>
-                              </div>
-                            </div>
-                            <button 
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUploadedDocuments(prev => {
-                                  const updated = { ...prev };
-                                  updated[type] = updated[type].filter((_, i) => i !== idx);
-                                  if (updated[type].length === 0) delete updated[type];
-                                  return updated;
-                                });
-                              }}
-                              className="group flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-500"
-                            >
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        ))
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Action Buttons - Stacked Vertically as in Image */}
-                  <div className="flex flex-col gap-4 pt-6">
-                    <button
-                      type="submit"
-                      className="w-full rounded-[1.25rem] bg-[#2d46b9] py-5 px-10 text-[15px] font-bold text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-1 hover:bg-[#1e3292] active:scale-[0.98]"
-                    >
-                      Finalize & Create Lead
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="w-full rounded-[1.25rem] border border-slate-200 bg-white py-5 px-8 text-[15px] font-bold text-slate-600 transition-all hover:bg-slate-50 hover:border-slate-300"
-                    >
-                      Save as Draft
-                    </button>
-                  </div>
-                </div>
-              </section>
+              {/* Action Buttons */}
+              <div className="mt-12 flex flex-col gap-4 border-t border-slate-100 pt-10 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full rounded-2xl border border-slate-200 py-4 px-8 text-sm font-bold text-slate-500 transition-all hover:bg-slate-50 hover:text-slate-700 sm:w-auto"
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="submit"
+                  className="relative w-full overflow-hidden rounded-2xl bg-brand-blue py-4 px-10 text-sm font-bold text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-1 hover:bg-brand-blue/90 active:scale-95 sm:w-auto"
+                >
+                  Finalize & Create Lead
+                </button>
+              </div>
             </div>
 
           </div>
