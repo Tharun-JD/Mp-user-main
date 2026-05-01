@@ -224,7 +224,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       const parsed = JSON.parse(savedLeads)
       // Filter out any old seeded leads and keep only real user data
       const filtered = parsed.filter((l) => typeof l.id === 'string' && !l.id.startsWith('seed-'))
-      
+
       setLeadActivities(filtered)
       if (filtered.length !== parsed.length) {
         window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(filtered))
@@ -815,58 +815,121 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
       <main className="relative isolate z-10 mx-auto w-full max-w-[95%] lg:max-w-[1440px] px-6 md:px-10 py-8">
         {activeView === 'dashboard' && (
-          <>
-            <section className="hero-shimmer animate-rise overflow-hidden rounded-2xl bg-[linear-gradient(130deg,#3f52c4_0%,#5f62da_40%,#8f47cc_100%)] px-5 py-8 text-center text-white shadow-[0_30px_65px_-35px_#4450c6] md:px-8 md:py-10">
-              <h1 className="font-sora text-[clamp(1.8rem,2.6vw,3rem)] font-semibold tracking-[-0.02em]">
-                Welcome("{welcomeName}")
-              </h1>
-              <p className="mt-3 text-[1.45rem] text-white/90">
-                {welcomeEmail ? `Email: ${welcomeEmail}` : 'Vendor Code: Test0077'}
-              </p>
-              <p className="mx-auto mt-4 max-w-[840px] text-[1.05rem] leading-relaxed text-white/90 md:text-[1.15rem]">
-                Thank you for being a valued channel partner. We are committed to your success. Together, we will
-                achieve great results in the real estate market.
-              </p>
-
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
-                <button
-                  type="button"
-                  onClick={() => setIsAddLeadOpen(true)}
-                  className="glass-panel hover-lift animate-fade-slide rounded-xl px-10 py-7 text-brand-blue shadow-lg"
-                >
-                  <div className="mx-auto mb-2 grid size-10 place-items-center rounded-lg border-2 border-brand-blue/70 text-xl">+</div>
-                  <div className="text-[1.02rem] font-medium">Add Leads</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveView('lead-activities')
-                    setTopMenuOpen(null)
-                    setOpenActionMenuId(null)
-                  }}
-                  className="glass-panel hover-lift animate-fade-slide rounded-xl px-10 py-7 text-brand-blue shadow-lg [animation-delay:160ms]"
-                >
-                  <div className="mx-auto mb-2 grid size-10 place-items-center rounded-lg border-2 border-brand-blue/70 text-xl">Rs</div>
-                  <div className="text-[1.02rem] font-medium">Track Lead Activities</div>
-                </button>
+          <div className="space-y-12 animate-rise pb-10">
+            {/* Architectural Hero Experience */}
+            <section className="relative overflow-hidden rounded-[3rem] bg-[#0f172a] p-1 shadow-[0_50px_100px_-40px_rgba(15,23,42,0.5)]">
+              {/* Dynamic Mesh Background */}
+              <div className="absolute inset-0 z-0">
+                <div className="absolute -left-1/4 -top-1/4 size-[150%] animate-[spin_20s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0%,#3b82f6_25%,#6366f1_50%,#8b5cf6_75%,transparent_100%)] opacity-30 blur-[120px]" />
+                <div className="absolute inset-0 bg-slate-950/60" />
               </div>
-            </section>
 
-            <section className="animate-rise mt-10 overflow-hidden rounded-2xl border border-[#d8dafe] bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(240,236,255,0.86))] shadow-[0_24px_58px_-38px_#4f46e5] backdrop-blur-lg [animation-delay:160ms]">
-              <div className="flex items-center justify-between bg-gradient-to-r from-[#4f5fd6] to-[#9a48d0] px-5 py-3 rounded-t-2xl">
-                <h2 className="font-sora inline-flex items-center gap-2 text-[1.9rem] text-white">
-                  <LabelIcon type="collaterals" className="size-6" />
-                  <span>Collaterals</span>
-                </h2>
-                <a href="#" className="nav-link-soft text-[1.02rem] text-white/90 hover:text-white">View All</a>
-              </div>
-              <div className="p-4">
-                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-                  <p className="text-sm font-medium">No collaterals uploaded yet.</p>
+              <div className="relative z-10 flex flex-col items-center gap-12 px-8 py-16 text-center md:px-16 md:py-24 lg:flex-row lg:text-left">
+                <div className="flex-1 space-y-8">
+                  <div className="inline-flex items-center gap-3 rounded-full bg-white/5 px-4 py-2 text-[11px] font-black uppercase tracking-[0.25em] text-sky-400 backdrop-blur-md ring-1 ring-white/10">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                    </span>
+                    Partner Dashboard Live
+                  </div>
+                  
+                  <h1 className="font-sora text-[clamp(2.5rem,5vw,4.5rem)] font-black leading-[1.05] tracking-tight text-white">
+                    Experience the<br />
+                    <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Future of Real Estate.</span>
+                  </h1>
+                  
+                  <div className="space-y-4">
+                    <p className="text-2xl font-bold text-white/90">
+                      Welcome back, <span className="text-sky-400">"{welcomeName}"</span>
+                    </p>
+                    <p className="text-lg font-medium text-slate-400">
+                      {welcomeEmail ? `Logged in as: ${welcomeEmail}` : 'Vendor ID: MP-PARTNER-0077'}
+                    </p>
+                  </div>
+
+                  <p className="max-w-2xl text-lg leading-relaxed text-slate-400">
+                    We are building the next generation of architectural excellence. Your partnership is the foundation of this journey. Let's achieve greatness together.
+                  </p>
+                </div>
+
+                {/* Integrated Action Hub */}
+                <div className="grid w-full shrink-0 gap-6 sm:grid-cols-2 lg:w-[460px]">
+                  <button
+                    onClick={() => setIsAddLeadOpen(true)}
+                    className="group relative overflow-hidden rounded-[2.5rem] bg-white/[0.03] p-10 text-center transition-all hover:bg-white/[0.08] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
+                  >
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-sky-500 text-white shadow-[0_20px_40px_-10px_rgba(14,165,233,0.5)] transition-transform group-hover:scale-110">
+                      <svg className="size-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+                    </div>
+                    <h3 className="text-lg font-black uppercase tracking-widest text-white">Add Leads</h3>
+                    <p className="mt-2 text-xs font-bold text-slate-500">Submit new inquiries</p>
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-sky-500/0 via-sky-500/0 to-sky-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('lead-activities')
+                      setTopMenuOpen(null)
+                      setOpenActionMenuId(null)
+                    }}
+                    className="group relative overflow-hidden rounded-[2.5rem] bg-white/[0.03] p-10 text-center transition-all hover:bg-white/[0.08] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
+                  >
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-500 text-white shadow-[0_20px_40px_-10px_rgba(99,102,241,0.5)] transition-transform group-hover:scale-110">
+                      <svg className="size-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h3 className="text-lg font-black uppercase tracking-widest text-white">Track Activities</h3>
+                    <p className="mt-2 text-xs font-bold text-slate-500">Monitor lead progress</p>
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-indigo-500/0 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
                 </div>
               </div>
+
+              {/* Floating Decorative Orbs */}
+              <div className="pointer-events-none absolute left-10 top-20 h-32 w-32 rounded-full bg-sky-500/10 blur-3xl animate-pulse" />
+              <div className="pointer-events-none absolute right-20 bottom-10 h-64 w-64 rounded-full bg-purple-500/10 blur-[80px] animate-pulse" style={{ animationDelay: '2s' }} />
             </section>
-          </>
+
+            {/* High-Fidelity Collaterals Section */}
+            <section className="relative overflow-hidden rounded-[3rem] border border-white bg-white/70 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.05)] backdrop-blur-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-10 py-8">
+                <div>
+                  <h2 className="font-sora flex items-center gap-4 text-3xl font-black text-slate-900">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner">
+                      <LabelIcon type="collaterals" className="size-6" />
+                    </div>
+                    <span>Marketing Collaterals</span>
+                  </h2>
+                  <p className="ml-16 mt-1 text-xs font-bold uppercase tracking-widest text-slate-400">Project Assets & Resources</p>
+                </div>
+                <button className="group flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-600 hover:-translate-y-1">
+                  <span>View Full Library</span>
+                  <svg className="size-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+              </div>
+
+              <div className="p-16">
+                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                  <div className="group relative mb-8">
+                    <div className="absolute inset-0 animate-ping rounded-full bg-indigo-100 opacity-20" />
+                    <div className="relative rounded-full bg-slate-50 p-10 shadow-inner">
+                      <svg className="size-16 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                  </div>
+                  <p className="text-2xl font-black text-slate-800">Your digital assets are coming soon.</p>
+                  <p className="mt-3 max-w-md text-center text-slate-400 font-medium">
+                    Our marketing team is curating high-conversion brochures, images, and walkthroughs for your next big deal.
+                  </p>
+                  <button className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-indigo-500 hover:text-indigo-600 underline-offset-8 hover:underline decoration-2">Get Notified</button>
+                </div>
+              </div>
+              
+              {/* Subtle Grain Overlay */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            </section>
+          </div>
         )}
 
         {activeView === 'lead-activities' && (

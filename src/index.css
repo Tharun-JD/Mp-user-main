@@ -7,12 +7,12 @@
 }
 
 html {
-  font-size: 14px; /* Reduced from default 16px to "zoom out" */
+  font-size: 13px; /* Further reduced from 14px to "zoom out" more */
 }
 
 @media (min-width: 1536px) {
   html {
-    font-size: 16px; /* Back to normal on very large screens */
+    font-size: 15px; /* Scaled down for large screens too */
   }
 }
 
