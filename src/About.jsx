@@ -674,7 +674,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <DropdownChevron />
               </button>
               {topMenuOpen === 'application' && (
-                <div className="animate-rise absolute right-0 top-11 z-[240] w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <div className="animate-fall absolute right-0 top-11 z-[240] w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
                   <button
                     type="button"
                     onClick={() => {
@@ -717,7 +717,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <DropdownChevron />
               </button>
               {topMenuOpen === 'more' && (
-                <div className="animate-rise absolute right-0 top-11 z-[240] w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <div className="animate-fall absolute right-0 top-11 z-[240] w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
                   <button
                     type="button"
                     onClick={() => {
@@ -762,7 +762,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <DropdownChevron />
               </button>
               {topMenuOpen === 'welcome' && (
-                <div className="animate-rise absolute right-0 top-11 z-[240] w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <div className="animate-fall absolute right-0 top-11 z-[240] w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2">
                     <div className="text-sm font-semibold text-slate-800">{welcomeName}</div>
                     <div className="text-xs text-slate-600">{welcomeEmail || 'No email on file'}</div>
@@ -977,7 +977,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 </div>
 
                 {showFilterMenu && (
-                  <div className="animate-rise absolute right-8 top-[5.5rem] z-50 w-56 overflow-hidden rounded-2xl border border-white bg-white/90 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
+                  <div className="animate-fall absolute right-8 top-[5.5rem] z-50 w-56 overflow-hidden rounded-2xl border border-white bg-white/90 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
                     <div className="mb-1 px-3 py-2">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Filter By Status</span>
                     </div>
@@ -1105,7 +1105,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                               </button>
 
                               {openActionMenuId === lead.id && (
-                                <div className="animate-rise absolute right-16 top-1/2 z-50 min-w-[140px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white bg-white p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+                                <div className="animate-fall absolute right-0 top-full z-50 mt-2 min-w-[180px] overflow-hidden rounded-2xl border border-white bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl">
                                   <button
                                     type="button"
                                     onClick={() => {
