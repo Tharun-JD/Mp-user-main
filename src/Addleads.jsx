@@ -159,7 +159,7 @@ function Addleads({ isOpen, onClose, onSave }) {
       </header>
 
       <form onSubmit={handleSubmit} autoComplete="off" className="flex-1 overflow-y-auto custom-scrollbar bg-[#f8fafc]">
-        <div className="mx-auto w-full max-w-[900px] px-6 py-8 md:px-12 md:py-12">
+        <div className="mx-auto w-full max-w-[95%] lg:max-w-[860px] px-6 py-6 md:px-10 md:py-8">
           <div className="space-y-10">
 
             {/* Left Column - Main Form Fields */}

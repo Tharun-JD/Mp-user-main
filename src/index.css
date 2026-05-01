@@ -6,9 +6,25 @@
   --color-brand-orange: #f08028;
 }
 
+html {
+  font-size: 14px; /* Reduced from default 16px to "zoom out" */
+}
+
+@media (min-width: 1536px) {
+  html {
+    font-size: 16px; /* Back to normal on very large screens */
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 13px; /* Zoom out more on mobile */
+  }
+}
+
 @layer base {
   body {
-    @apply m-0 min-h-screen text-slate-900;
+    @apply m-0 min-h-screen text-slate-900 overflow-x-hidden;
     font-family: 'Outfit', sans-serif;
     background:
       radial-gradient(circle at 15% 20%, #ecf3ff 0%, transparent 40%),

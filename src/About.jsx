@@ -813,7 +813,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         </div>
       </header>
 
-      <main className="relative isolate z-10 mx-auto w-full px-6 md:px-10 py-8">
+      <main className="relative isolate z-10 mx-auto w-full max-w-[95%] lg:max-w-[1440px] px-6 md:px-10 py-8">
         {activeView === 'dashboard' && (
           <>
             <section className="hero-shimmer animate-rise overflow-hidden rounded-2xl bg-[linear-gradient(130deg,#3f52c4_0%,#5f62da_40%,#8f47cc_100%)] px-5 py-8 text-center text-white shadow-[0_30px_65px_-35px_#4450c6] md:px-8 md:py-10">

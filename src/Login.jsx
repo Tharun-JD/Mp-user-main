@@ -150,7 +150,7 @@ function Login({ onSignIn }) {
         </div>
       </header>
 
-      <main className={`relative z-10 mx-auto grid w-full max-w-[1536px] px-5 md:px-14 gap-8 py-8 ${isLoginRelatedView ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'}`}>
+      <main className={`relative z-10 mx-auto grid w-full max-w-[95%] lg:max-w-[1440px] px-5 md:px-10 gap-6 py-6 ${isLoginRelatedView ? 'lg:grid-cols-2 lg:items-center' : 'grid-cols-1'}`}>
         <section className="hidden flex-col items-center justify-center text-center lg:flex">
           <div className="animate-float flex items-center justify-center">
             <img src="/logo.png" alt="MP Developers" className="w-full max-w-[480px] drop-shadow-2xl" />
@@ -281,7 +281,7 @@ function Login({ onSignIn }) {
                 <p className="mt-3 text-lg font-medium text-slate-500">Join MP Developers and build the future with us.</p>
               </div>
 
-              <form className="flex flex-col h-[70vh]" onSubmit={handleSubmit} autoComplete="off">
+              <form className="flex flex-col max-h-[75vh]" onSubmit={handleSubmit} autoComplete="off">
                 <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 no-scrollbar">
                   {/* Basic Profile */}
                   <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
