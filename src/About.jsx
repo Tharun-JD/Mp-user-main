@@ -1049,8 +1049,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
             {/* Table Area */}
             <div className="p-4 md:p-8">
-              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white/40 shadow-inner">
-                <div className="overflow-x-auto custom-scrollbar">
+              <div className="rounded-3xl border border-slate-100 bg-white/40 shadow-inner overflow-visible">
+                <div className="custom-scrollbar overflow-visible">
                   <table className="w-full min-w-[1000px] border-collapse text-left text-sm">
                     <thead>
                       <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -1145,7 +1145,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                               </button>
 
                               {openActionMenuId === lead.id && (
-                                <div className="animate-fall absolute right-0 top-full z-50 mt-2 min-w-[180px] overflow-hidden rounded-2xl border border-white bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl">
+                                <div className="animate-fall absolute right-0 top-full z-[100] mt-2 w-[240px] overflow-hidden rounded-[1.5rem] border border-white bg-white p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -1155,23 +1155,33 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                                       setCustomerHeaderMenuOpen(false)
                                       setOpenActionMenuId(null)
                                     }}
-                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                    className="group flex w-full items-center gap-3 rounded-[1rem] p-2 text-left transition-all hover:bg-slate-50"
                                   >
-                                    <svg className="size-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    Show Details
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50/80 text-blue-600 transition-colors group-hover:bg-blue-100">
+                                      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      </svg>
+                                    </div>
+                                    <div>
+                                      <div className="text-[14px] font-bold text-slate-900">Show Details</div>
+                                      <div className="text-[11px] font-medium text-slate-500">View full activity logs</div>
+                                    </div>
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => handleAddFollow(lead.id)}
-                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 hover:text-brand-blue"
+                                    className="group mt-1 flex w-full items-center gap-3 rounded-[1rem] p-2 text-left transition-all hover:bg-slate-50"
                                   >
-                                    <svg className="size-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Add Follow
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-[#f08028] transition-colors group-hover:bg-orange-100">
+                                      <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                      </svg>
+                                    </div>
+                                    <div>
+                                      <div className="text-[14px] font-bold text-slate-900">Add Follow</div>
+                                      <div className="text-[11px] font-medium text-slate-500">Update stage & status</div>
+                                    </div>
                                   </button>
                                 </div>
                               )}

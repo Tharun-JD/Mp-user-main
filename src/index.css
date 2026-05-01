@@ -36,11 +36,13 @@ html {
     @apply min-h-screen;
   }
 
-  /* Hide legacy scrollbar arrow buttons while keeping scroll behavior */
-  *::-webkit-scrollbar-button {
+  /* Hide scrollbars completely while keeping scroll behavior */
+  *::-webkit-scrollbar {
     display: none;
-    width: 0;
-    height: 0;
+  }
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
