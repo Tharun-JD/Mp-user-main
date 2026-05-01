@@ -1,0 +1,36 @@
+{
+  "partners": [
+    {
+      "name": "dfs",
+      "phonePrefix": "+91",
+      "phone": "dfgf",
+      "email": "r@gmail.com",
+      "alternatePhonePrefix": "+91",
+      "alternateNumber": "",
+      "aadhaar": "1234567890-1",
+      "pan": "234wdwsd",
+      "occupation": "",
+      "rera": "213187239",
+      "companyName": "fddf",
+      "bankName": "cgfd",
+      "branch": "",
+      "accountType": "Please select",
+      "ifsc": "dfgdfg",
+      "accountNumber": "dfgdfg",
+      "uploadDocuments": [],
+      "bankZip": "",
+      "gstApplicable": "No",
+      "gstNumber": "",
+      "house": "dsfs",
+      "street": "sdfs",
+      "country": "India",
+      "state": "Maharashtra",
+      "city": "sdffds",
+      "zip": "dsfdfd",
+      "id": "O2tmexkPzVg",
+      "status": "Pending",
+      "createdAt": 1777619525734
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

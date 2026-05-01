@@ -115,8 +115,31 @@ function Login({ onSignIn }) {
       onSignIn?.({ name: formData.email.split('@')[0], email: formData.email.trim() })
     } else if (view === 'register') {
       console.log('Registering Partner:', registerData)
-      alert('Registration submitted successfully!')
-      setView('login')
+      
+      const newPartner = {
+        ...registerData,
+        id: `cp-${Date.now()}`,
+        status: 'Pending',
+        createdAt: Date.now()
+      }
+
+      fetch('http://localhost:3000/partners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPartner)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert('Registration submitted successfully! Your application is now visible in the Admin Portal.')
+          setView('login')
+        } else {
+          alert('Failed to submit registration. Please try again.')
+        }
+      })
+      .catch(err => {
+        console.error('Submission error:', err)
+        alert('Network error. Please make sure the backend server is running.')
+      })
     } else {
       // Handle other views (OTP, Forgot, etc.)
       console.log('Action for view:', view)
