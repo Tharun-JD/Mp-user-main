@@ -621,16 +621,20 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       </div>
 
       <header className="relative z-[180] border-b border-white/60 bg-white/80 shadow-[0_16px_40px_-34px_#1e293b] backdrop-blur-xl">
-        <div className="mx-auto flex h-18 w-full px-6 md:px-10 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="font-sora text-3xl font-extrabold tracking-[-0.05em] text-brand-blue">MP</div>
-            <div className="leading-none">
-              <div className="text-sm font-bold text-brand-blue">Developers</div>
-              <div className="text-[10px] tracking-[0.2em] text-brand-orange">TRUST FOREVER</div>
+        <div className="mx-auto flex h-22 w-full items-center justify-between px-6 md:px-10">
+          {/* High-End Logo Block */}
+          <div className="flex shrink-0 items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#253eaf] to-[#1e293b] font-sora text-2xl font-black text-white shadow-xl shadow-indigo-200">
+              MP
+            </div>
+            <div className="hidden flex-col leading-none sm:flex">
+              <span className="text-xl font-black tracking-tight text-[#0f172a]">Developers</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#f08028]">Trust Forever</span>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-2 overflow-visible text-[1.02rem] md:flex">
+          {/* Centered Premium Navigation Hub */}
+          <nav className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-[2.5rem] border border-[#f1f5f9] bg-white/40 p-1.5 shadow-sm backdrop-blur-xl">
             <button
               type="button"
               onClick={() => {
@@ -638,14 +642,16 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`nav-link-fancy animate-nav-enter ${activeView === 'dashboard' ? 'text-brand-blue' : 'text-slate-700'}`}
-              style={{ animationDelay: '120ms' }}
+              className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
+                activeView === 'dashboard'
+                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+              }`}
             >
-              <span className="flex items-center gap-1.5">
-                <LabelIcon type="dashboard" />
-                <span>Dashboard</span>
-              </span>
+              <LabelIcon type="dashboard" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'dashboard' ? 'text-brand-orange' : ''}`} />
+              <span>Dashboard</span>
             </button>
+
             <button
               type="button"
               onClick={() => {
@@ -653,163 +659,199 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`nav-link-fancy animate-nav-enter ${activeView === 'lead-activities' ? 'text-brand-blue' : 'text-slate-700'}`}
-              style={{ animationDelay: '210ms' }}
+              className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
+                activeView === 'lead-activities'
+                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+              }`}
             >
-              <span className="flex items-center gap-1.5">
-                <LabelIcon type="activity" />
-                <span>Lead Activities</span>
-              </span>
+              <LabelIcon type="activity" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'lead-activities' ? 'text-brand-orange' : ''}`} />
+              <span>Activities</span>
             </button>
 
-            <div data-top-menu-root="true" className="relative animate-nav-enter" style={{ animationDelay: '300ms' }}>
+            <div data-top-menu-root="true" className="relative">
               <button
                 type="button"
                 onClick={() => setTopMenuOpen((prev) => (prev === 'application' ? null : 'application'))}
-                className="nav-link-fancy flex items-center gap-1.5 text-slate-700"
-                aria-expanded={topMenuOpen === 'application'}
+                className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
+                  topMenuOpen === 'application'
+                    ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                    : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
               >
-                <LabelIcon type="form" />
-                <span>Application Form</span>
+                <LabelIcon type="form" className={`size-4 transition-transform group-hover:scale-110 ${topMenuOpen === 'application' ? 'text-brand-orange' : ''}`} />
+                <span>Forms</span>
                 <DropdownChevron />
               </button>
               {topMenuOpen === 'application' && (
-                <div className="animate-fall absolute right-0 top-11 z-[240] w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTopMenuOpen(null)
-                      onOpenCustdetails?.()
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="welcome" className="size-4" />
-                      <span>Customer Details</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTopMenuOpen(null)
-                      onOpenAddress?.()
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="docs" className="size-4" />
-                      <span>Address</span>
-                    </span>
-                  </button>
+                <div className="animate-fall absolute left-1/2 top-full z-[260] mt-4 w-64 -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white bg-white/95 p-2 shadow-[0_30px_70px_rgba(0,0,0,0.15)] backdrop-blur-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#253eaf]/5 to-transparent opacity-50" />
+                  <div className="relative space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTopMenuOpen(null)
+                        onOpenCustdetails?.()
+                      }}
+                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="welcome" className="size-4" />
+                      </div>
+                      <div>
+                        <div className="text-[12px] font-black">Customer Details</div>
+                        <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Profile Setup</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTopMenuOpen(null)
+                        onOpenAddress?.()
+                      }}
+                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="docs" className="size-4" />
+                      </div>
+                      <div>
+                        <div className="text-[12px] font-black">Address Info</div>
+                        <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Location Data</div>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div data-top-menu-root="true" className="relative animate-nav-enter" style={{ animationDelay: '390ms' }}>
+            <div data-top-menu-root="true" className="relative">
               <button
                 type="button"
                 onClick={() => setTopMenuOpen((prev) => (prev === 'more' ? null : 'more'))}
-                className="nav-link-fancy flex items-center gap-1.5 text-slate-700"
-                aria-expanded={topMenuOpen === 'more'}
+                className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
+                  activeView === 'emails' || activeView === 'sms' || topMenuOpen === 'more'
+                    ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                    : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
               >
-                <LabelIcon type="more" />
+                <LabelIcon type="more" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'emails' || activeView === 'sms' || topMenuOpen === 'more' ? 'text-brand-orange' : ''}`} />
                 <span>More</span>
                 <DropdownChevron />
               </button>
               {topMenuOpen === 'more' && (
-                <div className="animate-fall absolute right-0 top-11 z-[240] w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveView('emails')
-                      setTopMenuOpen(null)
-                      setOpenActionMenuId(null)
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="email" className="size-4" />
-                      <span>Emails</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveView('sms')
-                      setTopMenuOpen(null)
-                      setOpenActionMenuId(null)
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="sms" className="size-4" />
-                      <span>Sms</span>
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div data-top-menu-root="true" className="relative animate-nav-enter" style={{ animationDelay: '480ms' }}>
-              <button
-                type="button"
-                onClick={() => setTopMenuOpen((prev) => (prev === 'welcome' ? null : 'welcome'))}
-                className="nav-link-fancy flex items-center gap-1.5 text-slate-700"
-                aria-expanded={topMenuOpen === 'welcome'}
-              >
-                <LabelIcon type="welcome" />
-                <span>Welcome, {welcomeName}</span>
-                <DropdownChevron />
-              </button>
-              {topMenuOpen === 'welcome' && (
-                <div className="animate-fall absolute right-0 top-11 z-[240] w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2">
-                    <div className="text-sm font-semibold text-slate-800">{welcomeName}</div>
-                    <div className="text-xs text-slate-600">{welcomeEmail || 'No email on file'}</div>
+                <div className="animate-fall absolute left-1/2 top-full z-[260] mt-4 w-60 -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white bg-white/95 p-2 shadow-[0_30px_70px_rgba(0,0,0,0.15)] backdrop-blur-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#253eaf]/5 to-transparent opacity-50" />
+                  <div className="relative space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveView('emails')
+                        setTopMenuOpen(null)
+                        setOpenActionMenuId(null)
+                      }}
+                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="email" className="size-4" />
+                      </div>
+                      <div className="text-[12px] font-black">Email Logs</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveView('sms')
+                        setTopMenuOpen(null)
+                        setOpenActionMenuId(null)
+                      }}
+                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="sms" className="size-4" />
+                      </div>
+                      <div className="text-[12px] font-black">SMS History</div>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsProfileModalOpen(true)
-                      setTopMenuOpen(null)
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="welcome" className="size-4" />
-                      <span>Channel Partner Profile</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsPasswordModalOpen(true)
-                      setTopMenuOpen(null)
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="password" className="size-4" />
-                      <span>Change Password</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTopMenuOpen(null)
-                      onBackToLogin?.()
-                    }}
-                    className="block w-full rounded-lg px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <LabelIcon type="logout" className="size-4" />
-                      <span>Log Out</span>
-                    </span>
-                  </button>
                 </div>
               )}
             </div>
           </nav>
+
+          {/* User Profile - Right */}
+          <div data-top-menu-root="true" className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setTopMenuOpen((prev) => (prev === 'welcome' ? null : 'welcome'))}
+              className={`group flex items-center gap-3 rounded-2xl px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_12px_25px_rgba(0,0,0,0.08)] active:scale-95 ${
+                topMenuOpen === 'welcome' ? 'bg-white text-brand-blue ring-1 ring-brand-blue/20' : 'bg-slate-50 text-slate-600 hover:bg-white'
+              }`}
+            >
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform group-hover:scale-110 ${topMenuOpen === 'welcome' ? 'bg-brand-blue text-white' : 'bg-slate-200 text-slate-500'}`}>
+                <LabelIcon type="welcome" className="size-4" />
+              </div>
+              <span className="hidden lg:inline">Welcome, {welcomeName}</span>
+              <span className="lg:hidden">Account</span>
+              <DropdownChevron />
+            </button>
+            {topMenuOpen === 'welcome' && (
+              <div className="animate-fall absolute right-0 top-full z-[260] mt-4 w-72 overflow-hidden rounded-[2.5rem] border border-white bg-white/95 p-4 shadow-[0_30px_70px_rgba(0,0,0,0.15)] backdrop-blur-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#253eaf]/5 to-transparent opacity-50" />
+                <div className="relative">
+                  <div className="mb-4 rounded-3xl border border-slate-100 bg-slate-50/50 p-4">
+                    <div className="text-sm font-black text-[#0f172a]">{welcomeName}</div>
+                    <div className="mt-0.5 text-[10px] font-bold text-slate-500">{welcomeEmail || 'Channel Partner'}</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileModalOpen(true)
+                        setTopMenuOpen(null)
+                      }}
+                      className="group flex w-full items-center gap-4 rounded-2xl p-3 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="welcome" className="size-5" />
+                      </div>
+                      <div>
+                        <div className="text-[12px] font-black">Partner Profile</div>
+                        <div className="text-[9px] font-bold opacity-60 uppercase tracking-widest">Management</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPasswordModalOpen(true)
+                        setTopMenuOpen(null)
+                      }}
+                      className="group flex w-full items-center gap-4 rounded-2xl p-3 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 group-hover:bg-white/10 group-hover:text-white">
+                        <LabelIcon type="password" className="size-5" />
+                      </div>
+                      <div>
+                        <div className="text-[12px] font-black">Security</div>
+                        <div className="text-[9px] font-bold opacity-60 uppercase tracking-widest">Update Password</div>
+                      </div>
+                    </button>
+                    <div className="my-3 h-px bg-slate-100" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTopMenuOpen(null)
+                        onBackToLogin?.()
+                      }}
+                      className="group flex w-full items-center gap-4 rounded-2xl p-3 text-left transition-all duration-300 hover:bg-rose-600 hover:text-white"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 group-hover:bg-white/20 group-hover:text-white">
+                        <LabelIcon type="logout" className="size-5" />
+                      </div>
+                      <div className="text-[12px] font-black">Sign Out</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
