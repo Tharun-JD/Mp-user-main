@@ -853,7 +853,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
             </section>
 
             <section className="animate-rise mt-10 overflow-hidden rounded-2xl border border-[#d8dafe] bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(240,236,255,0.86))] shadow-[0_24px_58px_-38px_#4f46e5] backdrop-blur-lg [animation-delay:160ms]">
-              <div className="flex items-center justify-between bg-gradient-to-r from-[#4f5fd6] to-[#9a48d0] px-5 py-3">
+              <div className="flex items-center justify-between bg-gradient-to-r from-[#4f5fd6] to-[#9a48d0] px-5 py-3 rounded-t-2xl">
                 <h2 className="font-sora inline-flex items-center gap-2 text-[1.9rem] text-white">
                   <LabelIcon type="collaterals" className="size-6" />
                   <span>Collaterals</span>
@@ -872,7 +872,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         {activeView === 'lead-activities' && (
           <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
             {/* Header Area */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6 rounded-t-[2rem]">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/5 text-brand-blue shadow-inner">
                   <LabelIcon type="activity" className="size-6" />
@@ -1115,7 +1115,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         {activeView === 'emails' && (
           <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
             {/* Header Area */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6 rounded-t-[2rem]">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/5 text-brand-blue shadow-inner">
                   <LabelIcon type="email" className="size-6" />
@@ -1236,7 +1236,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         {activeView === 'sms' && (
           <section className="animate-rise relative overflow-visible rounded-[2rem] border border-white/50 bg-white/70 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
             {/* Header Area */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/40 px-8 py-6 rounded-t-[2rem]">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600 shadow-inner">
                   <LabelIcon type="sms" className="size-6" />

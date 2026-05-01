@@ -561,7 +561,7 @@ function Login({ onSignIn }) {
                   </section>
                 </div>
 
-                <div className="flex flex-col items-center gap-4 pt-6 border-t border-slate-100 bg-white/50 backdrop-blur-sm -mx-8 px-8">
+                <div className="flex flex-col items-center gap-4 pt-6 border-t border-slate-100 bg-white/50 backdrop-blur-sm -mx-8 px-8 rounded-b-3xl">
                   <button type="submit" className="w-full max-w-md rounded-2xl bg-brand-blue py-4 text-lg font-bold text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all">
                     Finalize & Register Partner
                   </button>
