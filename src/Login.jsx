@@ -38,7 +38,7 @@ function Login({ onSignIn }) {
   const [formData, setFormData] = useState({ email: '', password: '', name: '' })
   const [registerData, setRegisterData] = useState(initialFormValues)
   const [errorMessage, setErrorMessage] = useState('')
-  
+
   const [selectedDocType, setSelectedDocType] = useState('PAN Card')
   const documentTypes = ['PAN Card', 'Aadhaar Card', 'RERA Certificate', 'GST Certificate', 'Passbook/Cancelled Cheque']
   const [isPhonePrefixOpen, setIsPhonePrefixOpen] = useState(false)
@@ -115,7 +115,7 @@ function Login({ onSignIn }) {
       onSignIn?.({ name: formData.email.split('@')[0], email: formData.email.trim() })
     } else if (view === 'register') {
       console.log('Registering Partner:', registerData)
-      
+
       const newPartner = {
         ...registerData,
         id: `cp-${Date.now()}`,
@@ -128,18 +128,18 @@ function Login({ onSignIn }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPartner)
       })
-      .then(res => {
-        if (res.ok) {
-          alert('Registration submitted successfully! Your application is now visible in the Admin Portal.')
-          setView('login')
-        } else {
-          alert('Failed to submit registration. Please try again.')
-        }
-      })
-      .catch(err => {
-        console.error('Submission error:', err)
-        alert('Network error. Please make sure the backend server is running.')
-      })
+        .then(res => {
+          if (res.ok) {
+            alert('Registration submitted successfully! Your application is now visible in the Admin Portal.')
+            setView('login')
+          } else {
+            alert('Failed to submit registration. Please try again.')
+          }
+        })
+        .catch(err => {
+          console.error('Submission error:', err)
+          alert('Network error. Please make sure the backend server is running.')
+        })
     } else {
       // Handle other views (OTP, Forgot, etc.)
       console.log('Action for view:', view)
