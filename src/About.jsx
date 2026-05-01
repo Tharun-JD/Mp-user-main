@@ -622,14 +622,12 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
       <header className="relative z-[180] border-b border-white/60 bg-white/80 shadow-[0_16px_40px_-34px_#1e293b] backdrop-blur-xl">
         <div className="mx-auto flex h-22 w-full items-center justify-between px-6 md:px-10">
-          {/* High-End Logo Block */}
-          <div className="flex shrink-0 items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#253eaf] to-[#1e293b] font-sora text-2xl font-black text-white shadow-xl shadow-indigo-200">
-              MP
-            </div>
-            <div className="hidden flex-col leading-none sm:flex">
-              <span className="text-xl font-black tracking-tight text-[#0f172a]">Developers</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#f08028]">Trust Forever</span>
+          {/* Old Logo Block */}
+          <div className="flex items-center gap-2">
+            <div className="font-sora text-3xl font-extrabold tracking-[-0.05em] text-brand-blue">MP</div>
+            <div className="leading-none">
+              <div className="text-sm font-bold text-brand-blue">Developers</div>
+              <div className="text-[10px] tracking-[0.2em] text-brand-orange">TRUST FOREVER</div>
             </div>
           </div>
 
