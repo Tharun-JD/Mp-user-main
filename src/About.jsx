@@ -214,6 +214,18 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     scheduledOn: '',
     status: 'Pending',
   })
+  const [isUpdateProgressOpen, setIsUpdateProgressOpen] = useState(false)
+  const [updateProgressForm, setUpdateProgressForm] = useState({
+    leadStage: '',
+    leadStatus: '',
+    countStatus: '',
+    remark: '',
+    subject: '',
+    description: '',
+    scheduledOn: '',
+    status: 'Pending',
+    reminderBefore: '15 mins'
+  })
   const [isAddingNote, setIsAddingNote] = useState(false)
   const [newNoteText, setNewNoteText] = useState('')
   const [emailLogs, setEmailLogs] = useState([])
@@ -579,23 +591,60 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       })
   }
 
-  const handleAddFollow = (leadId) => {
-    const nextLeads = leadActivities.map((lead) => {
-      if (lead.id !== leadId) {
-        return lead
-      }
+  const handleOpenUpdateProgress = (leadId) => {
+    const lead = leadActivities.find(l => l.id === leadId)
+    if (!lead) return
+    setSelectedLeadId(leadId)
+    setUpdateProgressForm({
+      leadStage: lead.leadStage || 'Fresh',
+      leadStatus: lead.leadStatus || 'Active',
+      countStatus: lead.countStatus || 'Pending',
+      remark: lead.remark || '',
+      subject: `Follow Up: ${lead.name}`,
+      description: '',
+      scheduledOn: new Date().toISOString().slice(0, 16),
+      status: 'Pending',
+      reminderBefore: '15 mins'
+    })
+    setIsUpdateProgressOpen(true)
+    setOpenActionMenuId(null)
+    setCustomerHeaderMenuOpen(false)
+  }
 
-      const nextCount = (lead.followUps || 0) + 1
+  const handleSaveUpdateProgress = () => {
+    const nextItem = {
+      id: `${Date.now()}-followup`,
+      subject: updateProgressForm.subject,
+      description: updateProgressForm.description,
+      scheduledOn: updateProgressForm.scheduledOn,
+      status: updateProgressForm.status,
+      reminderBefore: updateProgressForm.reminderBefore,
+      createdAt: new Date().toISOString()
+    }
+
+    const nextLeads = leadActivities.map((lead) => {
+      if (lead.id !== selectedLeadId) return lead
       return {
         ...lead,
-        followUps: nextCount,
-        countStatus: `${nextCount} Follow-up`,
-        leadStage: 'Follow-up',
+        leadStage: updateProgressForm.leadStage,
+        leadStatus: updateProgressForm.leadStatus,
+        countStatus: updateProgressForm.countStatus,
+        remark: updateProgressForm.remark,
+        followUpItems: [...(lead.followUpItems || []), nextItem],
       }
     })
 
     persistLeads(nextLeads)
-    setOpenActionMenuId(null)
+    setIsUpdateProgressOpen(false)
+    showToast('Lead follow-up recorded successfully.')
+  }
+
+  const handleOpenAddFollowUpTab = () => {
+    handleOpenUpdateProgress(selectedLeadId)
+  }
+
+  const handleAddFollow = (leadId) => {
+    handleOpenUpdateProgress(leadId)
   }
 
   const showToast = (message) => {
@@ -669,42 +718,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
     showToast('Follow up status saved successfully.')
   }
 
-  const handleOpenAddFollowUpTab = () => {
-    setFollowUpForm({
-      subject: '',
-      description: '',
-      reminderBefore: '15 mins',
-      scheduledOn: new Date().toISOString().slice(0, 16),
-      status: 'Pending',
-    })
-    setCustomerDetailTab('add-follow-up')
-    setCustomerHeaderMenuOpen(false)
-  }
 
-  const handleCreateFollowUp = (e) => {
-    e.preventDefault()
-    const nextItem = {
-      id: `${Date.now()}-manual`,
-      subject: followUpForm.subject,
-      description: followUpForm.description,
-      reminderBefore: followUpForm.reminderBefore,
-      scheduledOn: followUpForm.scheduledOn,
-      status: followUpForm.status,
-    }
-
-    const nextLeads = leadActivities.map((lead) => {
-      if (lead.id !== selectedLeadId) return lead
-      return {
-        ...lead,
-        followUpItems: [...(lead.followUpItems || []), nextItem],
-        countStatus: followUpForm.status,
-      }
-    })
-
-    persistLeads(nextLeads)
-    setCustomerDetailTab('show')
-    showToast('Follow up added successfully.')
-  }
 
   const handleSaveNote = () => {
     if (!newNoteText.trim()) return
@@ -859,6 +873,32 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               <span>Lead Activities</span>
             </button>
 
+
+
+            <button
+              type="button"
+              onClick={() => {
+                setTopMenuOpen(null)
+                openCustomerDetailsForm()
+              }}
+              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
+            >
+              <LabelIcon type="welcome" className="size-4 transition-transform group-hover:scale-110" />
+              <span>Customer Details</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTopMenuOpen(null)
+                openAddressForm()
+              }}
+              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
+            >
+              <LabelIcon type="docs" className="size-4 transition-transform group-hover:scale-110" />
+              <span>Address Info</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -891,32 +931,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 }`}
             >
               <LabelIcon type="form" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'cust-details' ? 'text-brand-orange' : ''}`} />
-              <span>View Details</span>
-            </button>
-
-
-            <button
-              type="button"
-              onClick={() => {
-                setTopMenuOpen(null)
-                openCustomerDetailsForm()
-              }}
-              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
-            >
-              <LabelIcon type="welcome" className="size-4 transition-transform group-hover:scale-110" />
-              <span>Customer Details</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setTopMenuOpen(null)
-                openAddressForm()
-              }}
-              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
-            >
-              <LabelIcon type="docs" className="size-4 transition-transform group-hover:scale-110" />
-              <span>Address Info</span>
+              <span>View Detail</span>
             </button>
 
             <button
@@ -1127,19 +1142,38 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 </button>
               </div>
 
-              <div className="p-16">
-                <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-                  <div className="group relative mb-8">
-                    <div className="absolute inset-0 animate-ping rounded-full bg-indigo-100 opacity-20" />
-                    <div className="relative rounded-full bg-slate-50 p-10 shadow-inner">
-                      <svg className="size-16 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.2"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+              <div className="p-8 md:p-12">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: 'Project Brochure', category: 'PDF Document', size: '12.5 MB', color: 'indigo', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+                    { title: 'Floor Plans - Tower A', category: 'Blueprints', size: '4.2 MB', color: 'emerald', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                    { title: 'Amenity Walkthrough', category: '4K Video', size: '85.0 MB', color: 'brand-blue', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+                    { title: 'Location Map', category: 'High-Res Image', size: '2.8 MB', color: 'orange', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z' }
+                  ].map((asset, idx) => (
+                    <div key={idx} className="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white/40 p-6 transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-brand-blue/5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-${asset.color === 'brand-blue' ? 'indigo' : asset.color}-50 text-${asset.color === 'brand-blue' ? 'indigo' : asset.color}-600 shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d={asset.icon} />
+                          </svg>
+                        </div>
+                        <button className="rounded-lg bg-slate-50 p-2 text-slate-400 transition-colors hover:bg-brand-blue hover:text-white">
+                          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        </button>
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-sora text-sm font-black text-slate-800">{asset.title}</h4>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{asset.category}</span>
+                          <span className="size-1 rounded-full bg-slate-200" />
+                          <span className="text-[10px] font-bold text-slate-400">{asset.size}</span>
+                        </div>
+                      </div>
+                      <button className="mt-5 w-full rounded-xl border border-slate-100 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-brand-blue hover:text-white hover:border-brand-blue">
+                        Share Asset
+                      </button>
                     </div>
-                  </div>
-                  <p className="text-2xl font-black text-slate-800">Your digital assets are coming soon.</p>
-                  <p className="mt-3 max-w-md text-center text-slate-400 font-medium">
-                    Our marketing team is curating high-conversion brochures, images, and walkthroughs for your next big deal.
-                  </p>
-                  <button className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-indigo-500 hover:text-indigo-600 underline-offset-8 hover:underline decoration-2">Get Notified</button>
+                  ))}
                 </div>
               </div>
 
@@ -1934,30 +1968,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
             {customerDetailTab === 'show' && (
               <div className="space-y-6">
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomerHeaderMenuOpen(false)
-                      openCustomerDetailsForm(true)
-                    }}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/25 transition hover:-translate-y-0.5 hover:bg-brand-blue/90 active:scale-95"
-                  >
-                    <LabelIcon type="welcome" className="size-4" />
-                    <span>Edit Customer Details</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomerHeaderMenuOpen(false)
-                      openAddressForm(true)
-                    }}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue active:scale-95"
-                  >
-                    <LabelIcon type="docs" className="size-4" />
-                    <span>Edit Address Info</span>
-                  </button>
-                </div>
+
 
                 <div className="grid gap-8 lg:grid-cols-3">
                   {/* Primary Data Card */}
@@ -2033,9 +2044,12 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                         </div>
                         <button
                           onClick={handleOpenAddFollowUpTab}
-                          className="rounded-xl bg-brand-blue/5 px-4 py-2 text-xs font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
+                          className="flex items-center gap-2 rounded-xl bg-brand-blue/5 px-4 py-2 text-xs font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
                         >
-                          + New Interaction
+                          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                          </svg>
+                          Add Follow Up
                         </button>
                       </div>
 
@@ -2229,87 +2243,6 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               </div>
             )}
 
-            {customerDetailTab === 'add-follow-up' && (
-              <div className="animate-fade-slide rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_22px_48px_-40px_#334155] backdrop-blur-sm">
-                <h3 className="font-sora text-xl font-semibold text-slate-800">Add Follow Up</h3>
-                <form onSubmit={handleCreateFollowUp} className="mt-3 grid gap-3 md:grid-cols-2">
-                  <label className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-700">Subject</span>
-                    <input
-                      name="subject"
-                      value={followUpForm.subject}
-                      onChange={handleFollowUpFormChange}
-                      required
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
-                    />
-                  </label>
-                  <label className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-700">Status</span>
-                    <select
-                      name="status"
-                      value={followUpForm.status}
-                      onChange={handleFollowUpFormChange}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
-                    >
-                      <option>Pending</option>
-                      <option>Followed Up</option>
-                      <option>Completed</option>
-                      <option>Rescheduled</option>
-                    </select>
-                  </label>
-                  <label className="grid gap-1 md:col-span-2">
-                    <span className="text-sm font-semibold text-slate-700">Description</span>
-                    <textarea
-                      name="description"
-                      value={followUpForm.description}
-                      onChange={handleFollowUpFormChange}
-                      rows={3}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
-                    />
-                  </label>
-                  <label className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-700">Reminder Before</span>
-                    <select
-                      name="reminderBefore"
-                      value={followUpForm.reminderBefore}
-                      onChange={handleFollowUpFormChange}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
-                    >
-                      <option>5 mins</option>
-                      <option>15 mins</option>
-                      <option>30 mins</option>
-                      <option>1 hour</option>
-                      <option>1 day</option>
-                    </select>
-                  </label>
-                  <label className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-700">Scheduled On</span>
-                    <input
-                      type="datetime-local"
-                      name="scheduledOn"
-                      value={followUpForm.scheduledOn}
-                      onChange={handleFollowUpFormChange}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
-                    />
-                  </label>
-                  <div className="md:col-span-2 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setCustomerDetailTab('show')}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="rounded-md bg-brand-blue px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1f37a2]"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
           </div>
         )}
 
@@ -2800,6 +2733,144 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {isUpdateProgressOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-2xl backdrop-blur-2xl animate-rise md:p-10">
+            <div className="mb-8 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 shadow-inner">
+                  <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-sora text-2xl font-black tracking-tight text-slate-900">Lead Follow-up</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Update stage & status</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsUpdateProgressOpen(false)}
+                className="grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-slate-200 hover:text-slate-900 active:scale-90"
+              >
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <label className="block space-y-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Lead Stage</span>
+                  <select
+                    value={updateProgressForm.leadStage}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, leadStage: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  >
+                    <option>Fresh</option>
+                    <option>Enquiry Received</option>
+                    <option>Visit Done</option>
+                    <option>Interested</option>
+                    <option>Not Interested</option>
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Lead Status</span>
+                  <select
+                    value={updateProgressForm.leadStatus}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, leadStatus: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  >
+                    <option>Active</option>
+                    <option>Lost</option>
+                    <option>Won</option>
+                    <option>Already Exists</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 border-t border-slate-100 pt-6">
+                <label className="block space-y-2 md:col-span-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-brand-blue">Interaction Subject</span>
+                  <input
+                    type="text"
+                    value={updateProgressForm.subject}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, subject: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  />
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Scheduled Date</span>
+                  <input
+                    type="datetime-local"
+                    value={updateProgressForm.scheduledOn}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, scheduledOn: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  />
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Interaction Status</span>
+                  <select
+                    value={updateProgressForm.status}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, status: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  >
+                    <option>Pending</option>
+                    <option>Followed Up</option>
+                    <option>Completed</option>
+                    <option>Rescheduled</option>
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Reminder Before</span>
+                  <select
+                    value={updateProgressForm.reminderBefore}
+                    onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, reminderBefore: e.target.value }))}
+                    className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                  >
+                    <option>5 mins</option>
+                    <option>15 mins</option>
+                    <option>30 mins</option>
+                    <option>1 hour</option>
+                    <option>1 day</option>
+                  </select>
+                </label>
+              </div>
+
+              <label className="block space-y-2">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Remark / Description</span>
+                <textarea
+                  value={updateProgressForm.remark}
+                  onChange={(e) => setUpdateProgressForm(prev => ({ ...prev, remark: e.target.value, description: e.target.value }))}
+                  placeholder="Enter your follow-up notes..."
+                  rows={3}
+                  className="w-full rounded-2xl border-none bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-900 shadow-inner outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-blue"
+                />
+              </label>
+            </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  onClick={() => setIsUpdateProgressOpen(false)}
+                  className="flex-1 rounded-2xl bg-slate-100 py-4 text-sm font-black uppercase tracking-widest text-slate-600 transition-all hover:bg-slate-200 active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveUpdateProgress}
+                  className="flex-1 rounded-2xl bg-brand-blue py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-brand-blue/25 transition-all hover:bg-brand-blue/90 hover:shadow-brand-blue/40 active:scale-95"
+                >
+                  Update Progress
+                </button>
+              </div>
+          </div>
         </div>
       )}
 

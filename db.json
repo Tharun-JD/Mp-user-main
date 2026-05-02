@@ -217,7 +217,39 @@
         }
       ],
       "id": "6hc6cDkVxgc"
+    },
+    {
+      "firstName": "Joe",
+      "lastName": "TI",
+      "name": "Joe TI",
+      "email": "client@gmail.com",
+      "phone": "+91 1234567",
+      "project": "MP Amber",
+      "budget": "INR 20 Lakh",
+      "location": "new",
+      "configuration": "3 BHK",
+      "propertyType": "Plot",
+      "sellDoLeadId": "SD-1391888",
+      "leadStage": "Fresh",
+      "leadStatus": "Already Exists",
+      "countStatus": "Pending",
+      "followUps": 0,
+      "registeredAt": "5/2/2026",
+      "leadValidityPeriod": "30 Days",
+      "followUpItems": [
+        {
+          "id": "1777721391902-init",
+          "subject": "Initial Contact",
+          "description": "Lead created and awaiting first follow up.",
+          "reminderBefore": "15 mins",
+          "scheduledOn": "2026-05-02T11:29",
+          "status": "Pending"
+        }
+      ],
+      "id": "6Em4stFzm-Q"
     }
   ],
+  "customerDetails": [],
+  "addressInfo": [],
   "$schema": "./node_modules/json-server/schema.json"
 }
