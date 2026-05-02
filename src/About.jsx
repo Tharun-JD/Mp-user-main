@@ -2737,8 +2737,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       )}
 
       {isUpdateProgressOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fade-in p-4">
-          <div className="w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-2xl backdrop-blur-2xl animate-rise md:p-10">
+        <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-900/40 backdrop-blur-sm animate-fade-in p-6">
+          <div className="w-full max-w-lg max-h-[calc(100vh-48px)] overflow-y-auto custom-scrollbar rounded-[2.5rem] border border-white bg-white/80 pt-14 pb-10 px-8 shadow-2xl backdrop-blur-2xl animate-rise md:pt-16 md:pb-12 md:px-10">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 shadow-inner">
@@ -2804,7 +2804,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                   />
                 </label>
 
-                <label className="block space-y-2">
+                <label className="block space-y-2 md:col-span-2">
                   <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Scheduled Date</span>
                   <input
                     type="datetime-local"
@@ -2856,20 +2856,20 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               </label>
             </div>
 
-              <div className="flex gap-4 pt-4">
-                <button
-                  onClick={() => setIsUpdateProgressOpen(false)}
-                  className="flex-1 rounded-2xl bg-slate-100 py-4 text-sm font-black uppercase tracking-widest text-slate-600 transition-all hover:bg-slate-200 active:scale-95"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveUpdateProgress}
-                  className="flex-1 rounded-2xl bg-brand-blue py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-brand-blue/25 transition-all hover:bg-brand-blue/90 hover:shadow-brand-blue/40 active:scale-95"
-                >
-                  Update Progress
-                </button>
-              </div>
+            <div className="flex gap-4 pt-4">
+              <button
+                onClick={() => setIsUpdateProgressOpen(false)}
+                className="flex-1 rounded-2xl bg-slate-100 py-4 text-sm font-black uppercase tracking-widest text-slate-600 transition-all hover:bg-slate-200 active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveUpdateProgress}
+                className="flex-1 rounded-2xl bg-brand-blue py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-brand-blue/25 transition-all hover:bg-brand-blue/90 hover:shadow-brand-blue/40 active:scale-95"
+              >
+                Update Progress
+              </button>
+            </div>
           </div>
         </div>
       )}
