@@ -219,19 +219,22 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const SEEDED_LEADS = []
 
   useEffect(() => {
-    const savedLeads = window.localStorage.getItem(LEAD_ACTIVITY_KEY)
-    if (savedLeads) {
-      const parsed = JSON.parse(savedLeads)
-      // Filter out any old seeded leads and keep only real user data
-      const filtered = parsed.filter((l) => typeof l.id === 'string' && !l.id.startsWith('seed-'))
-
-      setLeadActivities(filtered)
-      if (filtered.length !== parsed.length) {
-        window.localStorage.setItem(LEAD_ACTIVITY_KEY, JSON.stringify(filtered))
-      }
-    } else {
-      setLeadActivities([])
-    }
+    // Fetch leads from API
+    fetch('http://localhost:3000/leads')
+      .then(res => res.json())
+      .then(data => {
+        setLeadActivities(data)
+        setLeadsLoaded(true)
+      })
+      .catch(err => {
+        console.error('Error fetching leads:', err)
+        // Fallback to local storage if API fails
+        const savedLeads = window.localStorage.getItem(LEAD_ACTIVITY_KEY)
+        if (savedLeads) {
+          setLeadActivities(JSON.parse(savedLeads))
+        }
+        setLeadsLoaded(true)
+      })
 
     // Also clear email logs if they exist as seeded data
     const savedEmails = window.localStorage.getItem('mp-email-logs')
@@ -247,7 +250,6 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
         console.error('Error filtering email logs', e)
       }
     }
-    setLeadsLoaded(true)
   }, [])
 
 
@@ -350,7 +352,6 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const handleSaveLead = (leadData) => {
     const now = new Date()
     const newLead = {
-      id: Date.now(),
       firstName: leadData.firstName,
       lastName: leadData.lastName,
       name: `${leadData.firstName} ${leadData.lastName}`.trim(),
@@ -380,9 +381,27 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
       ],
     }
 
-    persistLeads([newLead, ...leadActivities])
-    setIsAddLeadOpen(false)
-    showToast('Lead saved successfully.')
+    // Save to backend
+    fetch('http://localhost:3000/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLead)
+    })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        }
+        throw new Error('Failed to save lead')
+      })
+      .then(savedLead => {
+        setLeadActivities([savedLead, ...leadActivities])
+        setIsAddLeadOpen(false)
+        showToast('Lead saved successfully.')
+      })
+      .catch(err => {
+        console.error('Error saving lead:', err)
+        alert('Network error. Failed to save lead to database.')
+      })
   }
 
   const handleAddFollow = (leadId) => {
