@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Address({ onClose }) {
+function Address({ currentUser, onClose }) {
   const [toastMessage, setToastMessage] = useState('')
   const [addressForm, setAddressForm] = useState({
     house: '',
@@ -23,7 +23,35 @@ function Address({ onClose }) {
 
   const handleSaveAddress = (e) => {
     e.preventDefault()
-    showToast('Location records updated successfully.')
+
+    const payload = {
+      id: Date.now().toString(),
+      userEmail: currentUser?.email || '',
+      ...addressForm,
+      updatedAt: new Date().toISOString()
+    }
+
+    fetch('http://localhost:3000/addressInfo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok')
+        return res.json()
+      })
+      .then(() => {
+        showToast('Location records updated successfully.')
+        setTimeout(onClose, 1000)
+      })
+      .catch((err) => {
+        console.error('API Error, saving locally:', err)
+        const localData = JSON.parse(window.localStorage.getItem('mp_address_info') || '[]')
+        localData.push(payload)
+        window.localStorage.setItem('mp_address_info', JSON.stringify(localData))
+        showToast('Saved locally (Offline mode).')
+        setTimeout(onClose, 1000)
+      })
   }
 
   const inputClasses = "w-full rounded-xl border border-slate-200 bg-slate-50/40 px-4 py-3 text-[15px] font-medium text-slate-700 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-brand-blue/50 focus:bg-white focus:ring-4 focus:ring-brand-blue/5"

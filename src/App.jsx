@@ -60,11 +60,11 @@ function App() {
   }
 
   if (page === 'custdetails') {
-    return <Custdetails onClose={() => setPage('about')} />
+    return <Custdetails currentUser={user} onClose={() => setPage('about')} />
   }
 
   if (page === 'address') {
-    return <Address onClose={() => setPage('about')} />
+    return <Address currentUser={user} onClose={() => setPage('about')} />
   }
 
   return (

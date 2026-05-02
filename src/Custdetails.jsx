@@ -1,12 +1,12 @@
 import { useState } from 'react'
 
-function Custdetails({ onClose }) {
+function Custdetails({ currentUser, onClose }) {
   const [toastMessage, setToastMessage] = useState('')
   const [formData, setFormData] = useState({
     title: '',
     name: '',
     phone: '',
-    email: '',
+    email: currentUser?.email || '',
     altPhone: '',
     aadhaar: '',
     pan: '',
@@ -36,7 +36,35 @@ function Custdetails({ onClose }) {
 
   const handleSave = (e) => {
     e.preventDefault()
-    showToast('Customer records updated successfully.')
+
+    const payload = {
+      id: Date.now().toString(),
+      userEmail: currentUser?.email || formData.email,
+      ...formData,
+      updatedAt: new Date().toISOString()
+    }
+
+    fetch('http://localhost:3000/customerDetails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok')
+        return res.json()
+      })
+      .then(() => {
+        showToast('Customer records updated successfully.')
+        setTimeout(onClose, 1000)
+      })
+      .catch((err) => {
+        console.error('API Error, saving locally:', err)
+        const localData = JSON.parse(window.localStorage.getItem('mp_customer_details') || '[]')
+        localData.push(payload)
+        window.localStorage.setItem('mp_customer_details', JSON.stringify(localData))
+        showToast('Saved locally (Offline mode).')
+        setTimeout(onClose, 1000)
+      })
   }
 
   const inputClasses = "w-full rounded-xl border border-slate-200 bg-slate-50/40 px-4 py-3 text-[15px] font-medium text-slate-700 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-brand-blue/50 focus:bg-white focus:ring-4 focus:ring-brand-blue/5"

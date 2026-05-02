@@ -12,7 +12,8 @@ function getInitialLeadView() {
     savedView === 'customer-detail' ||
     savedView === 'emails' ||
     savedView === 'sms' ||
-    savedView === 'update-document'
+    savedView === 'update-document' ||
+    savedView === 'cust-details'
   ) {
     return savedView
   }
@@ -182,6 +183,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const [editingFollowUpId, setEditingFollowUpId] = useState(null)
   const [toastMessage, setToastMessage] = useState('')
   const [topMenuOpen, setTopMenuOpen] = useState(null)
+  const [custDetailsData, setCustDetailsData] = useState({ cust: null, addr: null, loading: false })
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [selectedDocumentType, setSelectedDocumentType] = useState(documentTypes[0])
@@ -684,6 +686,42 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
             >
               <LabelIcon type="activity" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'lead-activities' ? 'text-brand-orange' : ''}`} />
               <span>Lead Activities</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveView('cust-details')
+                setTopMenuOpen(null)
+                setOpenActionMenuId(null)
+                // Load the user's own data
+                const userEmail = currentUser?.email
+                setCustDetailsData(prev => ({ ...prev, loading: true }))
+                Promise.all([
+                  fetch('http://localhost:3000/customerDetails').catch(() => null),
+                  fetch('http://localhost:3000/addressInfo').catch(() => null),
+                ]).then(async ([custRes, addrRes]) => {
+                  const custAll = custRes?.ok ? await custRes.json() : JSON.parse(localStorage.getItem('mp_customer_details') || '[]')
+                  const addrAll = addrRes?.ok ? await addrRes.json() : JSON.parse(localStorage.getItem('mp_address_info') || '[]')
+                  const cust = [...custAll].reverse().find(c => c.userEmail === userEmail || c.email === userEmail) || null
+                  const addr = [...addrAll].reverse().find(a => a.userEmail === userEmail) || null
+                  setCustDetailsData({ cust, addr, loading: false })
+                }).catch(() => {
+                  const custAll = JSON.parse(localStorage.getItem('mp_customer_details') || '[]')
+                  const addrAll = JSON.parse(localStorage.getItem('mp_address_info') || '[]')
+                  const cust = [...custAll].reverse().find(c => c.userEmail === userEmail || c.email === userEmail) || null
+                  const addr = [...addrAll].reverse().find(a => a.userEmail === userEmail) || null
+                  setCustDetailsData({ cust, addr, loading: false })
+                })
+              }}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
+                activeView === 'cust-details'
+                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+              }`}
+            >
+              <LabelIcon type="form" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'cust-details' ? 'text-brand-orange' : ''}`} />
+              <span>Cust Details</span>
             </button>
 
             <button
@@ -1928,7 +1966,226 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
             )}
           </div>
         )}
+
+        {/* ─── Cust Details View ─────────────────────────────────────────────── */}
+        {activeView === 'cust-details' && (
+          <div className="space-y-6 animate-rise pb-10">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="font-sora text-3xl font-black text-slate-900">My Submitted Details</h1>
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">Customer &amp; Address Information</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => { setTopMenuOpen(null); onOpenCustdetails?.() }} className="flex items-center gap-2 rounded-2xl bg-brand-blue px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition hover:-translate-y-0.5 hover:bg-brand-blue/90">
+                  <LabelIcon type="welcome" className="size-4" /> Edit Customer Details
+                </button>
+                <button onClick={() => { setTopMenuOpen(null); onOpenAddress?.() }} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue">
+                  <LabelIcon type="docs" className="size-4" /> Edit Address Info
+                </button>
+              </div>
+            </div>
+
+            {custDetailsData.loading ? (
+              <div className="flex items-center justify-center py-24">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
+              </div>
+            ) : !custDetailsData.cust && !custDetailsData.addr ? (
+              <div className="flex flex-col items-center justify-center gap-4 rounded-[2.5rem] border border-dashed border-slate-200 bg-white py-24 text-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-50 text-indigo-300">
+                  <LabelIcon type="form" className="size-10" />
+                </div>
+                <p className="text-lg font-black text-slate-700">No details submitted yet</p>
+                <p className="text-sm text-slate-400">Fill in your Customer Details and Address Info forms and they will appear here.</p>
+                <button onClick={() => { setTopMenuOpen(null); onOpenCustdetails?.() }} className="mt-2 rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white transition hover:bg-brand-blue/90">
+                  Fill Customer Details
+                </button>
+              </div>
+            ) : (
+              /* Summary card with View button */
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="grid grid-cols-[2fr_2fr_1.5fr_auto] border-b border-slate-100 bg-slate-50 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span>Name</span><span>Email</span><span>City</span><span>Action</span>
+                </div>
+                <div className="grid grid-cols-[2fr_2fr_1.5fr_auto] items-center gap-4 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-blue/10 text-sm font-black text-brand-blue">
+                      {(custDetailsData.cust?.name || currentUser?.email || '?').charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-bold text-slate-800">{custDetailsData.cust?.name || '—'}</span>
+                  </div>
+                  <span className="text-sm text-slate-500 truncate">{custDetailsData.cust?.email || custDetailsData.cust?.userEmail || currentUser?.email || '—'}</span>
+                  <span className="text-sm text-slate-600">{custDetailsData.addr?.city ? `${custDetailsData.addr.city}${custDetailsData.addr.state ? ', ' + custDetailsData.addr.state : ''}` : '—'}</span>
+                  <button
+                    onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: true }))}
+                    className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-xs font-bold text-indigo-600 transition hover:bg-indigo-600 hover:text-white active:scale-95"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    View
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
       </main>
+
+      {/* ─── Cust Details Modal (rendered outside main for proper fixed positioning) ─── */}
+      {custDetailsData.modalOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-md" onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}>
+          <div className="relative flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-[2.5rem] bg-white shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/60 animate-rise" onClick={e => e.stopPropagation()}>
+
+            {/* Hero Header */}
+            <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#253eaf] via-[#3b52c4] to-[#1a2d8f] px-8 py-7">
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
+              <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-brand-orange/10 blur-2xl" />
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm font-black text-2xl text-white shadow-lg ring-1 ring-white/30">
+                    {(custDetailsData.cust?.name || currentUser?.email || '?').charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h2 className="font-sora text-xl font-black text-white">{custDetailsData.cust?.name || 'My Details'}</h2>
+                    <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest mt-0.5">{custDetailsData.cust?.userEmail || currentUser?.email || '—'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white/70 backdrop-blur-sm ring-1 ring-white/20 transition hover:bg-white/20 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+
+              {custDetailsData.cust && (
+                <>
+                  {/* Personal Info */}
+                  <div className="px-8 py-6">
+                    <div className="mb-4 flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                      </div>
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-indigo-600">Personal Information</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                      {[
+                        { label: 'Full Name', value: custDetailsData.cust.name },
+                        { label: 'Title', value: custDetailsData.cust.title },
+                        { label: 'Occupation', value: custDetailsData.cust.occupation },
+                        { label: 'Phone', value: custDetailsData.cust.phone },
+                        { label: 'Alt Phone', value: custDetailsData.cust.altPhone },
+                        { label: 'Email', value: custDetailsData.cust.email || custDetailsData.cust.userEmail },
+                        { label: 'Aadhaar', value: custDetailsData.cust.aadhaar },
+                        { label: 'PAN', value: custDetailsData.cust.pan },
+                      ].map(({ label, value }) => value ? (
+                        <div key={label}>
+                          <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                          <p className="text-sm font-bold text-slate-800">{value}</p>
+                        </div>
+                      ) : null)}
+                    </div>
+                  </div>
+
+                  {/* Compliance */}
+                  <div className="px-8 py-6">
+                    <div className="mb-4 flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                      </div>
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-emerald-600">Compliance &amp; Business</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                      {[
+                        { label: 'RERA ID', value: custDetailsData.cust.rera },
+                        { label: 'CP Company', value: custDetailsData.cust.cpCompany },
+                        { label: 'GST Applicable', value: custDetailsData.cust.gstApplicable },
+                        custDetailsData.cust.gstApplicable === 'yes' ? { label: 'GST Number', value: custDetailsData.cust.gstNumber } : null,
+                      ].filter(Boolean).map(({ label, value }) => value ? (
+                        <div key={label}>
+                          <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                          <p className="text-sm font-bold text-slate-800">{value}</p>
+                        </div>
+                      ) : null)}
+                    </div>
+                  </div>
+
+                  {/* Bank */}
+                  {(custDetailsData.cust.bankName || custDetailsData.cust.accountNumber) && (
+                    <div className="px-8 py-6">
+                      <div className="mb-4 flex items-center gap-2.5">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
+                          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                        </div>
+                        <h3 className="text-[11px] font-black uppercase tracking-widest text-cyan-600">Bank Settlement</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                        {[
+                          { label: 'Bank Name', value: custDetailsData.cust.bankName },
+                          { label: 'Account Type', value: custDetailsData.cust.accountType },
+                          { label: 'Account No.', value: custDetailsData.cust.accountNumber },
+                          { label: 'IFSC', value: custDetailsData.cust.ifsc },
+                          { label: 'Branch', value: custDetailsData.cust.branch },
+                        ].map(({ label, value }) => value ? (
+                          <div key={label}>
+                            <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                            <p className="text-sm font-bold text-slate-800 font-mono">{value}</p>
+                          </div>
+                        ) : null)}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Address */}
+              {custDetailsData.addr && (custDetailsData.addr.house || custDetailsData.addr.city) && (
+                <div className="px-8 py-6">
+                  <div className="mb-4 flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <h3 className="text-[11px] font-black uppercase tracking-widest text-orange-500">Address Information</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                    {[
+                      { label: 'House / Flat', value: custDetailsData.addr.house },
+                      { label: 'Street & Area', value: custDetailsData.addr.street },
+                      { label: 'City', value: custDetailsData.addr.city },
+                      { label: 'State', value: custDetailsData.addr.state },
+                      { label: 'Country', value: custDetailsData.addr.country },
+                      { label: 'PIN Code', value: custDetailsData.addr.zip },
+                    ].map(({ label, value }) => value ? (
+                      <div key={label}>
+                        <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                        <p className="text-sm font-bold text-slate-800">{value}</p>
+                      </div>
+                    ) : null)}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="shrink-0 flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-8 py-4 rounded-b-[2.5rem]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                Last updated: {custDetailsData.cust?.updatedAt ? new Date(custDetailsData.cust.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+              </p>
+              <button
+                onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}
+                className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-black text-white transition hover:bg-brand-blue active:scale-95"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {isProfileModalOpen && (
         <div className="fixed inset-0 z-[260] grid place-items-center bg-slate-900/35 px-3">
