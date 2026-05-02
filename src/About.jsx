@@ -676,121 +676,73 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
                 activeView === 'lead-activities'
                   ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
                   : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
               }`}
             >
               <LabelIcon type="activity" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'lead-activities' ? 'text-brand-orange' : ''}`} />
-              <span>Activities</span>
+              <span>Lead Activities</span>
             </button>
 
-            <div data-top-menu-root="true" className="relative">
-              <button
-                type="button"
-                onClick={() => setTopMenuOpen((prev) => (prev === 'application' ? null : 'application'))}
-                className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
-                  topMenuOpen === 'application'
-                    ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                    : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-                }`}
-              >
-                <LabelIcon type="form" className={`size-4 transition-transform group-hover:scale-110 ${topMenuOpen === 'application' ? 'text-brand-orange' : ''}`} />
-                <span>Forms</span>
-                <DropdownChevron />
-              </button>
-              {topMenuOpen === 'application' && (
-                <div className="animate-fall absolute left-1/2 top-full z-[260] mt-4 w-64 -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white bg-white/95 p-2 shadow-[0_30px_70px_rgba(0,0,0,0.15)] backdrop-blur-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#253eaf]/5 to-transparent opacity-50" />
-                  <div className="relative space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTopMenuOpen(null)
-                        onOpenCustdetails?.()
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
-                        <LabelIcon type="welcome" className="size-4" />
-                      </div>
-                      <div>
-                        <div className="text-[12px] font-black">Customer Details</div>
-                        <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Profile Setup</div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTopMenuOpen(null)
-                        onOpenAddress?.()
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
-                        <LabelIcon type="docs" className="size-4" />
-                      </div>
-                      <div>
-                        <div className="text-[12px] font-black">Address Info</div>
-                        <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Location Data</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setTopMenuOpen(null)
+                onOpenCustdetails?.()
+              }}
+              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
+            >
+              <LabelIcon type="welcome" className="size-4 transition-transform group-hover:scale-110" />
+              <span>Customer Details</span>
+            </button>
 
-            <div data-top-menu-root="true" className="relative">
-              <button
-                type="button"
-                onClick={() => setTopMenuOpen((prev) => (prev === 'more' ? null : 'more'))}
-                className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
-                  activeView === 'emails' || activeView === 'sms' || topMenuOpen === 'more'
-                    ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                    : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-                }`}
-              >
-                <LabelIcon type="more" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'emails' || activeView === 'sms' || topMenuOpen === 'more' ? 'text-brand-orange' : ''}`} />
-                <span>More</span>
-                <DropdownChevron />
-              </button>
-              {topMenuOpen === 'more' && (
-                <div className="animate-fall absolute left-1/2 top-full z-[260] mt-4 w-60 -translate-x-1/2 overflow-hidden rounded-[2rem] border border-white bg-white/95 p-2 shadow-[0_30px_70px_rgba(0,0,0,0.15)] backdrop-blur-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#253eaf]/5 to-transparent opacity-50" />
-                  <div className="relative space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveView('emails')
-                        setTopMenuOpen(null)
-                        setOpenActionMenuId(null)
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
-                        <LabelIcon type="email" className="size-4" />
-                      </div>
-                      <div className="text-[12px] font-black">Email Logs</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveView('sms')
-                        setTopMenuOpen(null)
-                        setOpenActionMenuId(null)
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 hover:bg-[#0f172a] hover:text-white"
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#253eaf] transition-colors group-hover:bg-white/10 group-hover:text-white">
-                        <LabelIcon type="sms" className="size-4" />
-                      </div>
-                      <div className="text-[12px] font-black">SMS History</div>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setTopMenuOpen(null)
+                onOpenAddress?.()
+              }}
+              className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
+            >
+              <LabelIcon type="docs" className="size-4 transition-transform group-hover:scale-110" />
+              <span>Address Info</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveView('emails')
+                setTopMenuOpen(null)
+                setOpenActionMenuId(null)
+              }}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
+                activeView === 'emails'
+                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+              }`}
+            >
+              <LabelIcon type="email" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'emails' ? 'text-brand-orange' : ''}`} />
+              <span>Email Logs</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveView('sms')
+                setTopMenuOpen(null)
+                setOpenActionMenuId(null)
+              }}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
+                activeView === 'sms'
+                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+              }`}
+            >
+              <LabelIcon type="sms" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'sms' ? 'text-brand-orange' : ''}`} />
+              <span>SMS History</span>
+            </button>
           </nav>
 
           {/* User Profile - Right */}
