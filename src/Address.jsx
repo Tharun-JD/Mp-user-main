@@ -1,15 +1,53 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const ADDRESS_EDIT_KEY = 'mp-edit-address-info'
 
 function Address({ currentUser, onClose }) {
-  const [toastMessage, setToastMessage] = useState('')
-  const [addressForm, setAddressForm] = useState({
+  const emptyAddressForm = {
+    id: '',
     house: '',
     street: '',
     country: '',
     state: '',
     city: '',
     zip: '',
-  })
+  }
+
+  const [toastMessage, setToastMessage] = useState('')
+  const [addressForm, setAddressForm] = useState(emptyAddressForm)
+
+  useEffect(() => {
+    const isEditMode = window.sessionStorage.getItem(ADDRESS_EDIT_KEY) === '1'
+    window.sessionStorage.removeItem(ADDRESS_EDIT_KEY)
+
+    if (!isEditMode) {
+      setAddressForm(emptyAddressForm)
+      return
+    }
+
+    const userEmail = currentUser?.email || ''
+    const applySavedAddress = (savedAddress) => {
+      if (!savedAddress) return
+      setAddressForm((prev) => ({
+        ...prev,
+        ...savedAddress,
+        id: savedAddress.id || '',
+      }))
+    }
+
+    const getLatestForUser = (items) => {
+      if (!Array.isArray(items)) return null
+      return [...items].reverse().find((item) => item.userEmail === userEmail) || null
+    }
+
+    fetch('http://localhost:3000/addressInfo')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('Unable to load address details'))))
+      .then((items) => applySavedAddress(getLatestForUser(items)))
+      .catch(() => {
+        const localItems = JSON.parse(window.localStorage.getItem('mp_address_info') || '[]')
+        applySavedAddress(getLatestForUser(localItems))
+      })
+  }, [currentUser?.email])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -24,15 +62,16 @@ function Address({ currentUser, onClose }) {
   const handleSaveAddress = (e) => {
     e.preventDefault()
 
+    const isExistingRecord = Boolean(addressForm.id)
     const payload = {
-      id: Date.now().toString(),
-      userEmail: currentUser?.email || '',
       ...addressForm,
+      id: addressForm.id || Date.now().toString(),
+      userEmail: currentUser?.email || '',
       updatedAt: new Date().toISOString()
     }
 
-    fetch('http://localhost:3000/addressInfo', {
-      method: 'POST',
+    fetch(`http://localhost:3000/addressInfo${isExistingRecord ? `/${addressForm.id}` : ''}`, {
+      method: isExistingRecord ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
@@ -47,8 +86,11 @@ function Address({ currentUser, onClose }) {
       .catch((err) => {
         console.error('API Error, saving locally:', err)
         const localData = JSON.parse(window.localStorage.getItem('mp_address_info') || '[]')
-        localData.push(payload)
-        window.localStorage.setItem('mp_address_info', JSON.stringify(localData))
+        const existingIndex = localData.findIndex((item) => item.id === payload.id)
+        const nextData = existingIndex >= 0
+          ? localData.map((item) => item.id === payload.id ? payload : item)
+          : [...localData, payload]
+        window.localStorage.setItem('mp_address_info', JSON.stringify(nextData))
         showToast('Saved locally (Offline mode).')
         setTimeout(onClose, 1000)
       })

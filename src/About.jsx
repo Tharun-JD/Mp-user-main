@@ -4,6 +4,8 @@ import Addleads from './Addleads'
 const LEAD_ACTIVITY_KEY = 'mp-const-lead-activities'
 const LEAD_VIEW_KEY = 'mp-const-about-view'
 const LEAD_SELECTED_KEY = 'mp-const-about-selected-lead'
+const CUSTOMER_EDIT_KEY = 'mp-edit-customer-details'
+const ADDRESS_EDIT_KEY = 'mp-edit-address-info'
 
 function getInitialLeadView() {
   const savedView = window.sessionStorage.getItem(LEAD_VIEW_KEY)
@@ -13,7 +15,8 @@ function getInitialLeadView() {
     savedView === 'emails' ||
     savedView === 'sms' ||
     savedView === 'update-document' ||
-    savedView === 'cust-details'
+    savedView === 'cust-details' ||
+    savedView === 'admin-cust-details'
   ) {
     return savedView
   }
@@ -184,6 +187,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const [toastMessage, setToastMessage] = useState('')
   const [topMenuOpen, setTopMenuOpen] = useState(null)
   const [custDetailsData, setCustDetailsData] = useState({ cust: null, addr: null, loading: false })
+  const [adminCustomers, setAdminCustomers] = useState([])
+  const [adminCustomersLoading, setAdminCustomersLoading] = useState(false)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [selectedDocumentType, setSelectedDocumentType] = useState(documentTypes[0])
@@ -213,10 +218,178 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
   const [newNoteText, setNewNoteText] = useState('')
   const [emailLogs, setEmailLogs] = useState([])
 
+  const openCustomerDetailsForm = (isEdit = false) => {
+    if (isEdit) {
+      window.sessionStorage.setItem(CUSTOMER_EDIT_KEY, '1')
+    } else {
+      window.sessionStorage.removeItem(CUSTOMER_EDIT_KEY)
+    }
+    onOpenCustdetails?.()
+  }
+
+  const openAddressForm = (isEdit = false) => {
+    if (isEdit) {
+      window.sessionStorage.setItem(ADDRESS_EDIT_KEY, '1')
+    } else {
+      window.sessionStorage.removeItem(ADDRESS_EDIT_KEY)
+    }
+    onOpenAddress?.()
+  }
+
+  useEffect(() => {
+    if (activeView !== 'cust-details') return
+
+    const userEmail = currentUser?.email
+    let isMounted = true
+    setCustDetailsData(prev => ({ ...prev, loading: true }))
+
+    Promise.all([
+      fetch('http://localhost:3000/customerDetails').catch(() => null),
+      fetch('http://localhost:3000/addressInfo').catch(() => null),
+    ]).then(async ([custRes, addrRes]) => {
+      const custAll = custRes?.ok ? await custRes.json() : JSON.parse(localStorage.getItem('mp_customer_details') || '[]')
+      const addrAll = addrRes?.ok ? await addrRes.json() : JSON.parse(localStorage.getItem('mp_address_info') || '[]')
+      const cust = [...custAll].reverse().find(c => c.userEmail === userEmail || c.email === userEmail) || null
+      const addr = [...addrAll].reverse().find(a => a.userEmail === userEmail) || null
+      if (isMounted) setCustDetailsData({ cust, addr, loading: false })
+    }).catch(() => {
+      const custAll = JSON.parse(localStorage.getItem('mp_customer_details') || '[]')
+      const addrAll = JSON.parse(localStorage.getItem('mp_address_info') || '[]')
+      const cust = [...custAll].reverse().find(c => c.userEmail === userEmail || c.email === userEmail) || null
+      const addr = [...addrAll].reverse().find(a => a.userEmail === userEmail) || null
+      if (isMounted) setCustDetailsData({ cust, addr, loading: false })
+    })
+
+    return () => {
+      isMounted = false
+    }
+  }, [activeView, currentUser?.email])
+
+  useEffect(() => {
+    if (activeView !== 'admin-cust-details') return
+
+    let isMounted = true
+    setAdminCustomersLoading(true)
+    fetch('http://localhost:3000/partners')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('Unable to load admin customers'))))
+      .then((items) => {
+        if (isMounted) setAdminCustomers(Array.isArray(items) ? items : [])
+      })
+      .catch(() => {
+        if (isMounted) setAdminCustomers([])
+      })
+      .finally(() => {
+        if (isMounted) setAdminCustomersLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [activeView])
+
   const selectedLead = leadActivities.find((lead) => lead.id === selectedLeadId) || null
   const validForSelectedDocument = validDocuments[selectedDocumentType] || []
   const welcomeName = currentUser?.name?.trim() || currentUser?.email?.trim() || 'Test Company'
   const welcomeEmail = currentUser?.email?.trim() || ''
+  const fallbackLogDate = (index, hour = 10) => new Date(Date.UTC(2026, 4, Math.max(1, 2 - index), hour, 30)).toISOString()
+  const derivedEmailLogs = leadActivities.flatMap((lead, index) => {
+    if (!lead.email) return []
+    const projectName = lead.project || 'Project Enquiry'
+    const createdOn = lead.createdAt || lead.followUpItems?.[0]?.scheduledOn || fallbackLogDate(index, 9)
+    const rows = [
+      {
+        id: `lead-email-${lead.id}-welcome`,
+        to: lead.email,
+        subject: `Lead received: ${projectName}`,
+        status: 'Delivered',
+        sentOn: createdOn,
+        category: 'Lead Capture',
+      },
+    ]
+
+    const completedFollowUp = (lead.followUpItems || []).find((item) => item.status === 'Followed Up' || item.status === 'Completed')
+    if (completedFollowUp) {
+      rows.push({
+        id: `lead-email-${lead.id}-${completedFollowUp.id}`,
+        to: lead.email,
+        subject: `Follow-up update: ${completedFollowUp.subject || projectName}`,
+        status: 'Opened',
+        sentOn: completedFollowUp.scheduledOn || fallbackLogDate(index, 14),
+        category: 'Follow Up',
+      })
+    }
+
+    return rows
+  })
+  const displayedEmailLogs = [...emailLogs, ...derivedEmailLogs].sort((a, b) => new Date(b.sentOn) - new Date(a.sentOn))
+  const selectedEmailLog = displayedEmailLogs.find((email) => String(email.id) === String(selectedEmailId))
+  const smsLogs = leadActivities.flatMap((lead, index) => {
+    if (!lead.phone) return []
+    const firstName = lead.firstName || lead.name?.split(' ')[0] || 'Customer'
+    const projectName = lead.project || 'your selected project'
+    const createdOn = lead.createdAt || lead.followUpItems?.[0]?.scheduledOn || fallbackLogDate(index, 11)
+    const rows = [
+      {
+        id: `lead-sms-${lead.id}-welcome`,
+        phone: lead.phone,
+        message: `Hi ${firstName}, thanks for your interest in ${projectName}. Our team will contact you shortly.`,
+        status: 'Sent',
+        sentOn: createdOn,
+        category: 'Auto Reply',
+      },
+    ]
+
+    if (lead.leadStage === 'Follow-up' || lead.countStatus === 'Followed Up') {
+      rows.push({
+        id: `lead-sms-${lead.id}-follow`,
+        phone: lead.phone,
+        message: `Reminder: your ${projectName} enquiry is active. Please share a convenient time for the next call.`,
+        status: lead.countStatus === 'Followed Up' ? 'Delivered' : 'Queued',
+        sentOn: lead.followUpItems?.[0]?.scheduledOn || fallbackLogDate(index, 16),
+        category: 'Follow Up',
+      })
+    }
+
+    return rows
+  }).sort((a, b) => new Date(b.sentOn) - new Date(a.sentOn))
+
+  const openAdminCustomerDetails = (partner) => {
+    const updatedAt = partner.updatedAt || (partner.createdAt ? new Date(partner.createdAt).toISOString() : '')
+    setCustDetailsData({
+      loading: false,
+      modalOpen: true,
+      readOnly: true,
+      cust: {
+        name: partner.name,
+        title: partner.title,
+        occupation: partner.occupation,
+        phone: `${partner.phonePrefix || ''} ${partner.phone || ''}`.trim(),
+        altPhone: `${partner.alternatePhonePrefix || ''} ${partner.alternateNumber || ''}`.trim(),
+        email: partner.email,
+        userEmail: partner.email,
+        aadhaar: partner.aadhaar,
+        pan: partner.pan,
+        rera: partner.rera,
+        cpCompany: partner.companyName || partner.cpCompany,
+        gstApplicable: partner.gstApplicable,
+        gstNumber: partner.gstNumber,
+        bankName: partner.bankName,
+        accountType: partner.accountType,
+        accountNumber: partner.accountNumber,
+        ifsc: partner.ifsc,
+        branch: partner.branch,
+        updatedAt,
+      },
+      addr: {
+        house: partner.house,
+        street: partner.street,
+        city: partner.city,
+        state: partner.state,
+        country: partner.country,
+        zip: partner.zip,
+      },
+    })
+  }
 
   const SEEDED_LEADS = []
 
@@ -661,11 +834,10 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
-                activeView === 'dashboard'
-                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-              }`}
+              className={`group flex items-center gap-2.5 rounded-full px-6 py-3 text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${activeView === 'dashboard'
+                ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
             >
               <LabelIcon type="dashboard" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'dashboard' ? 'text-brand-orange' : ''}`} />
               <span>Dashboard</span>
@@ -678,11 +850,10 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
-                activeView === 'lead-activities'
-                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-              }`}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${activeView === 'lead-activities'
+                ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
             >
               <LabelIcon type="activity" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'lead-activities' ? 'text-brand-orange' : ''}`} />
               <span>Lead Activities</span>
@@ -714,21 +885,21 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                   setCustDetailsData({ cust, addr, loading: false })
                 })
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
-                activeView === 'cust-details'
-                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-              }`}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${activeView === 'cust-details'
+                ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
             >
               <LabelIcon type="form" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'cust-details' ? 'text-brand-orange' : ''}`} />
-              <span>Cust Details</span>
+              <span>View Details</span>
             </button>
+
 
             <button
               type="button"
               onClick={() => {
                 setTopMenuOpen(null)
-                onOpenCustdetails?.()
+                openCustomerDetailsForm()
               }}
               className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
             >
@@ -740,7 +911,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               type="button"
               onClick={() => {
                 setTopMenuOpen(null)
-                onOpenAddress?.()
+                openAddressForm()
               }}
               className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 text-slate-500 hover:bg-white/80 hover:text-[#0f172a]"
             >
@@ -755,11 +926,10 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
-                activeView === 'emails'
-                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-              }`}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${activeView === 'emails'
+                ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
             >
               <LabelIcon type="email" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'emails' ? 'text-brand-orange' : ''}`} />
               <span>Email Logs</span>
@@ -772,11 +942,10 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 setTopMenuOpen(null)
                 setOpenActionMenuId(null)
               }}
-              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${
-                activeView === 'sms'
-                  ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
-                  : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
-              }`}
+              className={`group flex items-center gap-2.5 rounded-full px-5 py-2.5 text-[10.5px] font-black uppercase tracking-wider transition-all duration-300 ${activeView === 'sms'
+                ? 'bg-white text-[#253eaf] shadow-[0_12px_30px_rgba(37,62,175,0.12)] ring-1 ring-[#253eaf]/10'
+                : 'text-slate-500 hover:bg-white/80 hover:text-[#0f172a]'
+                }`}
             >
               <LabelIcon type="sms" className={`size-4 transition-transform group-hover:scale-110 ${activeView === 'sms' ? 'text-brand-orange' : ''}`} />
               <span>SMS History</span>
@@ -788,9 +957,8 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
             <button
               type="button"
               onClick={() => setTopMenuOpen((prev) => (prev === 'welcome' ? null : 'welcome'))}
-              className={`group flex items-center gap-3 rounded-2xl px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_12px_25px_rgba(0,0,0,0.08)] active:scale-95 ${
-                topMenuOpen === 'welcome' ? 'bg-white text-brand-blue ring-1 ring-brand-blue/20' : 'bg-slate-50 text-slate-600 hover:bg-white'
-              }`}
+              className={`group flex items-center gap-3 rounded-2xl px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_12px_25px_rgba(0,0,0,0.08)] active:scale-95 ${topMenuOpen === 'welcome' ? 'bg-white text-brand-blue ring-1 ring-brand-blue/20' : 'bg-slate-50 text-slate-600 hover:bg-white'
+                }`}
             >
               <div className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform group-hover:scale-110 ${topMenuOpen === 'welcome' ? 'bg-brand-blue text-white' : 'bg-slate-200 text-slate-500'}`}>
                 <LabelIcon type="welcome" className="size-4" />
@@ -882,12 +1050,12 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                     </span>
                     Partner Dashboard Live
                   </div>
-                  
+
                   <h1 className="font-sora text-[clamp(2.5rem,5vw,4.5rem)] font-black leading-[1.05] tracking-tight text-white">
                     Experience the<br />
                     <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Future of Real Estate.</span>
                   </h1>
-                  
+
                   <div className="space-y-4">
                     <p className="text-2xl font-bold text-white/90">
                       Welcome back, <span className="text-sky-400">"{welcomeName}"</span>
@@ -909,7 +1077,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                     className="group relative overflow-hidden rounded-[2.5rem] bg-white/[0.03] p-10 text-center transition-all hover:bg-white/[0.08] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
                   >
                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-sky-500 text-white shadow-[0_20px_40px_-10px_rgba(14,165,233,0.5)] transition-transform group-hover:scale-110">
-                      <svg className="size-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+                      <svg className="size-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
                     </div>
                     <h3 className="text-lg font-black uppercase tracking-widest text-white">Add Leads</h3>
                     <p className="mt-2 text-xs font-bold text-slate-500">Submit new inquiries</p>
@@ -955,7 +1123,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 </div>
                 <button className="group flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-600 hover:-translate-y-1">
                   <span>View Full Library</span>
-                  <svg className="size-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                  <svg className="size-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                 </button>
               </div>
 
@@ -974,7 +1142,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                   <button className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-indigo-500 hover:text-indigo-600 underline-offset-8 hover:underline decoration-2">Get Notified</button>
                 </div>
               </div>
-              
+
               {/* Subtle Grain Overlay */}
               <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
             </section>
@@ -1289,7 +1457,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {emailLogs.length === 0 ? (
+                      {displayedEmailLogs.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="px-6 py-20 text-center">
                             <div className="mx-auto flex max-w-xs flex-col items-center">
@@ -1302,7 +1470,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                           </td>
                         </tr>
                       ) : (
-                        emailLogs.map((row) => (
+                        displayedEmailLogs.map((row) => (
                           <tr key={row.id} className="group transition-all hover:bg-white/60">
                             <td className="px-6 py-5 align-middle">
                               <div className="flex items-center gap-3">
@@ -1315,11 +1483,19 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                               </div>
                             </td>
                             <td className="px-4 py-5 align-middle">
-                              <span className="font-medium text-slate-600">{row.subject}</span>
+                              <div className="space-y-1">
+                                <span className="block font-medium text-slate-600">{row.subject}</span>
+                                <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                  {row.category || 'Outbound'}
+                                </span>
+                              </div>
                             </td>
                             <td className="px-4 py-5 align-middle">
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-600 ring-1 ring-inset ring-emerald-200/50">
-                                <span className="h-1 w-1 rounded-full bg-emerald-500"></span>
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ring-1 ring-inset ${row.status === 'Opened'
+                                ? 'bg-indigo-50 text-indigo-600 ring-indigo-200/50'
+                                : 'bg-emerald-50 text-emerald-600 ring-emerald-200/50'
+                                }`}>
+                                <span className={`h-1 w-1 rounded-full ${row.status === 'Opened' ? 'bg-indigo-500' : 'bg-emerald-500'}`}></span>
                                 {row.status}
                               </span>
                             </td>
@@ -1399,17 +1575,64 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      <tr>
-                        <td colSpan={5} className="px-6 py-20 text-center">
-                          <div className="mx-auto flex max-w-xs flex-col items-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
-                              <LabelIcon type="sms" className="size-8" />
+                      {smsLogs.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-20 text-center">
+                            <div className="mx-auto flex max-w-xs flex-col items-center">
+                              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                                <LabelIcon type="sms" className="size-8" />
+                              </div>
+                              <h3 className="font-sora text-base font-bold text-slate-800">No SMS history</h3>
+                              <p className="mt-1 text-sm text-slate-400">Direct mobile communications will appear here once dispatched.</p>
                             </div>
-                            <h3 className="font-sora text-base font-bold text-slate-800">No SMS history</h3>
-                            <p className="mt-1 text-sm text-slate-400">Direct mobile communications will appear here once dispatched.</p>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                        </tr>
+                      ) : (
+                        smsLogs.map((row) => (
+                          <tr key={row.id} className="group transition-all hover:bg-white/60">
+                            <td className="px-6 py-5 align-middle">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600">
+                                  <LabelIcon type="sms" className="size-4" />
+                                </div>
+                                <span className="font-bold text-slate-700">{row.phone}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <div className="max-w-xl space-y-1">
+                                <p className="font-medium leading-relaxed text-slate-600">{row.message}</p>
+                                <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                  {row.category}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ring-1 ring-inset ${row.status === 'Queued'
+                                ? 'bg-amber-50 text-amber-600 ring-amber-200/50'
+                                : 'bg-emerald-50 text-emerald-600 ring-emerald-200/50'
+                                }`}>
+                                <span className={`h-1 w-1 rounded-full ${row.status === 'Queued' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                                {row.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-5 align-middle">
+                              <div className="space-y-0.5">
+                                <p className="text-[13px] font-bold text-slate-700">
+                                  {new Date(row.sentOn).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                  {new Date(row.sentOn).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 text-center align-middle">
+                              <span className="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-cyan-600 ring-1 ring-cyan-200/60">
+                                Logged
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -1540,6 +1763,102 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
           </section>
         )}
 
+        {activeView === 'admin-cust-details' && (
+          <section className="animate-rise overflow-hidden rounded-[2rem] border border-white/50 bg-white/75 shadow-[0_32px_64px_-16px_rgba(31,59,166,0.1)] backdrop-blur-xl">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white/50 px-8 py-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner">
+                  <LabelIcon type="docs" className="size-6" />
+                </div>
+                <div>
+                  <h2 className="font-sora text-xl font-extrabold tracking-tight text-slate-900">Admin Customer Details</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Read-only partner registrations</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeActiveTab}
+                className="group grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+              >
+                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-4 md:p-8">
+              {adminCustomersLoading ? (
+                <div className="flex items-center justify-center py-24">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
+                </div>
+              ) : adminCustomers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-white/60 py-20 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                    <LabelIcon type="docs" className="size-8" />
+                  </div>
+                  <h3 className="font-sora text-base font-bold text-slate-800">No admin customer records</h3>
+                  <p className="text-sm text-slate-400">Partner registrations will appear here once submitted.</p>
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white/50 shadow-inner">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+                      <thead>
+                        <tr className="bg-slate-50/70 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          <th className="px-6 py-5">Customer</th>
+                          <th className="px-4 py-5">Email</th>
+                          <th className="px-4 py-5">Company</th>
+                          <th className="px-4 py-5">City</th>
+                          <th className="px-4 py-5">Status</th>
+                          <th className="px-6 py-5 text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {adminCustomers.map((partner) => (
+                          <tr key={partner.id} className="transition hover:bg-white/70">
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-blue/10 text-sm font-black text-brand-blue">
+                                  {(partner.name || partner.email || '?').charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="font-black text-slate-800">{partner.name || '-'}</p>
+                                  <p className="text-xs font-bold text-slate-400">{partner.phone || '-'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-5 font-bold text-slate-600">{partner.email || '-'}</td>
+                            <td className="px-4 py-5 font-medium text-slate-600">{partner.companyName || partner.cpCompany || '-'}</td>
+                            <td className="px-4 py-5 font-medium text-slate-600">{partner.city || '-'}</td>
+                            <td className="px-4 py-5">
+                              <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-amber-600 ring-1 ring-amber-200/50">
+                                {partner.status || 'Pending'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => openAdminCustomerDetails(partner)}
+                                className="inline-flex items-center gap-2 rounded-xl bg-brand-blue px-4 py-2 text-xs font-black text-white shadow-lg shadow-brand-blue/20 transition hover:-translate-y-0.5 hover:bg-brand-blue/90 active:scale-95"
+                              >
+                                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {activeView === 'customer-detail' && selectedLead && (
           <div className="animate-nav-enter space-y-10 pb-20">
             {/* Header / Nav Area */}
@@ -1614,271 +1933,298 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
             </div>
 
             {customerDetailTab === 'show' && (
-              <div className="grid gap-8 lg:grid-cols-3">
-                {/* Primary Data Card */}
-                <div className="lg:col-span-2 space-y-8">
-                  <section className="rounded-[2.5rem] border border-white bg-white/60 p-8 shadow-sm backdrop-blur-sm md:p-10">
-                    <div className="mb-10 flex items-center justify-between border-b border-slate-100 pb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue shadow-inner">
-                          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="font-sora text-xl font-bold text-slate-800">Identity Records</h3>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Comprehensive Customer Intelligence</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <span className="inline-flex rounded-lg bg-emerald-50 px-3 py-1.5 text-[11px] font-extrabold text-emerald-600 ring-1 ring-emerald-200/50 uppercase tracking-wider">
-                          Active Lead
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-y-10 gap-x-12 sm:grid-cols-2">
-                      {[
-                        { label: 'Full Name', value: selectedLead.name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-                        { label: 'Email Address', value: selectedLead.email, icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-                        { label: 'Primary Phone', value: selectedLead.phone, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
-                        { label: 'Lead Stage', value: selectedLead.leadStage, icon: 'M13 10V3L4 14h7v7l9-11h-7z', badge: true, color: 'indigo' },
-                        { label: 'Lead Status', value: selectedLead.leadStatus, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', badge: true, color: 'emerald' },
-                        { label: 'Validity Period', value: selectedLead.leadValidityPeriod, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-                        { label: 'Project Name', value: selectedLead.project, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-                        { label: 'Budget Range', value: selectedLead.budget, icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
-                      ].map((item, idx) => (
-                        <div key={idx} className="group relative">
-                          <div className="mb-2 flex items-center gap-2">
-                            <svg className="size-3.5 text-slate-300 transition-colors group-hover:text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                            </svg>
-                            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600">{item.label}</span>
-                          </div>
-                          <div className="flex items-center">
-                            {item.badge ? (
-                              <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[13px] font-bold ring-1 ring-inset ${item.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 ring-emerald-200/50' : 'bg-indigo-50 text-indigo-600 ring-indigo-200/50'
-                                }`}>
-                                <span className={`h-1.5 w-1.5 rounded-full ${item.color === 'emerald' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></span>
-                                {item.value}
-                              </span>
-                            ) : (
-                              <p className="font-sora text-[15px] font-extrabold text-slate-800 transition-transform group-hover:translate-x-1">{item.value || '-'}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-
-                  {/* Follow Up History */}
-                  <section className="rounded-[2.5rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10">
-                    <div className="mb-8 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-                          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="font-sora text-lg font-bold text-slate-800">Engagement History</h3>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Past & Upcoming Interactions</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleOpenAddFollowUpTab}
-                        className="rounded-xl bg-brand-blue/5 px-4 py-2 text-xs font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
-                      >
-                        + New Interaction
-                      </button>
-                    </div>
-
-                    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40 shadow-inner">
-                      <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full border-collapse text-left text-sm">
-                          <thead>
-                            <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                              <th className="px-6 py-4">Subject</th>
-                              <th className="px-4 py-4">Status</th>
-                              <th className="px-4 py-4">Scheduled</th>
-                              <th className="px-6 py-4 text-center">Action</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-50">
-                            {(selectedLead.followUpItems || []).length === 0 ? (
-                              <tr>
-                                <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic font-medium">No previous engagement recorded.</td>
-                              </tr>
-                            ) : (
-                              (selectedLead.followUpItems || []).map((item) => (
-                                <tr key={item.id} className="group transition-all hover:bg-white/60">
-                                  <td className="px-6 py-4 font-bold text-slate-700">{item.subject}</td>
-                                  <td className="px-4 py-4">
-                                    <span className={`inline-flex rounded-lg px-2 py-1 text-[11px] font-bold ${item.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/50' : 'bg-amber-50 text-amber-600 ring-1 ring-amber-200/50'
-                                      }`}>
-                                      {item.status}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-4 font-medium text-slate-600">
-                                    {item.scheduledOn ? new Date(item.scheduledOn).toLocaleDateString() : '-'}
-                                  </td>
-                                  <td data-dots-menu-root="true" className="relative px-6 py-4 text-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => setFollowUpActionMenuId(followUpActionMenuId === item.id ? null : item.id)}
-                                      className={`inline-grid size-8 place-items-center rounded-lg transition-all ${followUpActionMenuId === item.id ? 'bg-brand-blue text-white shadow-lg' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
-                                    >
-                                      <DotsIcon className="size-4" />
-                                    </button>
-
-                                    {followUpActionMenuId === item.id && (
-                                      <div className="animate-rise absolute right-16 top-1/2 z-50 min-w-[14rem] -translate-y-1/2 overflow-hidden rounded-xl border border-white bg-white p-1 shadow-xl shadow-slate-200/50">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleFollowUpClick(item.id)}
-                                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
-                                        >
-                                          Mark as Followed Up
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleOpenUpdateFollowUp(item)}
-                                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
-                                        >
-                                          Update Interaction Status
-                                        </button>
-                                      </div>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </section>
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomerHeaderMenuOpen(false)
+                      openCustomerDetailsForm(true)
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/25 transition hover:-translate-y-0.5 hover:bg-brand-blue/90 active:scale-95"
+                  >
+                    <LabelIcon type="welcome" className="size-4" />
+                    <span>Edit Customer Details</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomerHeaderMenuOpen(false)
+                      openAddressForm(true)
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue active:scale-95"
+                  >
+                    <LabelIcon type="docs" className="size-4" />
+                    <span>Edit Address Info</span>
+                  </button>
                 </div>
 
-                {/* Sidebar Cards */}
-                <div className="space-y-8">
-                  {/* Site Visit Section */}
-                  <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
-                    <div className="mb-6 flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
-                        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <h3 className="font-sora text-sm font-bold text-slate-800">Site Engagement</h3>
-                    </div>
-
-                    <div className="space-y-4">
-                      {[
-                        { label: 'Visit Date', value: 'Not scheduled' },
-                        { label: 'Status', value: 'Pending', badge: true },
-                        { label: 'Executive', value: 'Not assigned' }
-                      ].map((info, i) => (
-                        <div key={i} className="flex flex-col border-b border-slate-50 pb-3 last:border-0 last:pb-0">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{info.label}</span>
-                          {info.badge ? (
-                            <span className="mt-1 self-start inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-[11px] font-extrabold text-amber-600 ring-1 ring-amber-200/50">
-                              {info.value}
-                            </span>
-                          ) : (
-                            <span className="mt-1 font-bold text-slate-700">{info.value}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-
-                  {/* System Remarks */}
-                  <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
-                    <div className="mb-6 flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
-                        <LabelIcon type="activity" className="size-5" />
-                      </div>
-                      <h3 className="font-sora text-sm font-bold text-slate-800">System Logs</h3>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="rounded-2xl bg-slate-50 p-4 text-[13px] font-medium leading-relaxed text-slate-600">
-                        "Initial lead captured from panel."
-                      </div>
-                      <div className="rounded-2xl border border-slate-100 p-4 text-[13px] font-medium text-slate-500 italic">
-                        Current status identified as: {selectedLead.leadStatus}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Customer Notes */}
-                  <section className="rounded-[2.5rem] border border-white bg-slate-900 p-8 text-white shadow-xl shadow-slate-900/10">
-                    <div className="mb-6 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white/60">
-                          <NoteIcon className="size-5" />
-                        </div>
-                        <h3 className="font-sora text-sm font-bold">Collaborative Notes</h3>
-                      </div>
-                      <button
-                        onClick={() => setIsAddingNote(!isAddingNote)}
-                        className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white/40 transition hover:bg-white/20 hover:text-white"
-                      >
-                        <svg className={`size-4 transition-transform ${isAddingNote ? 'rotate-45' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    {isAddingNote && (
-                      <div className="mb-6 animate-fade-slide space-y-3">
-                        <textarea
-                          value={newNoteText}
-                          onChange={(e) => setNewNoteText(e.target.value)}
-                          placeholder="Type your note here..."
-                          rows={3}
-                          className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white placeholder-white/30 outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue custom-scrollbar"
-                        />
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => {
-                              setIsAddingNote(false)
-                              setNewNoteText('')
-                            }}
-                            className="rounded-lg px-4 py-2 text-xs font-bold text-white/50 transition hover:text-white"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleSaveNote}
-                            className="rounded-lg bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-md shadow-brand-blue/20 transition hover:-translate-y-0.5 active:scale-95"
-                          >
-                            Save Note
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="space-y-4">
-                      {!(selectedLead.notes?.length) ? (
-                        <p className="text-[13px] font-medium leading-relaxed text-white/50">
-                          No internal collaboration notes have been recorded for this lead yet. Use notes to share insights with your team.
-                        </p>
-                      ) : (
-                        selectedLead.notes.map((note) => (
-                          <div key={note.id} className="rounded-xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
-                            <p className="text-[13px] leading-relaxed text-white/90">{note.text}</p>
-                            <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-white/40">
-                              {new Date(note.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                            </p>
+                <div className="grid gap-8 lg:grid-cols-3">
+                  {/* Primary Data Card */}
+                  <div className="lg:col-span-2 space-y-8">
+                    <section className="rounded-[2.5rem] border border-white bg-white/60 p-8 shadow-sm backdrop-blur-sm md:p-10">
+                      <div className="mb-10 flex items-center justify-between border-b border-slate-100 pb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue shadow-inner">
+                            <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                            </svg>
                           </div>
-                        ))
+                          <div>
+                            <h3 className="font-sora text-xl font-bold text-slate-800">Identity Records</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Comprehensive Customer Intelligence</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <span className="inline-flex rounded-lg bg-emerald-50 px-3 py-1.5 text-[11px] font-extrabold text-emerald-600 ring-1 ring-emerald-200/50 uppercase tracking-wider">
+                            Active Lead
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-y-10 gap-x-12 sm:grid-cols-2">
+                        {[
+                          { label: 'Full Name', value: selectedLead.name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                          { label: 'Email Address', value: selectedLead.email, icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+                          { label: 'Primary Phone', value: selectedLead.phone, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
+                          { label: 'Lead Stage', value: selectedLead.leadStage, icon: 'M13 10V3L4 14h7v7l9-11h-7z', badge: true, color: 'indigo' },
+                          { label: 'Lead Status', value: selectedLead.leadStatus, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', badge: true, color: 'emerald' },
+                          { label: 'Validity Period', value: selectedLead.leadValidityPeriod, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                          { label: 'Project Name', value: selectedLead.project, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                          { label: 'Budget Range', value: selectedLead.budget, icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
+                        ].map((item, idx) => (
+                          <div key={idx} className="group relative">
+                            <div className="mb-2 flex items-center gap-2">
+                              <svg className="size-3.5 text-slate-300 transition-colors group-hover:text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                              </svg>
+                              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600">{item.label}</span>
+                            </div>
+                            <div className="flex items-center">
+                              {item.badge ? (
+                                <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[13px] font-bold ring-1 ring-inset ${item.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 ring-emerald-200/50' : 'bg-indigo-50 text-indigo-600 ring-indigo-200/50'
+                                  }`}>
+                                  <span className={`h-1.5 w-1.5 rounded-full ${item.color === 'emerald' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></span>
+                                  {item.value}
+                                </span>
+                              ) : (
+                                <p className="font-sora text-[15px] font-extrabold text-slate-800 transition-transform group-hover:translate-x-1">{item.value || '-'}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Follow Up History */}
+                    <section className="rounded-[2.5rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-sm md:p-10">
+                      <div className="mb-8 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                            <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="font-sora text-lg font-bold text-slate-800">Engagement History</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Past & Upcoming Interactions</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleOpenAddFollowUpTab}
+                          className="rounded-xl bg-brand-blue/5 px-4 py-2 text-xs font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
+                        >
+                          + New Interaction
+                        </button>
+                      </div>
+
+                      <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40 shadow-inner">
+                        <div className="overflow-x-auto custom-scrollbar">
+                          <table className="w-full border-collapse text-left text-sm">
+                            <thead>
+                              <tr className="bg-slate-50/50 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                <th className="px-6 py-4">Subject</th>
+                                <th className="px-4 py-4">Status</th>
+                                <th className="px-4 py-4">Scheduled</th>
+                                <th className="px-6 py-4 text-center">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {(selectedLead.followUpItems || []).length === 0 ? (
+                                <tr>
+                                  <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic font-medium">No previous engagement recorded.</td>
+                                </tr>
+                              ) : (
+                                (selectedLead.followUpItems || []).map((item) => (
+                                  <tr key={item.id} className="group transition-all hover:bg-white/60">
+                                    <td className="px-6 py-4 font-bold text-slate-700">{item.subject}</td>
+                                    <td className="px-4 py-4">
+                                      <span className={`inline-flex rounded-lg px-2 py-1 text-[11px] font-bold ${item.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/50' : 'bg-amber-50 text-amber-600 ring-1 ring-amber-200/50'
+                                        }`}>
+                                        {item.status}
+                                      </span>
+                                    </td>
+                                    <td className="px-4 py-4 font-medium text-slate-600">
+                                      {item.scheduledOn ? new Date(item.scheduledOn).toLocaleDateString() : '-'}
+                                    </td>
+                                    <td data-dots-menu-root="true" className="relative px-6 py-4 text-center">
+                                      <button
+                                        type="button"
+                                        onClick={() => setFollowUpActionMenuId(followUpActionMenuId === item.id ? null : item.id)}
+                                        className={`inline-grid size-8 place-items-center rounded-lg transition-all ${followUpActionMenuId === item.id ? 'bg-brand-blue text-white shadow-lg' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                                      >
+                                        <DotsIcon className="size-4" />
+                                      </button>
+
+                                      {followUpActionMenuId === item.id && (
+                                        <div className="animate-rise absolute right-16 top-1/2 z-50 min-w-[14rem] -translate-y-1/2 overflow-hidden rounded-xl border border-white bg-white p-1 shadow-xl shadow-slate-200/50">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleFollowUpClick(item.id)}
+                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
+                                          >
+                                            Mark as Followed Up
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleOpenUpdateFollowUp(item)}
+                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-700 transition hover:bg-slate-50 hover:text-brand-blue"
+                                          >
+                                            Update Interaction Status
+                                          </button>
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Sidebar Cards */}
+                  <div className="space-y-8">
+                    {/* Site Visit Section */}
+                    <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
+                      <div className="mb-6 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+                          <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-sora text-sm font-bold text-slate-800">Site Engagement</h3>
+                      </div>
+
+                      <div className="space-y-4">
+                        {[
+                          { label: 'Visit Date', value: 'Not scheduled' },
+                          { label: 'Status', value: 'Pending', badge: true },
+                          { label: 'Executive', value: 'Not assigned' }
+                        ].map((info, i) => (
+                          <div key={i} className="flex flex-col border-b border-slate-50 pb-3 last:border-0 last:pb-0">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{info.label}</span>
+                            {info.badge ? (
+                              <span className="mt-1 self-start inline-flex rounded-lg bg-amber-50 px-2.5 py-1 text-[11px] font-extrabold text-amber-600 ring-1 ring-amber-200/50">
+                                {info.value}
+                              </span>
+                            ) : (
+                              <span className="mt-1 font-bold text-slate-700">{info.value}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* System Remarks */}
+                    <section className="rounded-[2.5rem] border border-white bg-white p-8 shadow-sm">
+                      <div className="mb-6 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                          <LabelIcon type="activity" className="size-5" />
+                        </div>
+                        <h3 className="font-sora text-sm font-bold text-slate-800">System Logs</h3>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="rounded-2xl bg-slate-50 p-4 text-[13px] font-medium leading-relaxed text-slate-600">
+                          "Initial lead captured from panel."
+                        </div>
+                        <div className="rounded-2xl border border-slate-100 p-4 text-[13px] font-medium text-slate-500 italic">
+                          Current status identified as: {selectedLead.leadStatus}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Customer Notes */}
+                    <section className="rounded-[2.5rem] border border-white bg-slate-900 p-8 text-white shadow-xl shadow-slate-900/10">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white/60">
+                            <NoteIcon className="size-5" />
+                          </div>
+                          <h3 className="font-sora text-sm font-bold">Collaborative Notes</h3>
+                        </div>
+                        <button
+                          onClick={() => setIsAddingNote(!isAddingNote)}
+                          className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white/40 transition hover:bg-white/20 hover:text-white"
+                        >
+                          <svg className={`size-4 transition-transform ${isAddingNote ? 'rotate-45' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {isAddingNote && (
+                        <div className="mb-6 animate-fade-slide space-y-3">
+                          <textarea
+                            value={newNoteText}
+                            onChange={(e) => setNewNoteText(e.target.value)}
+                            placeholder="Type your note here..."
+                            rows={3}
+                            className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white placeholder-white/30 outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue custom-scrollbar"
+                          />
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setIsAddingNote(false)
+                                setNewNoteText('')
+                              }}
+                              className="rounded-lg px-4 py-2 text-xs font-bold text-white/50 transition hover:text-white"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSaveNote}
+                              className="rounded-lg bg-brand-blue px-4 py-2 text-xs font-bold text-white shadow-md shadow-brand-blue/20 transition hover:-translate-y-0.5 active:scale-95"
+                            >
+                              Save Note
+                            </button>
+                          </div>
+                        </div>
                       )}
-                    </div>
-                  </section>
+
+                      <div className="space-y-4">
+                        {!(selectedLead.notes?.length) ? (
+                          <p className="text-[13px] font-medium leading-relaxed text-white/50">
+                            No internal collaboration notes have been recorded for this lead yet. Use notes to share insights with your team.
+                          </p>
+                        ) : (
+                          selectedLead.notes.map((note) => (
+                            <div key={note.id} className="rounded-xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
+                              <p className="text-[13px] leading-relaxed text-white/90">{note.text}</p>
+                              <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-white/40">
+                                {new Date(note.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </section>
+                  </div>
                 </div>
               </div>
             )}
@@ -1976,10 +2322,10 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">Customer &amp; Address Information</p>
               </div>
               <div className="flex gap-3">
-                <button onClick={() => { setTopMenuOpen(null); onOpenCustdetails?.() }} className="flex items-center gap-2 rounded-2xl bg-brand-blue px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition hover:-translate-y-0.5 hover:bg-brand-blue/90">
+                <button onClick={() => { setTopMenuOpen(null); openCustomerDetailsForm(true) }} className="flex items-center gap-2 rounded-2xl bg-brand-blue px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition hover:-translate-y-0.5 hover:bg-brand-blue/90">
                   <LabelIcon type="welcome" className="size-4" /> Edit Customer Details
                 </button>
-                <button onClick={() => { setTopMenuOpen(null); onOpenAddress?.() }} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue">
+                <button onClick={() => { setTopMenuOpen(null); openAddressForm(true) }} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue hover:text-brand-blue">
                   <LabelIcon type="docs" className="size-4" /> Edit Address Info
                 </button>
               </div>
@@ -1996,7 +2342,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 </div>
                 <p className="text-lg font-black text-slate-700">No details submitted yet</p>
                 <p className="text-sm text-slate-400">Fill in your Customer Details and Address Info forms and they will appear here.</p>
-                <button onClick={() => { setTopMenuOpen(null); onOpenCustdetails?.() }} className="mt-2 rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white transition hover:bg-brand-blue/90">
+                <button onClick={() => { setTopMenuOpen(null); openCustomerDetailsForm() }} className="mt-2 rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white transition hover:bg-brand-blue/90">
                   Fill Customer Details
                 </button>
               </div>
@@ -2033,20 +2379,23 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
 
       {/* ─── Cust Details Modal (rendered outside main for proper fixed positioning) ─── */}
       {custDetailsData.modalOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-md" onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}>
-          <div className="relative flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-[2.5rem] bg-white shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/60 animate-rise" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[300] bg-slate-950/70 backdrop-blur-md" onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}>
+          <div className="relative flex h-full w-full flex-col overflow-hidden bg-slate-50 animate-rise" onClick={e => e.stopPropagation()}>
 
             {/* Hero Header */}
-            <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#253eaf] via-[#3b52c4] to-[#1a2d8f] px-8 py-7">
+            <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-[#253eaf] via-[#3b52c4] to-[#1a2d8f] px-6 py-6 md:px-10">
               <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
               <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-brand-orange/10 blur-2xl" />
-              <div className="relative flex items-center justify-between">
+              <div className="relative mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm font-black text-2xl text-white shadow-lg ring-1 ring-white/30">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-sm font-black text-2xl text-white shadow-lg ring-1 ring-white/30">
                     {(custDetailsData.cust?.name || currentUser?.email || '?').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h2 className="font-sora text-xl font-black text-white">{custDetailsData.cust?.name || 'My Details'}</h2>
+                    <p className="mb-1 text-[10px] font-black uppercase tracking-[0.24em] text-white/45">
+                      {custDetailsData.readOnly ? 'Admin Customer Profile' : 'Submitted Customer Profile'}
+                    </p>
+                    <h2 className="font-sora text-2xl font-black text-white md:text-3xl">{custDetailsData.cust?.name || 'My Details'}</h2>
                     <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest mt-0.5">{custDetailsData.cust?.userEmail || currentUser?.email || '—'}</p>
                   </div>
                 </div>
@@ -2059,29 +2408,143 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
               </div>
             </div>
 
-            {/* Scrollable Body */}
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+            {!custDetailsData.readOnly && (
+              <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4 shadow-sm md:px-10">
+                <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Profile Actions</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustDetailsData(prev => ({ ...prev, modalOpen: false }))
+                        openCustomerDetailsForm(true)
+                      }}
+                      className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition hover:-translate-y-0.5 hover:bg-brand-blue/90 active:scale-95"
+                    >
+                      <span className="grid size-7 place-items-center rounded-xl bg-white/15 transition group-hover:bg-white/20">
+                        <LabelIcon type="welcome" className="size-4" />
+                      </span>
+                      <span>Edit Customer Details</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustDetailsData(prev => ({ ...prev, modalOpen: false }))
+                        openAddressForm(true)
+                      }}
+                      className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-blue/40 hover:text-brand-blue hover:shadow-md active:scale-95"
+                    >
+                      <span className="grid size-7 place-items-center rounded-xl bg-slate-100 text-slate-500 transition group-hover:bg-brand-blue/10 group-hover:text-brand-blue">
+                        <LabelIcon type="docs" className="size-4" />
+                      </span>
+                      <span>Edit Address Info</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-              {custDetailsData.cust && (
-                <>
-                  {/* Personal Info */}
-                  <div className="px-8 py-6">
-                    <div className="mb-4 flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
-                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto bg-slate-50 px-6 py-6 md:px-10 md:py-8">
+              <div className="mx-auto grid w-full max-w-[1440px] gap-5 xl:grid-cols-2">
+
+                {custDetailsData.cust && (
+                  <>
+                    {/* Personal Info */}
+                    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                      <div className="mb-4 flex items-center gap-2.5">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        </div>
+                        <h3 className="text-[11px] font-black uppercase tracking-widest text-indigo-600">Personal Information</h3>
                       </div>
-                      <h3 className="text-[11px] font-black uppercase tracking-widest text-indigo-600">Personal Information</h3>
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                        {[
+                          { label: 'Full Name', value: custDetailsData.cust.name },
+                          { label: 'Title', value: custDetailsData.cust.title },
+                          { label: 'Occupation', value: custDetailsData.cust.occupation },
+                          { label: 'Phone', value: custDetailsData.cust.phone },
+                          { label: 'Alt Phone', value: custDetailsData.cust.altPhone },
+                          { label: 'Email', value: custDetailsData.cust.email || custDetailsData.cust.userEmail },
+                          { label: 'Aadhaar', value: custDetailsData.cust.aadhaar },
+                          { label: 'PAN', value: custDetailsData.cust.pan },
+                        ].map(({ label, value }) => value ? (
+                          <div key={label}>
+                            <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                            <p className="text-sm font-bold text-slate-800">{value}</p>
+                          </div>
+                        ) : null)}
+                      </div>
+                    </div>
+
+                    {/* Compliance */}
+                    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                      <div className="mb-4 flex items-center gap-2.5">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                        <h3 className="text-[11px] font-black uppercase tracking-widest text-emerald-600">Compliance &amp; Business</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                        {[
+                          { label: 'RERA ID', value: custDetailsData.cust.rera },
+                          { label: 'CP Company', value: custDetailsData.cust.cpCompany },
+                          { label: 'GST Applicable', value: custDetailsData.cust.gstApplicable },
+                          custDetailsData.cust.gstApplicable === 'yes' ? { label: 'GST Number', value: custDetailsData.cust.gstNumber } : null,
+                        ].filter(Boolean).map(({ label, value }) => value ? (
+                          <div key={label}>
+                            <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                            <p className="text-sm font-bold text-slate-800">{value}</p>
+                          </div>
+                        ) : null)}
+                      </div>
+                    </div>
+
+                    {/* Bank */}
+                    {(custDetailsData.cust.bankName || custDetailsData.cust.accountNumber) && (
+                      <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                        <div className="mb-4 flex items-center gap-2.5">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
+                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                          </div>
+                          <h3 className="text-[11px] font-black uppercase tracking-widest text-cyan-600">Bank Settlement</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                          {[
+                            { label: 'Bank Name', value: custDetailsData.cust.bankName },
+                            { label: 'Account Type', value: custDetailsData.cust.accountType },
+                            { label: 'Account No.', value: custDetailsData.cust.accountNumber },
+                            { label: 'IFSC', value: custDetailsData.cust.ifsc },
+                            { label: 'Branch', value: custDetailsData.cust.branch },
+                          ].map(({ label, value }) => value ? (
+                            <div key={label}>
+                              <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
+                              <p className="text-sm font-bold text-slate-800 font-mono">{value}</p>
+                            </div>
+                          ) : null)}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Address */}
+                {custDetailsData.addr && (custDetailsData.addr.house || custDetailsData.addr.city) && (
+                  <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                    <div className="mb-4 flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      </div>
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-orange-500">Address Information</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
                       {[
-                        { label: 'Full Name', value: custDetailsData.cust.name },
-                        { label: 'Title', value: custDetailsData.cust.title },
-                        { label: 'Occupation', value: custDetailsData.cust.occupation },
-                        { label: 'Phone', value: custDetailsData.cust.phone },
-                        { label: 'Alt Phone', value: custDetailsData.cust.altPhone },
-                        { label: 'Email', value: custDetailsData.cust.email || custDetailsData.cust.userEmail },
-                        { label: 'Aadhaar', value: custDetailsData.cust.aadhaar },
-                        { label: 'PAN', value: custDetailsData.cust.pan },
+                        { label: 'House / Flat', value: custDetailsData.addr.house },
+                        { label: 'Street & Area', value: custDetailsData.addr.street },
+                        { label: 'City', value: custDetailsData.addr.city },
+                        { label: 'State', value: custDetailsData.addr.state },
+                        { label: 'Country', value: custDetailsData.addr.country },
+                        { label: 'PIN Code', value: custDetailsData.addr.zip },
                       ].map(({ label, value }) => value ? (
                         <div key={label}>
                           <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
@@ -2090,97 +2553,23 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                       ) : null)}
                     </div>
                   </div>
-
-                  {/* Compliance */}
-                  <div className="px-8 py-6">
-                    <div className="mb-4 flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                      </div>
-                      <h3 className="text-[11px] font-black uppercase tracking-widest text-emerald-600">Compliance &amp; Business</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-                      {[
-                        { label: 'RERA ID', value: custDetailsData.cust.rera },
-                        { label: 'CP Company', value: custDetailsData.cust.cpCompany },
-                        { label: 'GST Applicable', value: custDetailsData.cust.gstApplicable },
-                        custDetailsData.cust.gstApplicable === 'yes' ? { label: 'GST Number', value: custDetailsData.cust.gstNumber } : null,
-                      ].filter(Boolean).map(({ label, value }) => value ? (
-                        <div key={label}>
-                          <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
-                          <p className="text-sm font-bold text-slate-800">{value}</p>
-                        </div>
-                      ) : null)}
-                    </div>
-                  </div>
-
-                  {/* Bank */}
-                  {(custDetailsData.cust.bankName || custDetailsData.cust.accountNumber) && (
-                    <div className="px-8 py-6">
-                      <div className="mb-4 flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
-                          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                        </div>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-cyan-600">Bank Settlement</h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-                        {[
-                          { label: 'Bank Name', value: custDetailsData.cust.bankName },
-                          { label: 'Account Type', value: custDetailsData.cust.accountType },
-                          { label: 'Account No.', value: custDetailsData.cust.accountNumber },
-                          { label: 'IFSC', value: custDetailsData.cust.ifsc },
-                          { label: 'Branch', value: custDetailsData.cust.branch },
-                        ].map(({ label, value }) => value ? (
-                          <div key={label}>
-                            <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
-                            <p className="text-sm font-bold text-slate-800 font-mono">{value}</p>
-                          </div>
-                        ) : null)}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Address */}
-              {custDetailsData.addr && (custDetailsData.addr.house || custDetailsData.addr.city) && (
-                <div className="px-8 py-6">
-                  <div className="mb-4 flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </div>
-                    <h3 className="text-[11px] font-black uppercase tracking-widest text-orange-500">Address Information</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-                    {[
-                      { label: 'House / Flat', value: custDetailsData.addr.house },
-                      { label: 'Street & Area', value: custDetailsData.addr.street },
-                      { label: 'City', value: custDetailsData.addr.city },
-                      { label: 'State', value: custDetailsData.addr.state },
-                      { label: 'Country', value: custDetailsData.addr.country },
-                      { label: 'PIN Code', value: custDetailsData.addr.zip },
-                    ].map(({ label, value }) => value ? (
-                      <div key={label}>
-                        <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{label}</p>
-                        <p className="text-sm font-bold text-slate-800">{value}</p>
-                      </div>
-                    ) : null)}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-8 py-4 rounded-b-[2.5rem]">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                Last updated: {custDetailsData.cust?.updatedAt ? new Date(custDetailsData.cust.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-              </p>
-              <button
-                onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}
-                className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-black text-white transition hover:bg-brand-blue active:scale-95"
-              >
-                Close
-              </button>
+            <div className="shrink-0 border-t border-slate-200 bg-white px-6 py-4 shadow-[0_-12px_30px_rgba(15,23,42,0.04)] md:px-10">
+              <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Last updated: {custDetailsData.cust?.updatedAt ? new Date(custDetailsData.cust.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                </p>
+                <button
+                  onClick={() => setCustDetailsData(prev => ({ ...prev, modalOpen: false }))}
+                  className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-black text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-brand-blue active:scale-95"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2453,11 +2842,11 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Recipient</span>
-                    <p className="font-bold text-slate-700">{emailLogs.find(e => e.id === selectedEmailId)?.to}</p>
+                    <p className="font-bold text-slate-700">{selectedEmailLog?.to}</p>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Subject</span>
-                    <p className="font-bold text-slate-700">{emailLogs.find(e => e.id === selectedEmailId)?.subject}</p>
+                    <p className="font-bold text-slate-700">{selectedEmailLog?.subject}</p>
                   </div>
                 </div>
 
@@ -2467,7 +2856,7 @@ function About({ currentUser, onBackToLogin, onOpenCustdetails, onOpenAddress })
                     <p>Dear Valued Partner,</p>
                     <p className="mt-4">
                       This is a formal communication regarding your recent activity on the MP Developers platform.
-                      Your status for <strong>{emailLogs.find(e => e.id === selectedEmailId)?.subject}</strong> has been logged.
+                      Your status for <strong>{selectedEmailLog?.subject}</strong> has been logged.
                     </p>
                     <p className="mt-4 text-slate-400 italic">This is an automated system notification.</p>
                   </div>

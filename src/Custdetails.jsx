@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const CUSTOMER_EDIT_KEY = 'mp-edit-customer-details'
 
 function Custdetails({ currentUser, onClose }) {
-  const [toastMessage, setToastMessage] = useState('')
-  const [formData, setFormData] = useState({
+  const emptyFormData = {
+    id: '',
     title: '',
     name: '',
     phone: '',
-    email: currentUser?.email || '',
+    email: '',
     altPhone: '',
     aadhaar: '',
     pan: '',
@@ -22,7 +24,45 @@ function Custdetails({ currentUser, onClose }) {
     accountHolder: '',
     accountNumber: '',
     bankZip: '',
-  })
+  }
+
+  const [toastMessage, setToastMessage] = useState('')
+  const [formData, setFormData] = useState(emptyFormData)
+
+  useEffect(() => {
+    const isEditMode = window.sessionStorage.getItem(CUSTOMER_EDIT_KEY) === '1'
+    window.sessionStorage.removeItem(CUSTOMER_EDIT_KEY)
+
+    if (!isEditMode) {
+      setFormData(emptyFormData)
+      return
+    }
+
+    const userEmail = currentUser?.email || ''
+    const applySavedDetails = (savedDetails) => {
+      if (!savedDetails) return
+      setFormData((prev) => ({
+        ...prev,
+        ...savedDetails,
+        id: savedDetails.id || '',
+        email: savedDetails.email || savedDetails.userEmail || prev.email,
+        gstApplicable: savedDetails.gstApplicable || 'no',
+      }))
+    }
+
+    const getLatestForUser = (items) => {
+      if (!Array.isArray(items)) return null
+      return [...items].reverse().find((item) => item.userEmail === userEmail || item.email === userEmail) || null
+    }
+
+    fetch('http://localhost:3000/customerDetails')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('Unable to load customer details'))))
+      .then((items) => applySavedDetails(getLatestForUser(items)))
+      .catch(() => {
+        const localItems = JSON.parse(window.localStorage.getItem('mp_customer_details') || '[]')
+        applySavedDetails(getLatestForUser(localItems))
+      })
+  }, [currentUser?.email])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -37,15 +77,16 @@ function Custdetails({ currentUser, onClose }) {
   const handleSave = (e) => {
     e.preventDefault()
 
+    const isExistingRecord = Boolean(formData.id)
     const payload = {
-      id: Date.now().toString(),
-      userEmail: currentUser?.email || formData.email,
       ...formData,
+      id: formData.id || Date.now().toString(),
+      userEmail: currentUser?.email || formData.email,
       updatedAt: new Date().toISOString()
     }
 
-    fetch('http://localhost:3000/customerDetails', {
-      method: 'POST',
+    fetch(`http://localhost:3000/customerDetails${isExistingRecord ? `/${formData.id}` : ''}`, {
+      method: isExistingRecord ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
@@ -60,8 +101,11 @@ function Custdetails({ currentUser, onClose }) {
       .catch((err) => {
         console.error('API Error, saving locally:', err)
         const localData = JSON.parse(window.localStorage.getItem('mp_customer_details') || '[]')
-        localData.push(payload)
-        window.localStorage.setItem('mp_customer_details', JSON.stringify(localData))
+        const existingIndex = localData.findIndex((item) => item.id === payload.id)
+        const nextData = existingIndex >= 0
+          ? localData.map((item) => item.id === payload.id ? payload : item)
+          : [...localData, payload]
+        window.localStorage.setItem('mp_customer_details', JSON.stringify(nextData))
         showToast('Saved locally (Offline mode).')
         setTimeout(onClose, 1000)
       })
