@@ -183,7 +183,7 @@ function Login({ onSignIn }) {
           </p>
         </section>
 
-        <section className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${isLoginRelatedView ? 'lg:w-full' : 'mx-auto max-w-5xl w-full'}`}>
+        <section className={`animate-rise relative overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br from-white/90 via-white/85 to-[#eef3ff]/85 p-6 shadow-[0_30px_70px_-35px_#1d2f68] backdrop-blur-xl md:p-8 ${isLoginRelatedView ? 'lg:w-full' : 'mx-auto max-w-[1400px] w-full'}`}>
           <span aria-hidden="true" className="pointer-events-none absolute -left-14 -top-20 size-44 rounded-full bg-[#8fb7ff]/30 blur-2xl [animation:float_11s_ease-in-out_infinite]" />
           <span aria-hidden="true" className="pointer-events-none absolute -bottom-16 -right-10 size-44 rounded-full bg-[#ffc997]/35 blur-2xl [animation:float_13s_ease-in-out_infinite]" style={{ animationDelay: '-2s' }} />
 
@@ -298,297 +298,253 @@ function Login({ onSignIn }) {
               </form>
             </div>
           ) : (
-            <div className="relative z-10 animate-fade-in mx-auto w-full">
+            <div className="relative z-10 mx-auto w-full max-w-[900px] animate-in fade-in zoom-in-95 duration-700">
               <div className="mb-10 text-center">
-                <h1 className="font-sora bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 bg-clip-text text-3xl font-extrabold text-transparent md:text-4xl">Channel Partner Registration</h1>
-                <p className="mt-3 text-lg font-medium text-slate-500">Join MP Developers and build the future with us.</p>
+                <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-indigo-600 ring-1 ring-indigo-100">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                  </span>
+                  Partner Onboarding
+                </div>
+                <h1 className="font-sora mt-4 text-[clamp(2rem,4vw,2.8rem)] font-black tracking-tight text-[#1e293b]">
+                  Build Bold Partnerships.
+                </h1>
+                <p className="mx-auto mt-3 max-w-lg text-lg font-medium text-slate-500">
+                  Join MP Developers and unlock the future of real estate with our premium partner network.
+                </p>
               </div>
 
-              <form className="flex flex-col max-h-[75vh]" onSubmit={handleSubmit} autoComplete="off">
-                <div className="flex-1 overflow-y-auto space-y-10 px-1 py-4 no-scrollbar">
+              <form className="flex flex-col" onSubmit={handleSubmit} autoComplete="off">
+                <div className="space-y-10 pb-10 px-1">
                   {/* Basic Profile */}
-                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
-                    <div className="mb-8 flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-brand-blue font-sora text-lg font-bold text-white shadow-lg">1</div>
-                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Basic Profile</h2>
-                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+                  <section className="relative overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] ring-1 ring-slate-100 backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-700 md:p-10">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-indigo-50/50 blur-3xl" />
+                    <div className="relative mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-[#2b45ba] font-sora text-base font-bold text-white shadow-lg shadow-indigo-100/50">1</div>
+                      <h2 className="font-sora text-xl font-black tracking-tight text-[#1e293b]">Basic Profile</h2>
+                      <div className="h-px flex-1 bg-slate-100"></div>
                     </div>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      <div className="md:col-span-1 lg:col-span-3 grid gap-2">
-                        <label className={labelClass}>Company / CP Name *</label>
-                        <input type="text" value={registerData.companyName} onChange={(e) => handleRegisterFieldChange('companyName', e.target.value)} className={inputClass} placeholder="Legal Business Name" required />
+                    
+                    <div className="space-y-10">
+                      {/* Row 1: Company Name */}
+                      <div className="grid gap-2.5">
+                        <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Company / CP Name *</label>
+                        <input 
+                          type="text" 
+                          value={registerData.companyName} 
+                          onChange={(e) => handleRegisterFieldChange('companyName', e.target.value)} 
+                          className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" 
+                          placeholder="Legal Business Name" 
+                          required 
+                        />
                       </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Owner Name *</label>
-                        <input type="text" value={registerData.name} onChange={(e) => handleRegisterFieldChange('name', e.target.value)} className={inputClass} placeholder="Full Name" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Phone *</label>
-                        <div className="flex gap-2 relative">
-                          <div className="relative" ref={dropdownRef}>
-                            <button
-                              type="button"
-                              onClick={() => setIsPhonePrefixOpen(!isPhonePrefixOpen)}
-                              className="w-24 flex items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white/90 px-2 py-3 font-bold text-slate-700 hover:border-sky-300 transition-all"
-                            >
-                              <span>{countryPhoneOptions.find(c => c.code === registerData.phonePrefix)?.flag || '🌐'}</span>
-                              <span>{registerData.phonePrefix}</span>
-                              <svg className={`size-4 transition-transform ${isPhonePrefixOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
-                            </button>
 
-                            {isPhonePrefixOpen && (
-                              <div className="absolute top-full left-0 mt-1 z-[100] w-64 max-h-60 overflow-y-auto rounded-2xl border border-slate-100 bg-white p-2 shadow-2xl animate-elastic-pop no-scrollbar">
-                                {countryPhoneOptions.map((opt) => (
-                                  <button
-                                    key={`${opt.country}-${opt.code}`}
-                                    type="button"
-                                    onClick={() => {
-                                      handleRegisterFieldChange('phonePrefix', opt.code)
-                                      setIsPhonePrefixOpen(false)
-                                    }}
-                                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-brand-blue"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-xl">{opt.flag}</span>
-                                      <span>{opt.country}</span>
-                                    </div>
-                                    <span className="text-slate-400">{opt.code}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                      {/* Row 2: Owner, Phone, Email */}
+                      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Owner Name *</label>
+                          <input type="text" value={registerData.name} onChange={(e) => handleRegisterFieldChange('name', e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="Full Name" required />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Phone *</label>
+                          <div className="flex gap-3">
+                            <div className="relative" ref={dropdownRef}>
+                              <button
+                                type="button"
+                                onClick={() => setIsPhonePrefixOpen(!isPhonePrefixOpen)}
+                                className="flex h-full w-[100px] items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/50 px-3 font-black text-slate-700 transition hover:border-[#2b45ba]"
+                              >
+                                <span className="text-[10px] font-black uppercase text-slate-400">IN</span>
+                                <span className="text-sm font-black">{registerData.phonePrefix}</span>
+                                <svg className={`size-3 text-slate-400 transition-transform ${isPhonePrefixOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4"><path d="m6 9 6 6 6-6" /></svg>
+                              </button>
+                              {isPhonePrefixOpen && (
+                                <div className="absolute top-full left-0 mt-2 z-[100] w-64 max-h-60 overflow-y-auto rounded-[2rem] border border-slate-100 bg-white p-2 shadow-2xl no-scrollbar">
+                                  {countryPhoneOptions.map((opt) => (
+                                    <button
+                                      key={`${opt.country}-${opt.code}`}
+                                      type="button"
+                                      onClick={() => {
+                                        handleRegisterFieldChange('phonePrefix', opt.code)
+                                        setIsPhonePrefixOpen(false)
+                                      }}
+                                      className="flex w-full items-center justify-between rounded-2xl px-4 py-3.5 text-left text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-[#2b45ba]"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <span className="text-xl">{opt.flag}</span>
+                                        <span>{opt.country}</span>
+                                      </div>
+                                      <span className="text-slate-400">{opt.code}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <input type="text" value={registerData.phone} onChange={(e) => handleRegisterFieldChange('phone', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="Number" required />
                           </div>
-                          <input type="text" value={registerData.phone} onChange={(e) => handleRegisterFieldChange('phone', e.target.value)} className={inputClass} placeholder="Number" required />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Email Address *</label>
+                          <input type="email" value={registerData.email} onChange={(e) => handleRegisterFieldChange('email', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="email@example.com" required />
                         </div>
                       </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Email *</label>
-                        <input type="email" value={registerData.email} onChange={(e) => handleRegisterFieldChange('email', e.target.value)} className={inputClass} placeholder="email@example.com" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Aadhaar *</label>
-                        <input type="text" value={registerData.aadhaar} onChange={(e) => handleRegisterFieldChange('aadhaar', e.target.value)} className={inputClass} placeholder="12-digit Aadhaar" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>PAN Number *</label>
-                        <input type="text" value={registerData.pan} onChange={(e) => handleRegisterFieldChange('pan', e.target.value)} className={inputClass} placeholder="ABCDE1234F" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>RERA Number</label>
-                        <input type="text" value={registerData.rera} onChange={(e) => handleRegisterFieldChange('rera', e.target.value)} className={inputClass} placeholder="RERA Registration" />
+
+                      {/* Row 3: Aadhaar, PAN, RERA, Occupation */}
+                      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Aadhaar *</label>
+                          <input type="text" value={registerData.aadhaar} onChange={(e) => handleRegisterFieldChange('aadhaar', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="12-digit Aadhaar" required />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">PAN Number *</label>
+                          <input type="text" value={registerData.pan} onChange={(e) => handleRegisterFieldChange('pan', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="ABCDE1234F" required />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Occupation *</label>
+                          <input type="text" value={registerData.occupation} onChange={(e) => handleRegisterFieldChange('occupation', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="e.g. Real Estate Agent" required />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">RERA Number</label>
+                          <input type="text" value={registerData.rera} onChange={(e) => handleRegisterFieldChange('rera', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="RERA Registration" />
+                        </div>
                       </div>
                     </div>
                   </section>
 
-                  {/* GST Configuration */}
-                  <section className="relative rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
+                  {/* Address Section */}
+                  <section className="relative overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] ring-1 ring-slate-100 backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-700 delay-150 md:p-10">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-orange-50/50 blur-3xl" />
+                    <div className="relative mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-[#f59e0b] font-sora text-base font-bold text-white shadow-lg shadow-orange-100/50">2</div>
+                      <h2 className="font-sora text-xl font-black tracking-tight text-[#1e293b]">Address Details</h2>
+                      <div className="h-px flex-1 bg-slate-100"></div>
+                    </div>
                     <div className="grid gap-8 md:grid-cols-2">
-                      <div className="space-y-4">
-                        <label className={labelClass}>Is GST Applicable? *</label>
-                        <div className="flex gap-4">
-                          {['Yes', 'No'].map(val => (
-                            <button key={val} type="button" onClick={() => handleRegisterFieldChange('gstApplicable', val)} className={`flex-1 rounded-xl py-3 text-sm font-bold transition-all ${registerData.gstApplicable === val ? 'bg-brand-blue text-white' : 'bg-white border border-slate-200 text-slate-400'}`}>{val}</button>
+                      <div className="grid gap-2.5 md:col-span-2">
+                        <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">House / Flat / Company *</label>
+                        <input type="text" value={registerData.house} onChange={(e) => handleRegisterFieldChange('house', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#f59e0b] focus:bg-white focus:ring-4 focus:ring-orange-50" placeholder="Office / Building Name" required />
+                      </div>
+                      <div className="grid gap-2.5 md:col-span-2">
+                        <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Street / Area *</label>
+                        <input type="text" value={registerData.street} onChange={(e) => handleRegisterFieldChange('street', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#f59e0b] focus:bg-white focus:ring-4 focus:ring-orange-50" placeholder="Street Name" required />
+                      </div>
+                      <div className="grid gap-2.5">
+                        <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">City *</label>
+                        <input type="text" value={registerData.city} onChange={(e) => handleRegisterFieldChange('city', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#f59e0b] focus:bg-white focus:ring-4 focus:ring-orange-50" placeholder="City" required />
+                      </div>
+                      <div className="grid gap-2.5">
+                        <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Pin Code *</label>
+                        <input type="text" value={registerData.zip} onChange={(e) => handleRegisterFieldChange('zip', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#f59e0b] focus:bg-white focus:ring-4 focus:ring-orange-50" placeholder="Pincode" required />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Financial & Compliance */}
+                  <section className="relative overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] ring-1 ring-slate-100 backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-700 delay-300 md:p-10">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-emerald-50/50 blur-3xl" />
+                    <div className="relative mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-[#10b981] font-sora text-base font-bold text-white shadow-lg shadow-emerald-100/50">3</div>
+                      <h2 className="font-sora text-xl font-black tracking-tight text-[#1e293b]">Financial & Bank Details</h2>
+                      <div className="h-px flex-1 bg-slate-100"></div>
+                    </div>
+                    <div className="grid gap-10">
+                      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Bank Name</label>
+                          <input type="text" value={registerData.bankName} onChange={(e) => handleRegisterFieldChange('bankName', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#10b981] focus:bg-white focus:ring-4 focus:ring-emerald-50" placeholder="Bank Name" />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Account Number</label>
+                          <input type="text" value={registerData.accountNumber} onChange={(e) => handleRegisterFieldChange('accountNumber', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#10b981] focus:bg-white focus:ring-4 focus:ring-emerald-50" placeholder="Account Number" />
+                        </div>
+                        <div className="grid gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">IFSC Code</label>
+                          <input type="text" value={registerData.ifsc} onChange={(e) => handleRegisterFieldChange('ifsc', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#10b981] focus:bg-white focus:ring-4 focus:ring-emerald-50" placeholder="IFSC Code" />
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-[2rem] bg-slate-50/50 p-8 border border-slate-100">
+                        <div className="grid gap-8 md:grid-cols-2">
+                          <div className="space-y-4">
+                            <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Is GST Applicable? *</label>
+                            <div className="flex gap-4">
+                              {['Yes', 'No'].map(val => (
+                                <button key={val} type="button" onClick={() => handleRegisterFieldChange('gstApplicable', val)} className={`flex-1 rounded-2xl py-4 text-sm font-black transition-all ${registerData.gstApplicable === val ? 'bg-[#2b45ba] text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-400 hover:border-slate-300'}`}>{val}</button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="grid gap-2.5">
+                            <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">GST Number</label>
+                            <input type="text" disabled={registerData.gstApplicable === 'No'} value={registerData.gstNumber} onChange={(e) => handleRegisterFieldChange('gstNumber', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition disabled:opacity-30 focus:border-[#2b45ba] focus:bg-white focus:ring-4 focus:ring-indigo-50" placeholder="15-digit GSTIN" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Compliance Documents */}
+                  <section className="relative overflow-hidden rounded-[2.5rem] border border-white bg-white/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] ring-1 ring-slate-100 backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-700 delay-500 md:p-10">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-slate-100/50 blur-3xl" />
+                    <div className="relative mb-8 flex items-center gap-4">
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-slate-900 font-sora text-base font-bold text-white shadow-lg shadow-slate-200/50">4</div>
+                      <h2 className="font-sora text-xl font-black tracking-tight text-[#1e293b]">Compliance Documents</h2>
+                      <div className="h-px flex-1 bg-slate-100"></div>
+                    </div>
+                    
+                    <div className="grid gap-8">
+                      <div className="flex flex-col gap-6 md:flex-row md:items-end">
+                        <div className="grid flex-1 gap-2.5">
+                          <label className="ml-1 text-[0.92rem] font-black uppercase tracking-widest text-slate-600">Document Type</label>
+                          <select value={selectedDocType} onChange={(e) => setSelectedDocType(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-white/50 px-5 py-3 text-base font-semibold text-slate-900 shadow-sm outline-none transition focus:border-slate-900 focus:bg-white focus:ring-4 focus:ring-slate-100">
+                            {documentTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                          </select>
+                        </div>
+                        <div className="flex-1">
+                          <label className="group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 py-8 transition hover:border-[#2b45ba] hover:bg-white">
+                            <input type="file" multiple onChange={handleUploadDocs} className="hidden" />
+                            <svg className="h-8 w-8 text-slate-400 group-hover:text-[#2b45ba]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                            <p className="mt-2 text-sm font-bold text-slate-500 group-hover:text-[#2b45ba]">Drop files here or click to upload</p>
+                          </label>
+                        </div>
+                      </div>
+
+                      {registerData.uploadDocuments && registerData.uploadDocuments.length > 0 && (
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {registerData.uploadDocuments.map((doc, idx) => (
+                            <div key={idx} className="group relative flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:shadow-md">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-500">
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                              </div>
+                              <div className="flex-1 overflow-hidden">
+                                <p className="truncate text-sm font-bold text-slate-700">{doc.name}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{doc.type}</p>
+                              </div>
+                              <button type="button" onClick={() => handleRemoveDoc(idx)} className="rounded-lg p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </div>
                           ))}
                         </div>
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>GST Number</label>
-                        <input type="text" disabled={registerData.gstApplicable === 'No'} value={registerData.gstNumber} onChange={(e) => handleRegisterFieldChange('gstNumber', e.target.value)} className={inputClass} placeholder="15-digit GSTIN" />
-                      </div>
+                      )}
                     </div>
                   </section>
 
-                  {/* Bank Details */}
-                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
-                    <div className="mb-8 flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500 font-sora text-lg font-bold text-white shadow-lg">2</div>
-                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Bank Details</h2>
-                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                    </div>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Bank Name</label>
-                        <input type="text" value={registerData.bankName} onChange={(e) => handleRegisterFieldChange('bankName', e.target.value)} className={inputClass} placeholder="Bank Name" />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Account Number</label>
-                        <input type="text" value={registerData.accountNumber} onChange={(e) => handleRegisterFieldChange('accountNumber', e.target.value)} className={inputClass} placeholder="Account Number" />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>IFSC Code</label>
-                        <input type="text" value={registerData.ifsc} onChange={(e) => handleRegisterFieldChange('ifsc', e.target.value)} className={inputClass} placeholder="IFSC Code" />
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Documents Upload Section */}
-                  <section className="relative rounded-2xl border border-white/40 bg-slate-50/50 p-6 backdrop-blur-md md:p-8">
-                    <div className="mb-8 flex items-center justify-between">
-                      <h2 className="font-sora text-xl font-bold text-slate-800 uppercase tracking-tight">DOCUMENTS UPLOAD</h2>
-                      <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600 border border-orange-100">MANDATORY</span>
-                    </div>
-                    <div className="space-y-6">
-                      <select value={selectedDocType} onChange={(e) => setSelectedDocType(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold">
-                        {documentTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                      <div onClick={() => document.getElementById('final-doc-upload').click()} className="cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-white/50 p-10 text-center hover:border-brand-blue hover:bg-brand-blue/5 transition-all">
-                        <input id="final-doc-upload" type="file" multiple className="hidden" onChange={handleUploadDocs} />
-                        <div className="flex flex-col items-center">
-                          <svg className="h-10 w-10 text-brand-blue mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m8-8H4" /></svg>
-                          <p className="text-sm font-bold text-slate-600">Click to Upload Documents</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        {registerData.uploadDocuments?.map((doc, idx) => (
-                          <div key={idx} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-slate-100 shadow-sm">
-                            <span className="text-[10px] font-black text-brand-blue">{doc.type}</span>
-                            <span className="text-xs font-bold text-slate-700 truncate max-w-[100px]">{doc.name}</span>
-                            <button type="button" onClick={() => handleRemoveDoc(idx)} className="text-rose-500 font-bold">&times;</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Address */}
-                  <section className="relative rounded-2xl border border-white/40 bg-white/40 p-6 backdrop-blur-md md:p-8">
-                    <div className="mb-8 flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-orange-500 font-sora text-lg font-bold text-white shadow-lg">3</div>
-                      <h2 className="font-sora text-xl font-bold tracking-tight text-slate-800">Address Details</h2>
-                      <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                    </div>
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="grid gap-2">
-                        <label className={labelClass}>House / Flat / Company</label>
-                        <input type="text" value={registerData.house} onChange={(e) => handleRegisterFieldChange('house', e.target.value)} className={inputClass} placeholder="House / Flat / Company" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Street / Area</label>
-                        <input type="text" value={registerData.street} onChange={(e) => handleRegisterFieldChange('street', e.target.value)} className={inputClass} placeholder="Street / Area" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>City</label>
-                        <input type="text" value={registerData.city} onChange={(e) => handleRegisterFieldChange('city', e.target.value)} className={inputClass} placeholder="City" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Pin Code</label>
-                        <input type="text" value={registerData.zip} onChange={(e) => handleRegisterFieldChange('zip', e.target.value)} className={inputClass} placeholder="Pin Code" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>Country</label>
-                        <div className="relative" ref={countryRef}>
-                          <button
-                            type="button"
-                            onClick={() => { setIsCountryOpen(!isCountryOpen); setCountrySearch(''); }}
-                            className={`${inputClass} flex items-center justify-between`}
-                          >
-                            <span>{registerData.country || 'Select Country'}</span>
-                            <svg className={`size-4 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
-                          </button>
-
-                          {isCountryOpen && (
-                            <div className="absolute top-full left-0 mt-1 z-[100] w-full min-w-[280px] rounded-2xl border border-slate-100 bg-white p-3 shadow-2xl animate-elastic-pop">
-                              <div className="mb-3 relative">
-                                <input
-                                  type="text"
-                                  value={countrySearch}
-                                  onChange={(e) => setCountrySearch(e.target.value)}
-                                  placeholder="Search country..."
-                                  className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-blue/30 focus:ring-4 focus:ring-brand-blue/5"
-                                  autoFocus
-                                />
-                                <svg className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                              </div>
-                              <div className="max-h-60 overflow-y-auto no-scrollbar space-y-1">
-                                {countryList
-                                  .filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()))
-                                  .map((c) => (
-                                    <button
-                                      key={c.code}
-                                      type="button"
-                                      onClick={() => {
-                                        handleRegisterFieldChange('country', c.name);
-                                        handleRegisterFieldChange('state', '');
-                                        setIsCountryOpen(false);
-                                      }}
-                                      className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 hover:text-brand-blue"
-                                    >
-                                      <svg className="size-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014.5 9 15.3 15.3 0 01-4.5 9 15.3 15.3 0 01-4.5-9A15.3 15.3 0 0112 3z" /></svg>
-                                      <span>{c.name}</span>
-                                    </button>
-                                  ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="grid gap-2">
-                        <label className={labelClass}>State</label>
-                        <div className="relative" ref={stateRef}>
-                          <button
-                            type="button"
-                            onClick={() => { setIsStateOpen(!isStateOpen); setStateSearch(''); }}
-                            className={`${inputClass} flex items-center justify-between ${!registerData.country ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={!registerData.country}
-                          >
-                            <span>{registerData.state || 'Select State'}</span>
-                            <svg className={`size-4 transition-transform ${isStateOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6" /></svg>
-                          </button>
-
-                          {isStateOpen && registerData.country && (
-                            <div className="absolute top-full left-0 mt-1 z-[100] w-full min-w-[280px] rounded-2xl border border-slate-100 bg-white p-3 shadow-2xl animate-elastic-pop">
-                              <div className="mb-3 relative">
-                                <input
-                                  type="text"
-                                  value={stateSearch}
-                                  onChange={(e) => setStateSearch(e.target.value)}
-                                  placeholder="Search state..."
-                                  className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-blue/30 focus:ring-4 focus:ring-brand-blue/5"
-                                  autoFocus
-                                />
-                              </div>
-                              <div className="max-h-60 overflow-y-auto no-scrollbar space-y-1">
-                                {(statesByCountry[countryList.find(c => c.name === registerData.country)?.code] || [])
-                                  .filter(s => s.toLowerCase().includes(stateSearch.toLowerCase()))
-                                  .map((s) => (
-                                    <button
-                                      key={s}
-                                      type="button"
-                                      onClick={() => {
-                                        handleRegisterFieldChange('state', s);
-                                        setIsStateOpen(false);
-                                      }}
-                                      className="flex w-full items-center px-4 py-2.5 text-left text-sm font-bold text-slate-600 rounded-xl transition-all hover:bg-slate-50 hover:text-brand-blue"
-                                    >
-                                      {s}
-                                    </button>
-                                  ))}
-                                {!(statesByCountry[countryList.find(c => c.name === registerData.country)?.code] || []).length && (
-                                  <div className="px-4 py-8 text-center">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No states listed</p>
-                                    <button
-                                      type="button"
-                                      onClick={() => setIsStateOpen(false)}
-                                      className="mt-2 text-xs font-bold text-brand-blue underline"
-                                    >
-                                      Type state manually?
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                </div>
-
-                <div className="flex flex-col items-center gap-4 pt-6 border-t border-slate-100 bg-white/50 backdrop-blur-sm -mx-8 px-8 rounded-b-3xl">
-                  <button type="submit" className="w-full max-w-md rounded-2xl bg-brand-blue py-4 text-lg font-bold text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all">
-                    Finalize & Register Partner
-                  </button>
-                  <button type="button" onClick={() => setView('login')} className="text-sm font-bold text-slate-400 hover:text-brand-blue">Already have an account? Login here</button>
+                  {/* Submission Footer */}
+                  <div className="flex flex-col items-center gap-6 py-10">
+                    <button 
+                      type="submit" 
+                      className="group relative flex w-full max-w-md items-center justify-center gap-3 overflow-hidden rounded-[2rem] bg-[#2b45ba] py-6 text-xl font-black uppercase tracking-widest text-white shadow-2xl transition-all hover:scale-[1.02] hover:bg-[#1e3291] active:scale-[0.98]"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                      <span>Finalize & Register Partner</span>
+                      <svg className="h-6 w-6 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                    </button>
+                    <button type="button" onClick={() => setView('login')} className="group flex items-center gap-2 text-base font-black uppercase tracking-widest text-slate-400 transition-colors hover:text-[#2b45ba]">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4"><path d="M15 19l-7-7 7-7" /></svg>
+                      Already have an account? Login here
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
